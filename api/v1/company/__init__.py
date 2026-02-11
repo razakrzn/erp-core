@@ -1,3 +1,3 @@
-from .views import CompanyViewSet
+from .views import CompanyViewSet, CompanyUserViewSet
 
-__all__ = ["CompanyViewSet"]
+__all__ = ["CompanyViewSet", "CompanyUserViewSet"]
