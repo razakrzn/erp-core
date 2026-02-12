@@ -82,6 +82,18 @@ class UserViewSet(viewsets.ModelViewSet):
             status_code=status.HTTP_200_OK,
         )
 
+    def perform_update(self, serializer):
+        """
+        Ensure that on full update (PUT) the target user's company is set
+        to the authenticated user's company. For PATCH (partial update),
+        leave the company unchanged unless explicitly provided.
+        """
+        if self.request.method == "PUT":
+            company = getattr(self.request.user, "company", None)
+            serializer.save(company=company)
+        else:
+            serializer.save()
+
     def destroy(self, request, *args, **kwargs):
         """
         Delete a user with standardized API response format.

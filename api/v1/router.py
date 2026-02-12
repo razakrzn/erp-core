@@ -6,19 +6,23 @@ It uses Django REST Framework's routers so you can plug in viewsets from
 your domain apps (e.g. apps.accounts, apps.company).
 """
 
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from .company import CompanyViewSet, CompanyUserViewSet
+from .company import CompanyViewSet
 from .accounts import UserViewSet
 
 # Create a shared router instance for v1
 router = DefaultRouter()
 
+# Auth endpoints (login, refresh)
 # Company endpoints
 router.register(r"companies", CompanyViewSet, basename="company")
-router.register(r"company-users", CompanyUserViewSet, basename="company-user")
 # Accounts endpoints
 router.register(r"users", UserViewSet, basename="user")
 
-urlpatterns = router.urls
+urlpatterns = [
+    path("auth/", include("api.v1.auth.urls")),
+    *router.urls,
+]
 
