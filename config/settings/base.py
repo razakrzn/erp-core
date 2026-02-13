@@ -52,19 +52,20 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "django_filters",
+    "django_redis",
     # Domain apps (under the `apps` package)
-    "apps.core",
     "apps.accounts",
     "apps.company",
+    "apps.navigation",
+    "apps.access_control",
     "apps.rbac",
-    "apps.menu",
 ]
 
 REST_FRAMEWORK = {
     # Use the custom pagination by default
-    "DEFAULT_PAGINATION_CLASS": "utils.pagination.IndustrialPagination",
+    "DEFAULT_PAGINATION_CLASS": "core.utils.pagination.IndustrialPagination",
     # Global exception handler
-    "EXCEPTION_HANDLER": "utils.exceptions.custom_exception_handler",
+    "EXCEPTION_HANDLER": "core.utils.exceptions.custom_exception_handler",
     # Use standard JSON rendering
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",
@@ -75,6 +76,9 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
+    "DEFAULT_PERMISSION_CLASSES": [
+        "core.permissions.rbac_permission.RBACPermission"
+    ],
 }
 
 MIDDLEWARE = [
@@ -86,6 +90,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "core.middleware.tenant_middleware.TenantMiddleware"
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -134,6 +139,20 @@ else:
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
+
+
+# Caching
+# https://docs.djangoproject.com/en/6.0/topics/cache/
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
 
 
 # Password validation

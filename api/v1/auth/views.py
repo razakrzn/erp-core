@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 
-from utils.responses import APIResponse
+from core.utils.responses import APIResponse
 
 from .serializers import LoginSerializer
 from api.v1.accounts.serializers import UserSerializer

@@ -23,6 +23,7 @@ router.register(r"users", UserViewSet, basename="user")
 
 urlpatterns = [
     path("auth/", include("api.v1.auth.urls")),
+    path("navigation/", include("api.v1.navigation.urls")),
     *router.urls,
 ]
 

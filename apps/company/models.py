@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from apps.navigation.models import Feature
+
 
 class Company(models.Model):
     name = models.CharField(_("name"), max_length=200)
@@ -20,3 +22,9 @@ class Company(models.Model):
     def save(self, *args, **kwargs):
         self.code = self.code.upper().strip()
         super().save(*args, **kwargs)
+
+
+class CompanyFeature(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    feature = models.ForeignKey(Feature, on_delete=models.CASCADE)
+    is_enabled = models.BooleanField(default=True)

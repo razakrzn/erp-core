@@ -11,9 +11,7 @@ class IndustrialPagination(PageNumberPagination):
     def get_paginated_response(self, data):
         return Response({
             "success": True,
-            "status_code": 200,
             "message": "Data retrieved successfully",
-            "timestamp": timezone.now().isoformat(),
             "data": {
                 "items": data,
                 "pagination": {
@@ -24,4 +22,6 @@ class IndustrialPagination(PageNumberPagination):
                     "previous": self.get_previous_link(),
                 }
             },
+            "status_code": 200,
+            "timestamp": timezone.now().isoformat(),
         })

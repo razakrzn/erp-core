@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import viewsets, filters, status
 from rest_framework.permissions import IsAuthenticated
 
-from utils.responses import APIResponse
+from core.utils.responses import APIResponse
 
 from .serializers import UserSerializer
 

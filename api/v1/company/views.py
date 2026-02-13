@@ -2,7 +2,7 @@ from rest_framework import viewsets, filters, status
 from rest_framework.permissions import IsAuthenticated
 
 from apps.company.models import Company
-from utils.responses import APIResponse
+from core.utils.responses import APIResponse
 
 from .permissions import IsCompanyAdminOrReadOnly
 from .serializers import CompanySerializer

@@ -11,10 +11,10 @@ class APIResponse:
     def success(data=None, message="Success", status_code=status.HTTP_200_OK):
         return Response({
             "success": True,
-            "status_code": status_code,
             "message": message,
-            "timestamp": timezone.now().isoformat(),
-            "data": data
+            "data": data,
+            "status_code": status_code,
+            "timestamp": timezone.now().isoformat()
         }, status=status_code)
 
     @staticmethod

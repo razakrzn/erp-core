@@ -40,9 +40,7 @@ class UserSerializer(serializers.ModelSerializer):
         password = validated_data.pop("password", None)
         if not password:
             raise serializers.ValidationError({"password": "This field is required when creating a user."})
-        user = User.objects.create(**validated_data)
-        user.set_password(password)
-        user.save(update_fields=["password"])
+        user = User.objects.create_user(password=password, **validated_data)
         return user
 
     def update(self, instance, validated_data):
