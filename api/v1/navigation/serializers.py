@@ -10,7 +10,15 @@ class PermissionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Permission
-        fields = ["id", "permission_code", "permission_name"]
+        fields = ["id", "module", "permission_code", "permission_name"]
+
+
+class PermissionWriteSerializer(serializers.ModelSerializer):
+    """Serializer for creating and updating Permission."""
+
+    class Meta:
+        model = Permission
+        fields = ["module", "permission_code", "permission_name"]
 
 
 class ModuleSerializer(serializers.ModelSerializer):
@@ -22,6 +30,7 @@ class ModuleSerializer(serializers.ModelSerializer):
         model = Module
         fields = [
             "id",
+            "feature",
             "module_code",
             "module_name",
             "route",
@@ -29,6 +38,14 @@ class ModuleSerializer(serializers.ModelSerializer):
             "order",
             "permissions",
         ]
+
+
+class ModuleWriteSerializer(serializers.ModelSerializer):
+    """Serializer for creating and updating Module (no nested permissions)."""
+
+    class Meta:
+        model = Module
+        fields = ["feature", "module_code", "module_name", "route", "icon", "order"]
 
 
 class FeatureSerializer(serializers.ModelSerializer):
@@ -46,6 +63,14 @@ class FeatureSerializer(serializers.ModelSerializer):
             "order",
             "modules",
         ]
+
+
+class FeatureWriteSerializer(serializers.ModelSerializer):
+    """Serializer for creating and updating Feature (no nested modules)."""
+
+    class Meta:
+        model = Feature
+        fields = ["feature_code", "feature_name", "icon", "order"]
 
 
 class SidebarModuleSerializer(serializers.Serializer):

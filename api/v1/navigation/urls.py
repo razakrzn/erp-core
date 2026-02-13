@@ -8,7 +8,13 @@ from django.urls import path
 
 from .views import (
     EnableFeatureAPIView,
+    FeatureCreateAPIView,
+    FeatureDetailAPIView,
     FeatureListAPIView,
+    ModuleDetailAPIView,
+    ModuleListCreateAPIView,
+    PermissionDetailAPIView,
+    PermissionListCreateAPIView,
     SidebarAPIView,
 )
 
@@ -29,5 +35,35 @@ urlpatterns = [
         "sidebar/",
         SidebarAPIView.as_view(),
         name="sidebar",
+    ),
+    path(
+        "features/",
+        FeatureCreateAPIView.as_view(),
+        name="feature-create",
+    ),
+    path(
+        "features/<int:pk>/",
+        FeatureDetailAPIView.as_view(),
+        name="feature-detail",
+    ),
+    path(
+        "modules/",
+        ModuleListCreateAPIView.as_view(),
+        name="module-list-create",
+    ),
+    path(
+        "modules/<int:pk>/",
+        ModuleDetailAPIView.as_view(),
+        name="module-detail",
+    ),
+    path(
+        "permissions/",
+        PermissionListCreateAPIView.as_view(),
+        name="permission-list-create",
+    ),
+    path(
+        "permissions/<int:pk>/",
+        PermissionDetailAPIView.as_view(),
+        name="permission-detail",
     ),
 ]

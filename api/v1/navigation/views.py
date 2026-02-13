@@ -8,10 +8,21 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.v1.navigation.serializers import FeatureSerializer, SidebarFeatureSerializer
+from core.utils.responses import APIResponse
+
+from api.v1.navigation.serializers import (
+    FeatureSerializer,
+    FeatureWriteSerializer,
+    ModuleSerializer,
+    ModuleWriteSerializer,
+    PermissionSerializer,
+    PermissionWriteSerializer,
+    SidebarFeatureSerializer,
+)
 from apps.company.models import Company, CompanyFeature
-from apps.navigation.models import Feature
+from apps.navigation.models import Feature, Module, Permission
 from apps.navigation.services.sidebar_builder import build_sidebar
+from apps.rbac.services.permission_engine import user_has_permission
 
 
 class FeatureListAPIView(APIView):
@@ -27,9 +38,9 @@ class FeatureListAPIView(APIView):
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         company_id = getattr(request, "company_id", None) or kwargs.get("company_id")
         if company_id is None:
-            return Response(
-                {"detail": "Company context is required."},
-                status=status.HTTP_400_BAD_REQUEST,
+            return APIResponse.error(
+                message="Company context is required.",
+                status_code=status.HTTP_400_BAD_REQUEST,
             )
 
         enabled_feature_ids = list(
@@ -40,9 +51,10 @@ class FeatureListAPIView(APIView):
         )
 
         if not enabled_feature_ids:
-            return Response(
-                {"company_id": company_id, "features": []},
-                status=status.HTTP_200_OK,
+            return APIResponse.success(
+                data={"company_id": company_id, "features": []},
+                message="No enabled features for this company.",
+                status_code=status.HTTP_200_OK,
             )
 
         features = (
@@ -51,11 +63,50 @@ class FeatureListAPIView(APIView):
             .order_by("order", "feature_name")
         )
 
-        serializer = FeatureSerializer(features, many=True)
-        return Response({
-            "company_id": company_id,
-            "features": serializer.data,
-        })
+        user = request.user
+        is_superuser = getattr(user, "is_superuser", False)
+
+        if is_superuser:
+            # Superuser sees all enabled features and modules, including modules
+            # with no permissions (empty permissions array).
+            serializer = FeatureSerializer(features, many=True)
+            return APIResponse.success(
+                data={"company_id": company_id, "features": serializer.data},
+                message="Success",
+                status_code=status.HTTP_200_OK,
+            )
+
+        filtered_features: list[dict[str, Any]] = []
+        for feature in features:
+            allowed_modules: list[dict[str, Any]] = []
+            for module in feature.modules.all().order_by("order", "module_name"):
+                allowed_perms = [
+                    p
+                    for p in module.permissions.all()
+                    if user_has_permission(user, p.permission_code)
+                ]
+                if not allowed_perms:
+                    continue
+                allowed_modules.append({
+                    **ModuleSerializer(module).data,
+                    "permissions": PermissionSerializer(allowed_perms, many=True).data,
+                })
+            if not allowed_modules:
+                continue
+            filtered_features.append({
+                "id": feature.id,
+                "feature_code": feature.feature_code,
+                "feature_name": feature.feature_name,
+                "icon": feature.icon,
+                "order": feature.order,
+                "modules": allowed_modules,
+            })
+
+        return APIResponse.success(
+            data={"company_id": company_id, "features": filtered_features},
+            message="Success",
+            status_code=status.HTTP_200_OK,
+        )
 
 
 class SidebarAPIView(APIView):
@@ -70,14 +121,18 @@ class SidebarAPIView(APIView):
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         company = getattr(request.user, "company", None)
         if company is None:
-            return Response(
-                {"detail": "User must be associated with a company."},
-                status=status.HTTP_400_BAD_REQUEST,
+            return APIResponse.error(
+                message="User must be associated with a company.",
+                status_code=status.HTTP_400_BAD_REQUEST,
             )
 
         sidebar = build_sidebar(request.user, company)
         serializer = SidebarFeatureSerializer(sidebar, many=True)
-        return Response({"sidebar": serializer.data})
+        return APIResponse.success(
+            data={"sidebar": serializer.data},
+            message="Success",
+            status_code=status.HTTP_200_OK,
+        )
 
 
 class EnableFeatureAPIView(APIView):
@@ -90,24 +145,24 @@ class EnableFeatureAPIView(APIView):
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         company_id = getattr(request, "company_id", None) or kwargs.get("company_id")
         if company_id is None:
-            return Response(
-                {"detail": "Company context is required."},
-                status=status.HTTP_400_BAD_REQUEST,
+            return APIResponse.error(
+                message="Company context is required.",
+                status_code=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
             company = Company.objects.get(pk=company_id)
         except Company.DoesNotExist:
-            return Response(
-                {"detail": "Company not found."},
-                status=status.HTTP_404_NOT_FOUND,
+            return APIResponse.error(
+                message="Company not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
             )
 
         feature_codes = request.data.get("features") or []
         if not isinstance(feature_codes, list):
-            return Response(
-                {"detail": "features must be a list of feature codes."},
-                status=status.HTTP_400_BAD_REQUEST,
+            return APIResponse.error(
+                message="features must be a list of feature codes.",
+                status_code=status.HTTP_400_BAD_REQUEST,
             )
 
         enabled: list[str] = []
@@ -116,9 +171,9 @@ class EnableFeatureAPIView(APIView):
                 continue
             feature = Feature.objects.filter(feature_code=code.strip()).first()
             if feature is None:
-                return Response(
-                    {"detail": f"Feature not found: {code!r}."},
-                    status=status.HTTP_404_NOT_FOUND,
+                return APIResponse.error(
+                    message=f"Feature not found: {code!r}.",
+                    status_code=status.HTTP_404_NOT_FOUND,
                 )
             CompanyFeature.objects.update_or_create(
                 company=company,
@@ -127,7 +182,382 @@ class EnableFeatureAPIView(APIView):
             )
             enabled.append(feature.feature_code)
 
-        return Response(
-            {"status": "success", "enabled_features": enabled},
-            status=status.HTTP_200_OK,
+        return APIResponse.success(
+            data={"enabled_features": enabled},
+            message="Features enabled successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class FeatureCreateAPIView(APIView):
+    """
+    Create a new Feature (POST).
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        serializer = FeatureWriteSerializer(data=request.data)
+        if not serializer.is_valid():
+            return APIResponse.error(
+                message="Validation failed.",
+                errors=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        instance = serializer.save()
+        read_serializer = FeatureSerializer(instance)
+        return APIResponse.success(
+            data=read_serializer.data,
+            message="Feature created successfully.",
+            status_code=status.HTTP_201_CREATED,
+        )
+
+
+class FeatureDetailAPIView(APIView):
+    """
+    Retrieve, update (PUT/PATCH), or delete a Feature by id.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def _get_feature(self, pk: int) -> Feature | None:
+        return Feature.objects.filter(pk=pk).prefetch_related("modules__permissions").first()
+
+    def get(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        feature = self._get_feature(pk)
+        if feature is None:
+            return APIResponse.error(
+                message="Feature not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = FeatureSerializer(feature)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Success",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def put(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        feature = self._get_feature(pk)
+        if feature is None:
+            return APIResponse.error(
+                message="Feature not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = FeatureWriteSerializer(feature, data=request.data, partial=False)
+        if not serializer.is_valid():
+            return APIResponse.error(
+                message="Validation failed.",
+                errors=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        instance = serializer.save()
+        read_serializer = FeatureSerializer(instance)
+        return APIResponse.success(
+            data=read_serializer.data,
+            message="Feature updated successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def patch(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        feature = self._get_feature(pk)
+        if feature is None:
+            return APIResponse.error(
+                message="Feature not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = FeatureWriteSerializer(feature, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return APIResponse.error(
+                message="Validation failed.",
+                errors=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        instance = serializer.save()
+        read_serializer = FeatureSerializer(instance)
+        return APIResponse.success(
+            data=read_serializer.data,
+            message="Feature updated successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def delete(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        feature = Feature.objects.filter(pk=pk).first()
+        if feature is None:
+            return APIResponse.error(
+                message="Feature not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        feature.delete()
+        return APIResponse.success(
+            data=None,
+            message="Feature deleted successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class ModuleListCreateAPIView(APIView):
+    """
+    List all modules (GET) or create a module (POST).
+
+    GET: For non-superusers, returns only modules where the user has at least
+    one accessible permission; permissions in each module are filtered to those
+    the user has. Superusers get all modules with all permissions.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        queryset = Module.objects.prefetch_related("permissions").order_by("feature", "order", "module_name")
+        feature_id = request.query_params.get("feature_id")
+        if feature_id is not None:
+            queryset = queryset.filter(feature_id=feature_id)
+
+        user = request.user
+        is_superuser = getattr(user, "is_superuser", False)
+
+        if is_superuser:
+            serializer = ModuleSerializer(queryset, many=True)
+            return APIResponse.success(
+                data={"modules": serializer.data},
+                message="Success",
+                status_code=status.HTTP_200_OK,
+            )
+
+        # Non-superuser: only modules with at least one accessible permission
+        filtered_modules: list[dict[str, Any]] = []
+        for module in queryset:
+            allowed_perms = [
+                p
+                for p in module.permissions.all()
+                if user_has_permission(user, p.permission_code)
+            ]
+            if not allowed_perms:
+                continue
+            module_data = ModuleSerializer(module).data
+            module_data["permissions"] = PermissionSerializer(allowed_perms, many=True).data
+            filtered_modules.append(module_data)
+
+        return APIResponse.success(
+            data={"modules": filtered_modules},
+            message="Success",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        serializer = ModuleWriteSerializer(data=request.data)
+        if not serializer.is_valid():
+            return APIResponse.error(
+                message="Validation failed.",
+                errors=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        instance = serializer.save()
+        read_serializer = ModuleSerializer(instance)
+        return APIResponse.success(
+            data=read_serializer.data,
+            message="Module created successfully.",
+            status_code=status.HTTP_201_CREATED,
+        )
+
+
+class ModuleDetailAPIView(APIView):
+    """
+    Retrieve, update (PUT/PATCH), or delete a Module by id.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def _get_module(self, pk: int) -> Module | None:
+        return Module.objects.filter(pk=pk).prefetch_related("permissions").first()
+
+    def get(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        module = self._get_module(pk)
+        if module is None:
+            return APIResponse.error(
+                message="Module not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = ModuleSerializer(module)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Success",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def put(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        module = self._get_module(pk)
+        if module is None:
+            return APIResponse.error(
+                message="Module not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = ModuleWriteSerializer(module, data=request.data, partial=False)
+        if not serializer.is_valid():
+            return APIResponse.error(
+                message="Validation failed.",
+                errors=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        instance = serializer.save()
+        read_serializer = ModuleSerializer(instance)
+        return APIResponse.success(
+            data=read_serializer.data,
+            message="Module updated successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def patch(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        module = self._get_module(pk)
+        if module is None:
+            return APIResponse.error(
+                message="Module not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = ModuleWriteSerializer(module, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return APIResponse.error(
+                message="Validation failed.",
+                errors=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        instance = serializer.save()
+        read_serializer = ModuleSerializer(instance)
+        return APIResponse.success(
+            data=read_serializer.data,
+            message="Module updated successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def delete(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        module = Module.objects.filter(pk=pk).first()
+        if module is None:
+            return APIResponse.error(
+                message="Module not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        module.delete()
+        return APIResponse.success(
+            data=None,
+            message="Module deleted successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class PermissionListCreateAPIView(APIView):
+    """
+    List all permissions (GET) or create a permission (POST).
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        queryset = Permission.objects.order_by("module", "permission_name")
+        module_id = request.query_params.get("module_id")
+        if module_id is not None:
+            queryset = queryset.filter(module_id=module_id)
+        serializer = PermissionSerializer(queryset, many=True)
+        return APIResponse.success(
+            data={"permissions": serializer.data},
+            message="Success",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        serializer = PermissionWriteSerializer(data=request.data)
+        if not serializer.is_valid():
+            return APIResponse.error(
+                message="Validation failed.",
+                errors=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        instance = serializer.save()
+        read_serializer = PermissionSerializer(instance)
+        return APIResponse.success(
+            data=read_serializer.data,
+            message="Permission created successfully.",
+            status_code=status.HTTP_201_CREATED,
+        )
+
+
+class PermissionDetailAPIView(APIView):
+    """
+    Retrieve, update (PUT/PATCH), or delete a Permission by id.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def _get_permission(self, pk: int) -> Permission | None:
+        return Permission.objects.filter(pk=pk).first()
+
+    def get(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        permission = self._get_permission(pk)
+        if permission is None:
+            return APIResponse.error(
+                message="Permission not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = PermissionSerializer(permission)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Success",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def put(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        permission = self._get_permission(pk)
+        if permission is None:
+            return APIResponse.error(
+                message="Permission not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = PermissionWriteSerializer(permission, data=request.data, partial=False)
+        if not serializer.is_valid():
+            return APIResponse.error(
+                message="Validation failed.",
+                errors=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        instance = serializer.save()
+        read_serializer = PermissionSerializer(instance)
+        return APIResponse.success(
+            data=read_serializer.data,
+            message="Permission updated successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def patch(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        permission = self._get_permission(pk)
+        if permission is None:
+            return APIResponse.error(
+                message="Permission not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = PermissionWriteSerializer(permission, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return APIResponse.error(
+                message="Validation failed.",
+                errors=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        instance = serializer.save()
+        read_serializer = PermissionSerializer(instance)
+        return APIResponse.success(
+            data=read_serializer.data,
+            message="Permission updated successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def delete(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        permission = self._get_permission(pk)
+        if permission is None:
+            return APIResponse.error(
+                message="Permission not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        permission.delete()
+        return APIResponse.success(
+            data=None,
+            message="Permission deleted successfully.",
+            status_code=status.HTTP_200_OK,
         )

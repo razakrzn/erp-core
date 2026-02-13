@@ -24,6 +24,7 @@ router.register(r"users", UserViewSet, basename="user")
 urlpatterns = [
     path("auth/", include("api.v1.auth.urls")),
     path("navigation/", include("api.v1.navigation.urls")),
+    path("rbac/", include("api.v1.rbac.urls")),
     *router.urls,
 ]
 
