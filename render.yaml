@@ -1,0 +1,39 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+# Deploy from Dashboard: New → Blueprint → Connect repo and select this file
+
+services:
+  - type: web
+    name: erp-core
+    runtime: python
+    region: oregon  # or singapore, frankfurt
+
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput --clear
+
+    preDeployCommand: python manage.py migrate --noinput
+
+    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.0"
+      - key: DEBUG
+        sync: false  # set in Dashboard: false for production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        sync: false  # set to your Render URL, e.g. erp-core.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: erp-db
+          property: connectionString
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false  # set to your frontend URL(s), e.g. https://yourapp.com
+
+databases:
+  - name: erp-db
+    databaseName: erp
+    user: dbuser
+    region: oregon
+    plan: free  # or starter, standard
