@@ -32,14 +32,14 @@ class RoleSerializer(serializers.ModelSerializer):
 
 
 class RoleWriteSerializer(serializers.ModelSerializer):
-    """Serializer for creating and updating Role (optional permissions on create)."""
+    """Serializer for creating and updating Role (optional permissions on create and PUT/PATCH)."""
 
     permissions = serializers.PrimaryKeyRelatedField(
         queryset=Permission.objects.all(),
         many=True,
         required=False,
         write_only=True,
-        help_text="Optional list of permission IDs to assign to the role on create.",
+        help_text="Optional list of permission IDs to assign on create or replace on update (PUT/PATCH).",
     )
 
     class Meta:
@@ -71,8 +71,16 @@ class RoleWriteSerializer(serializers.ModelSerializer):
         return instance
 
     def update(self, instance: Role, validated_data: dict) -> Role:
-        validated_data.pop("permissions", None)  # only assign permissions on create
-        return super().update(instance, validated_data)
+        permission_list = validated_data.pop("permissions", None)
+        instance = super().update(instance, validated_data)
+        if permission_list is not None:
+            RolePermission.objects.filter(role=instance).delete()
+            if permission_list:
+                RolePermission.objects.bulk_create(
+                    [RolePermission(role=instance, permission=p) for p in permission_list],
+                    ignore_conflicts=True,
+                )
+        return instance
 
 
 class RoleDetailSerializer(serializers.ModelSerializer):
