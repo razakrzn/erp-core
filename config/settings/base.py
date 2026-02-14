@@ -156,25 +156,16 @@ else:
 
 # Caching
 # https://docs.djangoproject.com/en/6.0/topics/cache/
-# Use Redis only when REDIS_URL is set; otherwise DummyCache (e.g. Render without Redis)
-_redis_url = os.getenv("REDIS_URL", "").strip()
-if _redis_url and (_redis_url.startswith("redis://") or _redis_url.startswith("rediss://")):
-    CACHES = {
-        "default": {
-            "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": _redis_url,
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            },
-        }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     }
-else:
-    # No Redis (e.g. Render): use in-memory dummy cache so app runs without Redis
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
-        }
-    }
+}
 
 
 # Password validation

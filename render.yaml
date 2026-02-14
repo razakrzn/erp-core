@@ -15,6 +15,8 @@ services:
     # repo: https://github.com/your-username/erp-core
 
     envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: "config.settings.dev"
       - key: DATABASE_URL
         fromDatabase:
           name: erp-db
@@ -27,4 +29,4 @@ services:
         value: ".onrender.com"
       - key: CORS_ALLOWED_ORIGINS
         value: "https://your-frontend.onrender.com"
-      # Optional: add more env vars in Render Dashboard (e.g. REDIS URL if you add Redis)
+      # Optional: add more env vars in Render Dashboard (e.g. REDIS_URL if you add Redis)
