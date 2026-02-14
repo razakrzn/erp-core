@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 from core.utils.responses import APIResponse
 
 from api.v1.navigation.serializers import (
+    FeatureReadOnlySerializer,
     FeatureSerializer,
     FeatureWriteSerializer,
     ModuleSerializer,
@@ -70,6 +71,80 @@ class FeatureListAPIView(APIView):
         if is_superuser:
             # Superuser sees all enabled features and modules, including modules
             # with no permissions (empty permissions array).
+            serializer = FeatureSerializer(features, many=True)
+            return APIResponse.success(
+                data={"company_id": company_id, "features": serializer.data},
+                message="Success",
+                status_code=status.HTTP_200_OK,
+            )
+
+        filtered_features: list[dict[str, Any]] = []
+        for feature in features:
+            allowed_modules: list[dict[str, Any]] = []
+            for module in feature.modules.all().order_by("order", "module_name"):
+                allowed_perms = [
+                    p
+                    for p in module.permissions.all()
+                    if user_has_permission(user, p.permission_code)
+                ]
+                if not allowed_perms:
+                    continue
+                allowed_modules.append({
+                    **ModuleSerializer(module).data,
+                    "permissions": PermissionSerializer(allowed_perms, many=True).data,
+                })
+            if not allowed_modules:
+                continue
+            filtered_features.append({
+                "id": feature.id,
+                "feature_code": feature.feature_code,
+                "feature_name": feature.feature_name,
+                "icon": feature.icon,
+                "order": feature.order,
+                "modules": allowed_modules,
+            })
+
+        return APIResponse.success(
+            data={"company_id": company_id, "features": filtered_features},
+            message="Success",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class CompanyFeatureListAPIView(APIView):
+    """
+    List features (with modules and permissions) enabled for a company.
+
+    Company is taken from the URL: GET /company/<company_id>/features/
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request: Request, company_id: int, *args: Any, **kwargs: Any) -> Response:
+        enabled_feature_ids = list(
+            CompanyFeature.objects.filter(
+                company_id=company_id,
+                is_enabled=True,
+            ).values_list("feature_id", flat=True)
+        )
+
+        if not enabled_feature_ids:
+            return APIResponse.success(
+                data={"company_id": company_id, "features": []},
+                message="No enabled features for this company.",
+                status_code=status.HTTP_200_OK,
+            )
+
+        features = (
+            Feature.objects.filter(id__in=enabled_feature_ids)
+            .prefetch_related("modules__permissions")
+            .order_by("order", "feature_name")
+        )
+
+        user = request.user
+        is_superuser = getattr(user, "is_superuser", False)
+
+        if is_superuser:
             serializer = FeatureSerializer(features, many=True)
             return APIResponse.success(
                 data={"company_id": company_id, "features": serializer.data},
@@ -240,6 +315,24 @@ class DisableFeatureAPIView(APIView):
         return APIResponse.success(
             data={"disabled_features": disabled},
             message="Features disabled successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class FeatureReadOnlyListAPIView(APIView):
+    """
+    Read-only list of all features: id, feature_code, feature_name only.
+    GET only. Authenticated users.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        features = Feature.objects.order_by("order", "feature_name")
+        serializer = FeatureReadOnlySerializer(features, many=True)
+        return APIResponse.success(
+            data={"features": serializer.data},
+            message="Success",
             status_code=status.HTTP_200_OK,
         )
 

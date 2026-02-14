@@ -83,6 +83,15 @@ class FeatureWriteSerializer(serializers.ModelSerializer):
         fields = ["feature_code", "feature_name", "icon", "order"]
 
 
+class FeatureReadOnlySerializer(serializers.ModelSerializer):
+    """Read-only serializer for Feature: id, feature_code, feature_name only."""
+
+    class Meta:
+        model = Feature
+        fields = ["id", "feature_code", "feature_name"]
+        read_only_fields = ["id", "feature_code", "feature_name"]
+
+
 class SidebarModuleSerializer(serializers.Serializer):
     """Minimal module payload for sidebar (e.g. from sidebar_builder)."""
 

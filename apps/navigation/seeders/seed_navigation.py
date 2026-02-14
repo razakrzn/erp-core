@@ -130,6 +130,16 @@ ERP_STRUCTURE = [
             {"code": "settings", "name": "Settings", "route": "/admin/settings", "icon": "settings"},
         ],
     },
+    {
+        "feature_code": "settings",
+        "feature_name": "Settings",
+        "icon": "cog",
+        "modules": [
+            {"code": "companies", "name": "Companies", "route": "/settings/companies", "icon": "building"},
+            {"code": "users", "name": "Users", "route": "/settings/users", "icon": "user"},
+            {"code": "company_features", "name": "Company Features", "route": "/settings/company-features", "icon": "lock"},
+        ],
+    },
 ]
 
 
