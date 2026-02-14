@@ -5,9 +5,9 @@ set -e
 : "${DB_HOST:=db}"
 : "${DB_PORT:=5432}"
 
-# Default command if none is provided (matches Dockerfile CMD)
+# Default command if none is provided (matches Dockerfile CMD - gunicorn for production)
 if [ "$#" -eq 0 ]; then
-  set -- python manage.py runserver 0.0.0.0:8000
+  set -- /bin/sh -c "exec gunicorn config.wsgi:application -b 0.0.0.0:${PORT:-8000} --workers 2"
 fi
 
 # Optional: wait for the database to be ready
