@@ -16,6 +16,7 @@ from .views import (
     FeatureReadOnlyListAPIView,
     ModuleDetailAPIView,
     ModuleListCreateAPIView,
+    ModuleReadOnlyListAPIView,
     PermissionDetailAPIView,
     PermissionListCreateAPIView,
     SidebarAPIView,
@@ -63,6 +64,11 @@ urlpatterns = [
         "features/<int:pk>/",
         FeatureDetailAPIView.as_view(),
         name="feature-detail",
+    ),
+    path(
+        "modules/list/",
+        ModuleReadOnlyListAPIView.as_view(),
+        name="module-read-only-list",
     ),
     path(
         "modules/",

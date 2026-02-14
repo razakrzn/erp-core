@@ -16,6 +16,7 @@ from api.v1.navigation.serializers import (
     FeatureReadOnlySerializer,
     FeatureSerializer,
     FeatureWriteSerializer,
+    ModuleReadOnlySerializer,
     ModuleSerializer,
     ModuleWriteSerializer,
     PermissionSerializer,
@@ -453,6 +454,24 @@ class FeatureDetailAPIView(APIView):
         return APIResponse.success(
             data=None,
             message="Feature deleted successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class ModuleReadOnlyListAPIView(APIView):
+    """
+    Read-only list of all modules: id, module_code, module_name only.
+    GET only. Authenticated users.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        modules = Module.objects.order_by("feature", "order", "module_name")
+        serializer = ModuleReadOnlySerializer(modules, many=True)
+        return APIResponse.success(
+            data={"modules": serializer.data},
+            message="Success",
             status_code=status.HTTP_200_OK,
         )
 

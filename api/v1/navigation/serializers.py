@@ -58,6 +58,15 @@ class ModuleWriteSerializer(serializers.ModelSerializer):
         fields = ["feature", "module_code", "module_name", "route", "icon", "order"]
 
 
+class ModuleReadOnlySerializer(serializers.ModelSerializer):
+    """Read-only serializer for Module: id, module_code, module_name only."""
+
+    class Meta:
+        model = Module
+        fields = ["id", "module_code", "module_name"]
+        read_only_fields = ["id", "module_code", "module_name"]
+
+
 class FeatureSerializer(serializers.ModelSerializer):
     """Serializer for Feature with nested modules (and their permissions)."""
 
