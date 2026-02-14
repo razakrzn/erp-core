@@ -7,10 +7,15 @@ from apps.navigation.models import Feature, Module, Permission
 
 class PermissionSerializer(serializers.ModelSerializer):
     """Serializer for navigation Permission (used by RBAC)."""
+    module_name = serializers.SlugRelatedField(
+        slug_field="module_name",
+        read_only=True,
+        source="module",
+    )
 
     class Meta:
         model = Permission
-        fields = ["id", "module", "permission_code", "permission_name"]
+        fields = ["id", "module_name", "permission_code", "permission_name"]
 
 
 class PermissionWriteSerializer(serializers.ModelSerializer):
@@ -25,12 +30,17 @@ class ModuleSerializer(serializers.ModelSerializer):
     """Serializer for Module with nested permissions."""
 
     permissions = PermissionSerializer(many=True, read_only=True)
+    feature_name = serializers.SlugRelatedField(
+        slug_field="feature_name",
+        read_only=True,
+        source="feature",
+    )
 
     class Meta:
         model = Module
         fields = [
             "id",
-            "feature",
+            "feature_name",
             "module_code",
             "module_name",
             "route",

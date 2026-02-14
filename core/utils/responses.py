@@ -21,8 +21,9 @@ class APIResponse:
     def error(errors=None, message="An error occurred", status_code=status.HTTP_400_BAD_REQUEST):
         return Response({
             "success": False,
-            "status_code": status_code,
             "message": message,
+            "errors": errors,
+            "status_code": status_code,
             "timestamp": timezone.now().isoformat(),
-            "errors": errors
+
         }, status=status_code)

@@ -5,6 +5,8 @@ from typing import Any
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
+
+from core.permissions.rbac_permission import IsSuperuser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -191,10 +193,23 @@ class EnableFeatureAPIView(APIView):
 
 class FeatureCreateAPIView(APIView):
     """
-    Create a new Feature (POST).
+    List all features (GET) or create a new Feature (POST). Superuser only.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperuser]
+
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        features = (
+            Feature.objects.all()
+            .prefetch_related("modules__permissions")
+            .order_by("order", "feature_name")
+        )
+        serializer = FeatureSerializer(features, many=True)
+        return APIResponse.success(
+            data={"features": serializer.data},
+            message="Success",
+            status_code=status.HTTP_200_OK,
+        )
 
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         serializer = FeatureWriteSerializer(data=request.data)
@@ -215,10 +230,10 @@ class FeatureCreateAPIView(APIView):
 
 class FeatureDetailAPIView(APIView):
     """
-    Retrieve, update (PUT/PATCH), or delete a Feature by id.
+    Retrieve, update (PUT/PATCH), or delete a Feature by id. Superuser only.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperuser]
 
     def _get_feature(self, pk: int) -> Feature | None:
         return Feature.objects.filter(pk=pk).prefetch_related("modules__permissions").first()
@@ -298,48 +313,19 @@ class FeatureDetailAPIView(APIView):
 
 class ModuleListCreateAPIView(APIView):
     """
-    List all modules (GET) or create a module (POST).
-
-    GET: For non-superusers, returns only modules where the user has at least
-    one accessible permission; permissions in each module are filtered to those
-    the user has. Superusers get all modules with all permissions.
+    List all modules (GET) or create a module (POST). Superuser only.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperuser]
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = Module.objects.prefetch_related("permissions").order_by("feature", "order", "module_name")
         feature_id = request.query_params.get("feature_id")
         if feature_id is not None:
             queryset = queryset.filter(feature_id=feature_id)
-
-        user = request.user
-        is_superuser = getattr(user, "is_superuser", False)
-
-        if is_superuser:
-            serializer = ModuleSerializer(queryset, many=True)
-            return APIResponse.success(
-                data={"modules": serializer.data},
-                message="Success",
-                status_code=status.HTTP_200_OK,
-            )
-
-        # Non-superuser: only modules with at least one accessible permission
-        filtered_modules: list[dict[str, Any]] = []
-        for module in queryset:
-            allowed_perms = [
-                p
-                for p in module.permissions.all()
-                if user_has_permission(user, p.permission_code)
-            ]
-            if not allowed_perms:
-                continue
-            module_data = ModuleSerializer(module).data
-            module_data["permissions"] = PermissionSerializer(allowed_perms, many=True).data
-            filtered_modules.append(module_data)
-
+        serializer = ModuleSerializer(queryset, many=True)
         return APIResponse.success(
-            data={"modules": filtered_modules},
+            data={"modules": serializer.data},
             message="Success",
             status_code=status.HTTP_200_OK,
         )
@@ -363,10 +349,10 @@ class ModuleListCreateAPIView(APIView):
 
 class ModuleDetailAPIView(APIView):
     """
-    Retrieve, update (PUT/PATCH), or delete a Module by id.
+    Retrieve, update (PUT/PATCH), or delete a Module by id. Superuser only.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperuser]
 
     def _get_module(self, pk: int) -> Module | None:
         return Module.objects.filter(pk=pk).prefetch_related("permissions").first()

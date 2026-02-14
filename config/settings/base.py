@@ -38,6 +38,18 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+# CORS: from .env — use "*" to allow all origins, or comma-separated list
+_raw_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
+if _raw_cors_origins.upper() == "*" or _raw_cors_origins.lower() == "true":
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
+        origin.strip()
+        for origin in _raw_cors_origins.split(",")
+        if origin.strip()
+    ]
+
 
 # Application definition
 
@@ -83,6 +95,7 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "config.middleware.company_context.CompanyContextMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -90,7 +103,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "core.middleware.tenant_middleware.TenantMiddleware"
+    "core.middleware.tenant_middleware.TenantMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

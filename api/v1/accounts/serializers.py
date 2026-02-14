@@ -18,6 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
         min_length=8,
         help_text="Required on create. Min 8 characters. Optional on update.",
     )
+    role_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -29,12 +30,21 @@ class UserSerializer(serializers.ModelSerializer):
             "company",
             "first_name",
             "last_name",
+            "role_name",
         ]
         read_only_fields = [
             "id",
             "date_joined",
             "created_at",
         ]
+
+    def get_role_name(self, obj):
+        user_role = obj.user_roles.select_related("role").first()
+        if user_role:
+            return user_role.role.role_name
+        if obj.is_superuser:
+            return "Superuser"
+        return None
 
     def create(self, validated_data):
         password = validated_data.pop("password", None)
