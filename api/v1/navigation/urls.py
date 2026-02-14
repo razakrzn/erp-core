@@ -7,6 +7,7 @@ Included under `api/v1/navigation/` by the v1 router.
 from django.urls import path
 
 from .views import (
+    DisableFeatureAPIView,
     EnableFeatureAPIView,
     FeatureCreateAPIView,
     FeatureDetailAPIView,
@@ -22,7 +23,7 @@ app_name = "navigation"
 
 urlpatterns = [
     path(
-        "company/<int:company_id>/features/",
+        "company/features/",
         FeatureListAPIView.as_view(),
         name="feature-list",
     ),
@@ -30,6 +31,11 @@ urlpatterns = [
         "company/<int:company_id>/enable-features/",
         EnableFeatureAPIView.as_view(),
         name="enable-features",
+    ),
+    path(
+        "company/<int:company_id>/disable-features/",
+        DisableFeatureAPIView.as_view(),
+        name="disable-features",
     ),
     path(
         "sidebar/",

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from django.db import IntegrityError
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -29,7 +30,12 @@ from apps.rbac.models import Role, RolePermission, RoleHierarchy, UserRole
 
 
 def _get_company_id(request: Request, kwargs: dict) -> int | None:
-    return getattr(request, "company_id", None) or kwargs.get("company_id")
+    """Company from current user's company only (request.user.company_id)."""
+    if not getattr(request, "user", None) or not getattr(request.user, "is_authenticated", False):
+        return None
+    if not request.user.is_authenticated or not hasattr(request.user, "company_id"):
+        return None
+    return request.user.company_id
 
 
 # ----- Role -----
@@ -42,7 +48,7 @@ class RoleListCreateAPIView(APIView):
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = Role.objects.order_by("company", "role_name")
-        company_id = request.query_params.get("company_id") or _get_company_id(request, kwargs)
+        company_id = _get_company_id(request, kwargs)
         if company_id is not None:
             queryset = queryset.filter(company_id=company_id)
         serializer = RoleSerializer(queryset, many=True)
@@ -53,15 +59,32 @@ class RoleListCreateAPIView(APIView):
         )
 
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        serializer = RoleWriteSerializer(data=request.data)
+        company_id = _get_company_id(request, kwargs)
+        if company_id is None:
+            return APIResponse.error(
+                message="Company context is required.",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        serializer = RoleWriteSerializer(
+            data=request.data,
+            context={"company_id": company_id},
+        )
         if not serializer.is_valid():
             return APIResponse.error(
                 message="Validation failed.",
                 errors=serializer.errors,
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-        instance = serializer.save()
-        read_serializer = RoleSerializer(instance)
+        try:
+            instance = serializer.save()
+        except IntegrityError as e:
+            if "uniq_rbac_role_company_code" in str(e):
+                return APIResponse.error(
+                    message="A role with this code already exists for your company.",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                )
+            raise
+        read_serializer = RoleDetailSerializer(instance)
         return APIResponse.success(
             data=read_serializer.data,
             message="Role created successfully.",

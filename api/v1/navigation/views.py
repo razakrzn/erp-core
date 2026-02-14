@@ -29,16 +29,15 @@ from apps.rbac.services.permission_engine import user_has_permission
 
 class FeatureListAPIView(APIView):
     """
-    List features (with modules and permissions) enabled for a company.
+    List features (with modules and permissions) enabled for the current user's company.
 
-    Company is taken from `request.company_id` (e.g. set by tenant middleware)
-    or from URL kwargs if provided.
+    Company is taken from the authenticated user's company (request.user.company_id).
     """
 
     permission_classes = [IsAuthenticated]
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        company_id = getattr(request, "company_id", None) or kwargs.get("company_id")
+        company_id = getattr(request.user, "company_id", None) if request.user.is_authenticated else None
         if company_id is None:
             return APIResponse.error(
                 message="Company context is required.",
@@ -187,6 +186,60 @@ class EnableFeatureAPIView(APIView):
         return APIResponse.success(
             data={"enabled_features": enabled},
             message="Features enabled successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class DisableFeatureAPIView(APIView):
+    """
+    Disable one or more features for a company by feature code.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        company_id = getattr(request, "company_id", None) or kwargs.get("company_id")
+        if company_id is None:
+            return APIResponse.error(
+                message="Company context is required.",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            company = Company.objects.get(pk=company_id)
+        except Company.DoesNotExist:
+            return APIResponse.error(
+                message="Company not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+
+        feature_codes = request.data.get("features") or []
+        if not isinstance(feature_codes, list):
+            return APIResponse.error(
+                message="features must be a list of feature codes.",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        disabled: list[str] = []
+        for code in feature_codes:
+            if not code or not isinstance(code, str):
+                continue
+            feature = Feature.objects.filter(feature_code=code.strip()).first()
+            if feature is None:
+                return APIResponse.error(
+                    message=f"Feature not found: {code!r}.",
+                    status_code=status.HTTP_404_NOT_FOUND,
+                )
+            updated = CompanyFeature.objects.filter(
+                company=company,
+                feature=feature,
+            ).update(is_enabled=False)
+            if updated:
+                disabled.append(feature.feature_code)
+
+        return APIResponse.success(
+            data={"disabled_features": disabled},
+            message="Features disabled successfully.",
             status_code=status.HTTP_200_OK,
         )
 
