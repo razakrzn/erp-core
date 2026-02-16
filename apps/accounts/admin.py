@@ -1,9 +1,38 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
 
 from apps.rbac.models import UserRole
 
 from .models import User
+
+# Minimum length enforced only in admin add form (no other validators).
+ADMIN_PASSWORD_MIN_LENGTH = 6
+
+
+class AdminUserCreationForm(UserCreationForm):
+    """
+    User creation form for admin that only enforces minimum length (no
+    AUTH_PASSWORD_VALIDATORS), so "Password confirmation" does not show
+    validator errors.
+    """
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = ("username", "email", "company")
+
+    def validate_password_for_user(self, user, password_field_name="password2"):
+        password = self.cleaned_data.get(password_field_name)
+        if password and len(password) < ADMIN_PASSWORD_MIN_LENGTH:
+            self.add_error(
+                password_field_name,
+                ValidationError(
+                    f"This password is too short. It must contain at least {ADMIN_PASSWORD_MIN_LENGTH} characters.",
+                    code="password_too_short",
+                ),
+            )
+        # Do not call super() so we skip AUTH_PASSWORD_VALIDATORS.
 
 
 class UserRoleInlineForUser(admin.TabularInline):
@@ -36,10 +65,19 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ("is_staff", "company")
     list_select_related = ("company",)
     inlines = [UserRoleInlineForUser]
+    add_form = AdminUserCreationForm
+
+    def get_inline_instances(self, request, obj=None):
+        if obj is None:
+            return []  # No inlines when adding a new user
+        return super().get_inline_instances(request, obj)
 
     fieldsets = BaseUserAdmin.fieldsets + (
         (None, {"fields": ("company",)}),
     )
-    add_fieldsets = BaseUserAdmin.add_fieldsets + (
+    # Define add_fieldsets explicitly so we don't inherit usable_password from
+    # BaseUserAdmin (Django 5.1+), which our User model doesn't have.
+    add_fieldsets = (
+        (None, {"classes": ("wide",), "fields": ("username", "password1", "password2")}),
         (None, {"fields": ("email", "company")}),
     )

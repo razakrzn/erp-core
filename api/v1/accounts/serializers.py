@@ -15,8 +15,8 @@ class UserSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False,
         style={"input_type": "password"},
-        min_length=8,
-        help_text="Required on create. Min 8 characters. Optional on update.",
+        min_length=6,
+        help_text="Required on create. Min 6 characters. Optional on update.",
     )
     role_name = serializers.SerializerMethodField()
 

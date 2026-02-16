@@ -81,6 +81,9 @@ class FeatureListAPIView(APIView):
 
         filtered_features: list[dict[str, Any]] = []
         for feature in features:
+            # Superuser feature is visible only to superusers.
+            if feature.feature_code.lower() == "superuser":
+                continue
             allowed_modules: list[dict[str, Any]] = []
             for module in feature.modules.all().order_by("order", "module_name"):
                 allowed_perms = [
@@ -155,6 +158,9 @@ class CompanyFeatureListAPIView(APIView):
 
         filtered_features: list[dict[str, Any]] = []
         for feature in features:
+            # Superuser feature is visible only to superusers.
+            if feature.feature_code.lower() == "superuser":
+                continue
             allowed_modules: list[dict[str, Any]] = []
             for module in feature.modules.all().order_by("order", "module_name"):
                 allowed_perms = [
@@ -191,13 +197,14 @@ class SidebarAPIView(APIView):
     Return the dynamic sidebar for the current user and their company.
 
     Uses RBAC to include only modules the user has permission to access.
+    Superusers without a company get all features in the sidebar (no filtering).
     """
 
     permission_classes = [IsAuthenticated]
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         company = getattr(request.user, "company", None)
-        if company is None:
+        if company is None and not getattr(request.user, "is_superuser", False):
             return APIResponse.error(
                 message="User must be associated with a company.",
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -330,6 +337,9 @@ class FeatureReadOnlyListAPIView(APIView):
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         features = Feature.objects.order_by("order", "feature_name")
+        # Superuser feature is visible only to superusers.
+        if not getattr(request.user, "is_superuser", False):
+            features = features.exclude(feature_code__iexact="superuser")
         serializer = FeatureReadOnlySerializer(features, many=True)
         return APIResponse.success(
             data={"features": serializer.data},

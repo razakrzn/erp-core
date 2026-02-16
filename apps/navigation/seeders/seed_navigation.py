@@ -1,13 +1,7 @@
-from apps.navigation.models import Feature, Module, Permission
+from apps.navigation.models import Feature, Module
 
-
-DEFAULT_PERMISSIONS = [
-    ("view", "View"),
-    ("create", "Create"),
-    ("edit", "Edit"),
-    ("delete", "Delete"),
-]
-
+# Permissions (create/view/edit/delete) are created automatically via signal
+# when each Module is created; see apps.navigation.services.permission_generator.
 
 ERP_STRUCTURE = [
     {
@@ -156,22 +150,12 @@ def run():
 
         for module_data in feature_data["modules"]:
 
-            module = Module.objects.create(
+            Module.objects.create(
                 module_code=module_data["code"],
                 module_name=module_data["name"],
                 feature=feature,
                 route=module_data["route"],
-                icon=module_data["icon"]
+                icon=module_data["icon"],
             )
-
-            permissions = []
-            for perm_code, perm_name in DEFAULT_PERMISSIONS:
-                permissions.append(
-                    Permission(
-                        permission_code=f"{feature.feature_code}.{module.module_code}.{perm_code}",
-                        permission_name=f"{perm_name} {module.module_name}",
-                        module=module
-                    )
-                )
-
-            Permission.objects.bulk_create(permissions)
+            # Default permissions (create/view/edit/delete) are created by
+            # post_save signal in apps.navigation.signals.

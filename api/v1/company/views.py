@@ -25,8 +25,6 @@ class CompanyViewSet(viewsets.ModelViewSet):
     search_fields = ["name", "code"]
     ordering_fields = ["name", "code", "created_at"]
     ordering = ["-created_at"]
-    lookup_field = "code"
-    lookup_value_regex = "[^/]+"
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
