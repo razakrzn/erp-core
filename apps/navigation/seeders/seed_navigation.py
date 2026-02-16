@@ -126,18 +126,20 @@ ERP_STRUCTURE = [
         "icon": "shield",
         "modules": [
             {"code": "roles", "name": "Roles", "route": "/admin/roles", "icon": "lock"},
-            {"code": "permissions", "name": "Permissions", "route": "/admin/permissions", "icon": "key"},
-            {"code": "settings", "name": "Settings", "route": "/admin/settings", "icon": "settings"},
+            {"code": "designation", "name": "Designation", "route": "/admin/designation", "icon": "user-tag"},
+            {"code": "department", "name": "Department", "route": "/admin/department", "icon": "building"},
         ],
     },
     {
-        "feature_code": "settings",
-        "feature_name": "Settings",
+        "feature_code": "superuser",
+        "feature_name": "Superuser",
         "icon": "cog",
         "modules": [
-            {"code": "companies", "name": "Companies", "route": "/settings/companies", "icon": "building"},
-            {"code": "users", "name": "Users", "route": "/settings/users", "icon": "user"},
-            {"code": "company_features", "name": "Company Features", "route": "/settings/company-features", "icon": "lock"},
+            {"code": "features", "name": "Features", "route": "/superuser/features", "icon": "cog"},
+            {"code": "modules", "name": "Modules", "route": "/superuser/modules", "icon": "cog"},
+            {"code": "permissions", "name": "Permissions", "route": "/superuser/permissions", "icon": "cog"},
+            {"code": "companies", "name": "Companies", "route": "/superuser/companies", "icon": "building"},
+            {"code": "users", "name": "Users", "route": "/superuser/users", "icon": "user"},
         ],
     },
 ]
