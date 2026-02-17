@@ -89,5 +89,5 @@ class CompanyViewSet(viewsets.ModelViewSet):
         return APIResponse.success(
             data=None,
             message="Company deleted successfully.",
-            status_code=status.HTTP_204_NO_CONTENT,
+            status_code=status.HTTP_200_OK,
         )

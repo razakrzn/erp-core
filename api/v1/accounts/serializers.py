@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from apps.rbac.models import Role, UserRole
 
 User = get_user_model()
 
@@ -9,6 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
     """
     Serializer for the User model used by the v1 API.
     Password is write-only and hashed on create/update.
+    Optional role_id on create assigns the user to that role (same company enforced).
     """
 
     password = serializers.CharField(
@@ -19,6 +21,13 @@ class UserSerializer(serializers.ModelSerializer):
         help_text="Required on create. Min 6 characters. Optional on update.",
     )
     role_name = serializers.SerializerMethodField()
+    role_id = serializers.PrimaryKeyRelatedField(
+        queryset=Role.objects.all(),
+        write_only=True,
+        required=False,
+        allow_null=True,
+        help_text="Optional role id to assign on user creation. Role must belong to the user's company.",
+    )
 
     class Meta:
         model = User
@@ -31,6 +40,7 @@ class UserSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "role_name",
+            "role_id",
         ]
         read_only_fields = [
             "id",
@@ -47,10 +57,18 @@ class UserSerializer(serializers.ModelSerializer):
         return None
 
     def create(self, validated_data):
+        role = validated_data.pop("role_id", None)
         password = validated_data.pop("password", None)
         if not password:
             raise serializers.ValidationError({"password": "This field is required when creating a user."})
         user = User.objects.create_user(password=password, **validated_data)
+        if role is not None:
+            user_company_id = getattr(user, "company_id", None)
+            if user_company_id is not None and role.company_id != user_company_id:
+                raise serializers.ValidationError(
+                    {"role_id": "Role must belong to the same company as the user."}
+                )
+            UserRole.objects.get_or_create(user=user, role=role)
         return user
 
     def update(self, instance, validated_data):

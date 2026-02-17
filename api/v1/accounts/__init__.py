@@ -1,4 +1,4 @@
-from .views import UserViewSet
+from .views import UserViewSet, CheckUsernameAPIView
 
-__all__ = ["UserViewSet"]
+__all__ = ["UserViewSet", "CheckUsernameAPIView"]
 

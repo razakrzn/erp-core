@@ -43,9 +43,9 @@ fi
 echo "Applying database migrations..."
 python manage.py migrate --noinput
 
-# Collect static files (optional, if you use staticfiles)
-# echo "Collecting static files..."
-# python manage.py collectstatic --noinput
+# Collect static files so admin (and other app) CSS/JS are served under /static/
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
 
 # Start Django development server (or any other command passed in)
 echo "Starting application..."

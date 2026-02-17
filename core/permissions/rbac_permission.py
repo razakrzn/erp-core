@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import BasePermission
 
 from apps.access_control.services.api_access_service import get_required_permission
@@ -39,4 +40,9 @@ class RBACPermission(BasePermission):
             return True
 
         # Delegate to the RBAC engine (which handles caching & role logic).
-        return bool(user_has_permission(request.user, permission_code))
+        if not user_has_permission(request.user, permission_code):
+            raise PermissionDenied(
+                detail="You don't have permission to perform this action"
+            )
+
+        return True

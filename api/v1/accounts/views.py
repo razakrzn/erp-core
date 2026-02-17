@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import viewsets, filters, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.views import APIView
 
 from core.utils.responses import APIResponse
 
@@ -103,6 +104,74 @@ class UserViewSet(viewsets.ModelViewSet):
         return APIResponse.success(
             data=None,
             message="User deleted successfully.",
-            status_code=status.HTTP_204_NO_CONTENT,
+            status_code=status.HTTP_200_OK,
         )
+
+
+class CheckUsernameAPIView(APIView):
+    """
+    Check username availability endpoint.
+    
+    GET /api/v1/check-username?username=value
+    
+    Returns:
+        {
+            "available": true/false,
+            "message": "Username available" | "Username already taken",
+            "suggestions": [...]  // Optional alternative usernames if taken
+        }
+    
+    Lightweight and fast - uses case-insensitive database query.
+    Public endpoint (no authentication required) for registration flow.
+    """
+
+    permission_classes = [AllowAny]
+
+    def _generate_suggestions(self, username: str, limit: int = 3) -> list[str]:
+        """
+        Generate alternative username suggestions by appending numbers.
+        Returns up to 'limit' suggestions that are available.
+        """
+        suggestions = []
+        for i in range(1, limit + 1):
+            candidate = f"{username}{i}"
+            if not User.objects.filter(username__iexact=candidate).exists():
+                suggestions.append(candidate)
+                if len(suggestions) >= limit:
+                    break
+        return suggestions
+
+    def get(self, request):
+        username = request.query_params.get("username", "").strip()
+
+        if not username:
+            return APIResponse.error(
+                message="Username parameter is required.",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Case-insensitive check using __iexact
+        exists = User.objects.filter(username__iexact=username).exists()
+
+        if exists:
+            suggestions = self._generate_suggestions(username)
+            return APIResponse.success(
+                data={
+                    "available": False,
+                    "message": "Username already taken",
+                    "suggestions": suggestions,
+                },
+                message="Username already taken",
+                status_code=status.HTTP_200_OK,
+            )
+        else:
+            return APIResponse.success(
+                data={
+                    "available": True,
+                    "message": "Username available",
+                    "suggestions": [],
+                },
+                message="Username available",
+                status_code=status.HTTP_200_OK,
+            )
 
