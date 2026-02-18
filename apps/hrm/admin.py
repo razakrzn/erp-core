@@ -3,6 +3,7 @@ from apps.hrm.models.department import Department
 from apps.hrm.models.employee import Employee
 from apps.hrm.models.designation import Designation
 from apps.hrm.models.attendance import Attendance
+from apps.hrm.models.leave import LeaveType, LeaveRequest
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
@@ -28,3 +29,17 @@ class AttendanceAdmin(admin.ModelAdmin):
     list_display = ('employee', 'date', 'check_in', 'check_out', 'status')
     search_fields = ('employee__first_name', 'employee__last_name')
     list_filter = ('date', 'status')
+
+
+@admin.register(LeaveType)
+class LeaveTypeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'max_days_per_year', 'is_active')
+    search_fields = ('name',)
+    list_filter = ('is_active',)
+
+
+@admin.register(LeaveRequest)
+class LeaveRequestAdmin(admin.ModelAdmin):
+    list_display = ('employee', 'leave_type', 'start_date', 'end_date', 'status', 'approved_by')
+    search_fields = ('employee__first_name', 'employee__last_name', 'leave_type__name')
+    list_filter = ('status', 'leave_type', 'start_date', 'end_date', 'is_active')

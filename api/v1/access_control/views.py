@@ -2,6 +2,9 @@ from rest_framework import viewsets, status
 from core.utils.responses import APIResponse
 from apps.access_control.models import APIAccessRule
 from .serializers import APIAccessRuleSerializer
+from rest_framework.decorators import action
+from .utils import get_all_url_patterns
+
 
 class APIAccessRuleViewSet(viewsets.ModelViewSet):
     """
@@ -61,5 +64,16 @@ class APIAccessRuleViewSet(viewsets.ModelViewSet):
         return APIResponse.success(
             data=None,
             message="API Access Rule deleted successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["get"], url_path="available-endpoints")
+    def available_endpoints(self, request, *args, **kwargs):
+        endpoints = get_all_url_patterns()
+        # Filter for /api/ paths and extract just the path string, deduplicating
+        data = sorted(list({e['path'] for e in endpoints if e['path'].startswith('/api/')}))
+        return APIResponse.success(
+            data=data,
+            message="Available endpoints retrieved successfully.",
             status_code=status.HTTP_200_OK,
         )
