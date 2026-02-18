@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "apps.navigation",
     "apps.access_control",
     "apps.rbac",
+    "apps.hrm",
 ]
 
 REST_FRAMEWORK = {
