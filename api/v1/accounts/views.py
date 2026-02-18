@@ -21,9 +21,8 @@ class UserViewSet(viewsets.ModelViewSet):
     - Basic search on username, email, first_name and last_name
     """
 
-    queryset = User.objects.all()
+    queryset = User.objects.filter(is_superuser=False)
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["username", "email", "first_name", "last_name"]
     ordering_fields = ["username", "email", "date_joined", "created_at"]
@@ -59,6 +58,13 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         Create a user with standardized API response format.
         """
+        username = request.data.get("username")
+        if User.objects.filter(username__iexact=username).exists():
+            return APIResponse.error(
+                message="Username already exists.",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

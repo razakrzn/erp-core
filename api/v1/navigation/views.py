@@ -221,7 +221,7 @@ class SidebarAPIView(APIView):
 
 class EnableFeatureAPIView(APIView):
     """
-    Enable one or more features for a company by feature code.
+    Enable one or more features for a company by feature ID.
     """
 
     permission_classes = [IsAuthenticated]
@@ -242,21 +242,21 @@ class EnableFeatureAPIView(APIView):
                 status_code=status.HTTP_404_NOT_FOUND,
             )
 
-        feature_codes = request.data.get("features") or []
-        if not isinstance(feature_codes, list):
+        feature_ids = request.data.get("features") or []
+        if not isinstance(feature_ids, list):
             return APIResponse.error(
-                message="features must be a list of feature codes.",
+                message="features must be a list of feature IDs.",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
 
-        enabled: list[str] = []
-        for code in feature_codes:
-            if not code or not isinstance(code, str):
+        enabled: list[int] = []
+        for f_id in feature_ids:
+            if not isinstance(f_id, int):
                 continue
-            feature = Feature.objects.filter(feature_code=code.strip()).first()
+            feature = Feature.objects.filter(pk=f_id).first()
             if feature is None:
                 return APIResponse.error(
-                    message=f"Feature not found: {code!r}.",
+                    message=f"Feature not found with ID: {f_id}.",
                     status_code=status.HTTP_404_NOT_FOUND,
                 )
             CompanyFeature.objects.update_or_create(
@@ -264,7 +264,7 @@ class EnableFeatureAPIView(APIView):
                 feature=feature,
                 defaults={"is_enabled": True},
             )
-            enabled.append(feature.feature_code)
+            enabled.append(feature.id)
 
         return APIResponse.success(
             data={"enabled_features": enabled},
@@ -275,7 +275,7 @@ class EnableFeatureAPIView(APIView):
 
 class DisableFeatureAPIView(APIView):
     """
-    Disable one or more features for a company by feature code.
+    Disable one or more features for a company by feature ID.
     """
 
     permission_classes = [IsAuthenticated]
@@ -296,21 +296,21 @@ class DisableFeatureAPIView(APIView):
                 status_code=status.HTTP_404_NOT_FOUND,
             )
 
-        feature_codes = request.data.get("features") or []
-        if not isinstance(feature_codes, list):
+        feature_ids = request.data.get("features") or []
+        if not isinstance(feature_ids, list):
             return APIResponse.error(
-                message="features must be a list of feature codes.",
+                message="features must be a list of feature IDs.",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
 
-        disabled: list[str] = []
-        for code in feature_codes:
-            if not code or not isinstance(code, str):
+        disabled: list[int] = []
+        for f_id in feature_ids:
+            if not isinstance(f_id, int):
                 continue
-            feature = Feature.objects.filter(feature_code=code.strip()).first()
+            feature = Feature.objects.filter(pk=f_id).first()
             if feature is None:
                 return APIResponse.error(
-                    message=f"Feature not found: {code!r}.",
+                    message=f"Feature not found with ID: {f_id}.",
                     status_code=status.HTTP_404_NOT_FOUND,
                 )
             updated = CompanyFeature.objects.filter(
@@ -318,7 +318,7 @@ class DisableFeatureAPIView(APIView):
                 feature=feature,
             ).update(is_enabled=False)
             if updated:
-                disabled.append(feature.feature_code)
+                disabled.append(feature.id)
 
         return APIResponse.success(
             data={"disabled_features": disabled},

@@ -51,6 +51,11 @@ class RoleListCreateAPIView(APIView):
         company_id = _get_company_id(request, kwargs)
         if company_id is not None:
             queryset = queryset.filter(company_id=company_id)
+
+        requested_company_id = request.query_params.get("company_id")
+        if requested_company_id is not None:
+            queryset = queryset.filter(company_id=requested_company_id)
+            
         serializer = RoleSerializer(queryset, many=True)
         return APIResponse.success(
             data={"roles": serializer.data},
@@ -60,6 +65,18 @@ class RoleListCreateAPIView(APIView):
 
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         company_id = _get_company_id(request, kwargs)
+
+        if request.user.is_superuser:
+            override_company_id = request.data.get("company_id")
+            if override_company_id is not None:
+                try:
+                    company_id = int(override_company_id)
+                except (ValueError, TypeError):
+                    return APIResponse.error(
+                        message="Invalid company_id.",
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                    )
+
         if company_id is None:
             return APIResponse.error(
                 message="Company context is required.",

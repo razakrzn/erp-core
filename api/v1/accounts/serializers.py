@@ -20,7 +20,8 @@ class UserSerializer(serializers.ModelSerializer):
         min_length=6,
         help_text="Required on create. Min 6 characters. Optional on update.",
     )
-    role_name = serializers.SerializerMethodField()
+    company_details = serializers.SerializerMethodField()
+    role_details = serializers.SerializerMethodField()
     role_id = serializers.PrimaryKeyRelatedField(
         queryset=Role.objects.all(),
         write_only=True,
@@ -36,22 +37,37 @@ class UserSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "password",
-            "company",
             "first_name",
             "last_name",
-            "role_name",
+            "company_details",
+            "role_details",
             "role_id",
+            "company",
         ]
         read_only_fields = [
             "id",
+            "company_details",
+            "role_details",
             "date_joined",
             "created_at",
         ]
+    
+    def get_company_details(self, obj):
+        # 'obj' is the User instance
+        if obj.company:
+            return {
+                "id": obj.company.id,
+                "company_name": obj.company.name
+            }
+        return None
 
-    def get_role_name(self, obj):
+    def get_role_details(self, obj):
         user_role = obj.user_roles.select_related("role").first()
         if user_role:
-            return user_role.role.role_name
+            return {
+                "id": user_role.role.id,
+                "role_name": user_role.role.role_name
+            }
         if obj.is_superuser:
             return "Superuser"
         return None

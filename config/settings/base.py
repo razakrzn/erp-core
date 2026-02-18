@@ -77,7 +77,7 @@ REST_FRAMEWORK = {
     # Use the custom pagination by default
     "DEFAULT_PAGINATION_CLASS": "core.utils.pagination.IndustrialPagination",
     # Global exception handler
-    "EXCEPTION_HANDLER": "core.utils.exceptions.custom_exception_handler",
+    "EXCEPTION_HANDLER": "core.utils.responses.custom_exception_handler",
     # Use standard JSON rendering
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",

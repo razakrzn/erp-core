@@ -25,6 +25,7 @@ urlpatterns = [
     path("check-username/", CheckUsernameAPIView.as_view(), name="check-username"),
     path("auth/", include("api.v1.auth.urls")),
     path("navigation/", include("api.v1.navigation.urls")),
+    path("access-control/", include("api.v1.access_control.urls")),
     path("", include("api.v1.rbac.urls")),
     *router.urls,
 ]
