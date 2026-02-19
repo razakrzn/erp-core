@@ -49,44 +49,44 @@ class Employee(models.Model):
     passport_place_of_issue = models.CharField(_("place of issue"), max_length=100, null=True, blank=True)
     
     class VisaType(models.TextChoices):
-        TOURIST_30_SINGLE = "Tourist_30_Single", _("Tourist Visa - 30 Days (Single Entry)")
-        TOURIST_30_MULTI = "Tourist_30_Multi", _("Tourist Visa - 30 Days (Multiple Entry)")
+        TOURIST_30_SINGLE = "TOURIST_30_SINGLE", _("Tourist Visa - 30 Days (Single Entry)")
+        TOURIST_30_MULTI = "TOURIST_30_MULTI", _("Tourist Visa - 30 Days (Multiple Entry)")
         
-        TOURIST_60_SINGLE = "Tourist_60_Single", _("Tourist Visa - 60 Days (Single Entry)")
-        TOURIST_60_MULTI = "Tourist_60_Multi", _("Tourist Visa - 60 Days (Multiple Entry)")
+        TOURIST_60_SINGLE = "TOURIST_60_SINGLE", _("Tourist Visa - 60 Days (Single Entry)")
+        TOURIST_60_MULTI = "TOURIST_60_MULTI", _("Tourist Visa - 60 Days (Multiple Entry)")
     
-        TOURIST_5_YEAR_MULTI = "Tourist_5_Year_Multi", _("5-Year Multiple Entry Tourist Visa")
+        TOURIST_5_YEAR_MULTI = "TOURIST_5_YEAR_MULTI", _("5-Year Multiple Entry Tourist Visa")
     
-        TRANSIT_48 = "Transit_48", _("Transit Visa - 48 Hours")
-        TRANSIT_96 = "Transit_96", _("Transit Visa - 96 Hours")
+        TRANSIT_48 = "TRANSIT_48", _("Transit Visa - 48 Hours")
+        TRANSIT_96 = "TRANSIT_96", _("Transit Visa - 96 Hours")
     
-        VISIT_FAMILY = "Visit_Family", _("Visit Visa for Family/Friends")
-        VISA_ON_ARRIVAL = "Visa_On_Arrival", _("Visa on Arrival")
+        VISIT_FAMILY = "VISIT_FAMILY", _("Visit Visa for Family/Friends")
+        VISA_ON_ARRIVAL = "VISA_ON_ARRIVAL", _("Visa on Arrival")
 
         # =========================
         # Residence Visas
         # =========================
-        EMPLOYMENT = "Employment", _("Employment Visa (Work Visa)")
-        INVESTOR = "Investor", _("Investor Visa")
-        PARTNER = "Partner", _("Partner Visa")
-        FREELANCER = "Freelancer", _("Freelancer Visa")
-        REMOTE_WORK = "Remote_Work", _("Remote Work Visa")
-        GREEN = "Green", _("Green Visa")
-        GOLDEN = "Golden", _("Golden Visa")
-        PROPERTY_OWNER = "Property_Owner", _("Property Owner Visa")
-        RETIREMENT = "Retirement", _("Retirement Visa")
-        STUDENT = "Student", _("Student Visa")
-        DEPENDENT = "Dependent", _("Dependent Visa (Spouse/Children/Parents)")
-        DOMESTIC_WORKER = "Domestic_Worker", _("Domestic Worker Visa")
+        EMPLOYMENT = "EMPLOYMENT", _("Employment Visa (Work Visa)")
+        INVESTOR = "INVESTOR", _("Investor Visa")
+        PARTNER = "PARTNER", _("Partner Visa")
+        FREELANCER = "FREELANCER", _("Freelancer Visa")
+        REMOTE_WORK = "REMOTE_WORK", _("Remote Work Visa")
+        GREEN = "GREEN", _("Green Visa")
+        GOLDEN = "GOLDEN", _("Golden Visa")
+        PROPERTY_OWNER = "PROPERTY_OWNER", _("Property Owner Visa")
+        RETIREMENT = "RETIREMENT", _("Retirement Visa")
+        STUDENT = "STUDENT", _("Student Visa")
+        DEPENDENT = "DEPENDENT", _("Dependent Visa (Spouse/Children/Parents)")
+        DOMESTIC_WORKER = "DOMESTIC_WORKER", _("Domestic Worker Visa")
 
         # =========================
         # Special Visas
         # =========================
-        MEDICAL = "Medical", _("Medical Treatment Visa")
-        PATIENT_COMPANION = "Patient_Companion", _("Patient Companion Visa")
-        CONFERENCE = "Conference", _("Conference / Event Visa")
-        MISSION = "Mission", _("Mission Visa (Short-term Work Permit)")
-        CREW = "Crew", _("Crew Visa")
+        MEDICAL = "MEDICAL", _("Medical Treatment Visa")
+        PATIENT_COMPANION = "PATIENT_COMPANION", _("Patient Companion Visa")
+        CONFERENCE = "CONFERENCE", _("Conference / Event Visa")
+        MISSION = "MISSION", _("Mission Visa (Short-term Work Permit)")
+        CREW = "CREW", _("Crew Visa")
 
 
     uae_visa_type = models.CharField(_("UAE visa type"), max_length=50, choices=VisaType.choices, null=True, blank=True)
@@ -104,12 +104,12 @@ class Employee(models.Model):
     job_title = models.CharField(_("job title"), max_length=100, null=True, blank=True) # Specific title if different from designation
     
     class EmploymentType(models.TextChoices):
-        FULL_TIME = "Full_Time", _("Full-time")
-        PART_TIME = "Part_Time", _("Part-time")
-        TEMPORARY = "Temporary", _("Temporary")
-        FLEXIBLE = "Flexible", _("Flexible Working")
-        REMOTE = "Remote", _("Remote Work")
-        JOB_SHARE = "Job_Share", _("Job Sharing")
+        FULL_TIME = "FULL_TIME", _("Full-time")
+        PART_TIME = "PART_TIME", _("Part-time")
+        TEMPORARY = "TEMPORARY", _("Temporary")
+        FLEXIBLE = "FLEXIBLE", _("Flexible Working")
+        REMOTE = "REMOTE", _("Remote Work")
+        JOB_SHARE = "JOB_SHARE", _("Job Sharing")
 
 
     employment_type = models.CharField(_("employment type"), max_length=50, choices=EmploymentType.choices, null=True, blank=True)
@@ -120,31 +120,31 @@ class Employee(models.Model):
         # =========================
         # MOHRE Contracts (Mainland UAE)
         # =========================
-        MOHRE_FIXED_TERM = "MOHRE_Fixed_Term", _("MOHRE Standard Fixed-Term")
-        MOHRE_PART_TIME = "MOHRE_Part_Time", _("MOHRE Part-Time Contract")
-        MOHRE_TEMPORARY = "MOHRE_Temporary", _("MOHRE Temporary Contract")
-        MOHRE_FLEXIBLE = "MOHRE_Flexible", _("MOHRE Flexible Contract")
-        MOHRE_JOB_SHARE = "MOHRE_Job_Share", _("MOHRE Job Sharing Contract")
-        MOHRE_REMOTE = "MOHRE_Remote", _("MOHRE Remote Work Contract")
+        MOHRE_FIXED_TERM = "MOHRE_FIXED_TERM", _("MOHRE Standard Fixed-Term")
+        MOHRE_PART_TIME = "MOHRE_PART_TIME", _("MOHRE Part-Time Contract")
+        MOHRE_TEMPORARY = "MOHRE_TEMPORARY", _("MOHRE Temporary Contract")
+        MOHRE_FLEXIBLE = "MOHRE_FLEXIBLE", _("MOHRE Flexible Contract")
+        MOHRE_JOB_SHARE = "MOHRE_JOB_SHARE", _("MOHRE Job Sharing Contract")
+        MOHRE_REMOTE = "MOHRE_REMOTE", _("MOHRE Remote Work Contract")
 
         # =========================
         # Free Zone Contracts
         # =========================
-        FREEZONE_STANDARD = "Freezone_Standard", _("Free Zone Employment Contract")
-        FREEZONE_FIXED = "Freezone_Fixed", _("Free Zone Fixed-Term Contract")
+        FREEZONE_STANDARD = "FREEZONE_STANDARD", _("Free Zone Employment Contract")
+        FREEZONE_FIXED = "FREEZONE_FIXED", _("Free Zone Fixed-Term Contract")
 
         # =========================
         # Limited / Unlimited (Legacy - Pre 2022 Reform)
         # =========================
-        LIMITED = "Limited", _("Limited Contract (Legacy)")
-        UNLIMITED = "Unlimited", _("Unlimited Contract (Legacy)")
+        LIMITED = "LIMITED", _("Limited Contract (Legacy)")
+        UNLIMITED = "UNLIMITED", _("Unlimited Contract (Legacy)")
 
         # =========================
         # Special Categories
         # =========================
-        PROBATION = "Probation", _("Probationary Contract")
-        CONSULTANCY = "Consultancy", _("Consultancy / Service Contract")
-        INTERNSHIP = "Internship", _("Internship / Training Contract")
+        PROBATION = "PROBATION", _("Probationary Contract")
+        CONSULTANCY = "CONSULTANCY", _("Consultancy / Service Contract")
+        INTERNSHIP = "INTERNSHIP", _("Internship / Training Contract")
 
 
     contract_type = models.CharField(_("contract type"), max_length=100, choices=ContractType.choices, null=True, blank=True)

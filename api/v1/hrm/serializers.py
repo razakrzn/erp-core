@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 
 from apps.hrm.models.department import Department
+from apps.hrm.models.designation import Designation
 from apps.hrm.models.attendance import Attendance
 from apps.hrm.models.employee import Employee, PreviousEmployment
 from apps.rbac.models import Role, UserRole
@@ -16,6 +17,14 @@ class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
         fields = ['id', 'name', 'slug', 'head', 'head_name', 'is_active', 'created_at']
+        read_only_fields = ['slug', 'created_at']
+
+class DesignationSerializer(serializers.ModelSerializer):
+    department_name = serializers.CharField(source='department.name', read_only=True)
+
+    class Meta:
+        model = Designation
+        fields = ['id', 'name', 'slug', 'department', 'department_name', 'is_active', 'created_at']
         read_only_fields = ['slug', 'created_at']
 
 class AttendanceSerializer(serializers.ModelSerializer):

@@ -4,9 +4,10 @@ from rest_framework.decorators import action
 
 from core.utils.responses import APIResponse
 from apps.hrm.models.department import Department
+from apps.hrm.models.designation import Designation
 from apps.hrm.models.attendance import Attendance
 from apps.hrm.models.employee import Employee
-from .serializers import DepartmentSerializer, AttendanceSerializer, EmployeeSerializer, EmployeeListSerializer
+from .serializers import DepartmentSerializer, DesignationSerializer, AttendanceSerializer, EmployeeSerializer, EmployeeListSerializer
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -95,6 +96,96 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         return APIResponse.success(
             data=None,
             message="Department deleted successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class DesignationViewSet(viewsets.ModelViewSet):
+    """
+    API v1 CRUD viewset for Designation.
+
+    Features:
+    - List / retrieve / create / update / delete designations
+    - Authenticated access by default
+    - Basic search on name and slug
+    """
+    queryset = Designation.objects.all()
+    serializer_class = DesignationSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ["name", "slug"]
+    ordering_fields = ["name", "created_at"]
+    ordering = ["-created_at"]
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Designations retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Retrieve a single designation with standardized API response format.
+        """
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Designation retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def create(self, request, *args, **kwargs):
+        """
+        Create a designation with standardized API response format.
+        """
+        name = request.data.get("name")
+        if Designation.objects.filter(name__iexact=name).exists():
+             return APIResponse.error(
+                message="Designation with this name already exists.",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Designation created successfully.",
+            status_code=status.HTTP_201_CREATED,
+        )
+
+    def update(self, request, *args, **kwargs):
+        """
+        Update a designation with standardized API response format.
+        """
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Designation updated successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Delete a designation with standardized API response format.
+        """
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return APIResponse.success(
+            data=None,
+            message="Designation deleted successfully.",
             status_code=status.HTTP_200_OK,
         )
 
