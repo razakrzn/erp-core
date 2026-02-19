@@ -8,7 +8,6 @@ from typing import Any
 
 from django.db import IntegrityError
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -33,6 +32,9 @@ def _get_company_id(request: Request, kwargs: dict) -> int | None:
     """Company from current user's company only (request.user.company_id)."""
     if not getattr(request, "user", None) or not getattr(request.user, "is_authenticated", False):
         return None
+    if request.user.is_superuser:
+        return None
+
     if not request.user.is_authenticated or not hasattr(request.user, "company_id"):
         return None
     return request.user.company_id
@@ -44,7 +46,6 @@ def _get_company_id(request: Request, kwargs: dict) -> int | None:
 class RoleListCreateAPIView(APIView):
     """List roles (GET) or create a role (POST)."""
 
-    permission_classes = [IsAuthenticated]
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = Role.objects.order_by("company", "role_name")
@@ -111,8 +112,6 @@ class RoleListCreateAPIView(APIView):
 
 class RoleDetailAPIView(APIView):
     """Retrieve, update (PUT/PATCH), or delete a Role by id."""
-
-    permission_classes = [IsAuthenticated]
 
     def _get_role(self, pk: int) -> Role | None:
         return Role.objects.filter(pk=pk).prefetch_related("role_permissions").first()
@@ -194,8 +193,6 @@ class RoleDetailAPIView(APIView):
 class RolePermissionListCreateAPIView(APIView):
     """List role-permission links (GET) or create one (POST)."""
 
-    permission_classes = [IsAuthenticated]
-
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = RolePermission.objects.select_related("role", "permission").order_by("role", "permission")
         role_id = request.query_params.get("role_id")
@@ -229,8 +226,6 @@ class RolePermissionListCreateAPIView(APIView):
 
 class RolePermissionDetailAPIView(APIView):
     """Retrieve or delete a RolePermission by id (no PUT/PATCH for join table)."""
-
-    permission_classes = [IsAuthenticated]
 
     def get(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
         rp = RolePermission.objects.filter(pk=pk).select_related("role", "permission").first()
@@ -266,8 +261,6 @@ class RolePermissionDetailAPIView(APIView):
 class UserRoleListCreateAPIView(APIView):
     """List user-role assignments (GET) or create one (POST)."""
 
-    permission_classes = [IsAuthenticated]
-
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = UserRole.objects.select_related("user", "role").order_by("user", "role")
         user_id = request.query_params.get("user_id")
@@ -301,8 +294,6 @@ class UserRoleListCreateAPIView(APIView):
 
 class UserRoleDetailAPIView(APIView):
     """Retrieve or delete a UserRole by id."""
-
-    permission_classes = [IsAuthenticated]
 
     def get(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
         ur = UserRole.objects.filter(pk=pk).select_related("user", "role").first()
@@ -338,8 +329,6 @@ class UserRoleDetailAPIView(APIView):
 class RoleHierarchyListCreateAPIView(APIView):
     """List role hierarchy links (GET) or create one (POST)."""
 
-    permission_classes = [IsAuthenticated]
-
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = RoleHierarchy.objects.select_related("parent_role", "child_role").order_by("parent_role", "child_role")
         parent_id = request.query_params.get("parent_role_id")
@@ -373,8 +362,6 @@ class RoleHierarchyListCreateAPIView(APIView):
 
 class RoleHierarchyDetailAPIView(APIView):
     """Retrieve or delete a RoleHierarchy by id."""
-
-    permission_classes = [IsAuthenticated]
 
     def get(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
         rh = RoleHierarchy.objects.filter(pk=pk).select_related("parent_role", "child_role").first()
