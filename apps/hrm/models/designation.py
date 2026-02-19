@@ -1,11 +1,12 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from django.utils.text import slugify
+
 class Designation(models.Model):
-    name = models.CharField(_("name"), max_length=100)
-    code = models.CharField(_("code"), max_length=50, unique=True)
+    name = models.CharField(_("name"), max_length=100, unique=True)
+    slug = models.SlugField(_("slug"), max_length=100, unique=True, blank=True)
     department = models.ForeignKey('hrm.Department', verbose_name=_("department"), on_delete=models.CASCADE, related_name='designations')
-    head = models.ForeignKey('hrm.Employee', verbose_name=_("head"), null=True, blank=True, on_delete=models.SET_NULL, related_name='headed_designations')
     is_active = models.BooleanField(_("is active"), default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -18,5 +19,6 @@ class Designation(models.Model):
         return f"{self.name}"
 
     def save(self, *args, **kwargs):
-        self.code = self.code.upper().strip()
+        if not self.slug:
+            self.slug = slugify(self.name)
         super().save(*args, **kwargs)
