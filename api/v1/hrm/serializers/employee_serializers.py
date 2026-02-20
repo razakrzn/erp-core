@@ -1,94 +1,32 @@
-from rest_framework import serializers
-
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from rest_framework import serializers
 
-from apps.hrm.models.department import Department
-from apps.hrm.models.designation import Designation
-from apps.hrm.models.attendance import Attendance
 from apps.hrm.models.employee import Employee, PreviousEmployment
 from apps.rbac.models import Role, UserRole
 
 User = get_user_model()
 
 
-class DepartmentDesignationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Designation
-        fields = ['id', 'name', 'slug', 'is_active', 'created_at']
-
-class DepartmentSerializer(serializers.ModelSerializer):
-    head_name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Department
-        fields = ['id', 'name', 'slug', 'head_name', 'is_active', 'created_at']
-        read_only_fields = ['slug', 'created_at']
-
-    def get_head_name(self, obj):
-        return obj.head.full_name if obj.head else None
-
-
-class DepartmentDetailsSerializer(serializers.ModelSerializer):
-    head_details = serializers.SerializerMethodField()
-    designations = DepartmentDesignationSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Department
-        fields = ['id', 'name', 'slug', 'head_details', 'is_active', 'created_at', 'designations']
-        read_only_fields = ['slug', 'created_at']
-
-    def get_head_details(self, obj):
-        if not obj.head:
-            return None
-        return {
-            'id': obj.head.id,
-            'full_name': obj.head.full_name,
-        }
-
-class DesignationSerializer(serializers.ModelSerializer):
-    department_name = serializers.CharField(source='department.name', read_only=True)
-
-    class Meta:
-        model = Designation
-        fields = ['id', 'name', 'slug', 'department', 'department_name', 'is_active', 'created_at']
-        read_only_fields = ['slug', 'created_at']
-
-class AttendanceSerializer(serializers.ModelSerializer):
-    employee_name = serializers.CharField(source='employee.get_full_name', read_only=True)
-
-    class Meta:
-        model = Attendance
-        fields = ['id', 'employee', 'employee_name', 'date', 'check_in', 'check_out', 'status', 'created_at']
-        read_only_fields = ['created_at']
-
-class CheckInSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Attendance
-        fields = ['check_in']
-        read_only_fields = ['employee', 'date', 'check_out', 'status', 'created_at']
-
-class CheckOutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Attendance
-        fields = ['check_out']
-        read_only_fields = ['employee', 'date', 'check_in', 'status', 'created_at']
-
 class PreviousEmploymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PreviousEmployment
         fields = ['id', 'company_name', 'designation', 'start_date', 'end_date', 'reason_for_leaving', 'experience_certificate_attached']
 
+
 class EmployeeListSerializer(serializers.ModelSerializer):
     full_name = serializers.ReadOnlyField()
+    email = serializers.SerializerMethodField()
     designation_name = serializers.SerializerMethodField()
-  
 
     class Meta:
         model = Employee
         fields = [
-            'id', 'email', 'full_name', 
-            'designation_name', 'mobile_number'
+            'id',
+            'email',
+            'full_name',
+            'designation_name',
+            'mobile_number',
         ]
 
     def get_first_name(self, obj):
@@ -107,6 +45,11 @@ class EmployeeListSerializer(serializers.ModelSerializer):
     def get_designation_name(self, obj):
         return obj.designation.name if obj.designation else None
 
+    def get_email(self, obj):
+        if obj.user:
+            return obj.user.email
+        return obj.email
+
 
 class EmployeeLightweightSerializer(serializers.ModelSerializer):
     full_name = serializers.ReadOnlyField()
@@ -119,6 +62,7 @@ class EmployeeLightweightSerializer(serializers.ModelSerializer):
 class EmployeeSerializer(serializers.ModelSerializer):
     department_name = serializers.SerializerMethodField()
     designation_name = serializers.SerializerMethodField()
+    user_details = serializers.SerializerMethodField()
     previous_employments = PreviousEmploymentSerializer(many=True, required=False)
 
     # Fields for User creation
@@ -131,7 +75,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
         model = Employee
         fields = [
             'id', 'username', 'first_name', 'last_name', 'email',
-             'department','department_name', 'designation','designation_name',
+            'department', 'department_name', 'designation', 'designation_name',
+            'user_details',
             'is_active', 'created_at',
             'create_user', 'password', 'role',
             # Personal Information
@@ -175,12 +120,11 @@ class EmployeeSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"email": "Email is required when creating a user."})
             if not attrs.get('role'):
                 raise serializers.ValidationError({"role": "Role is required when creating a user."})
-            
-            # Check uniqueness
+
             if User.objects.filter(username=attrs.get('username')).exists():
                 raise serializers.ValidationError({"username": "Username already exists."})
             if User.objects.filter(email=attrs.get('email')).exists():
-                 raise serializers.ValidationError({"email": "Email already exists."})
+                raise serializers.ValidationError({"email": "Email already exists."})
 
         return attrs
 
@@ -190,8 +134,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
         username = validated_data.pop('username', None)
         password = validated_data.pop('password', None)
         role = validated_data.pop('role', None)
-        
-        # Get Company from context (passed from view)
+
         request = self.context.get('request')
         company = None
         if request and hasattr(request.user, 'company'):
@@ -201,70 +144,78 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
         with transaction.atomic():
             if create_user:
-                # Create User
                 user = User.objects.create_user(
                     username=username,
                     password=password,
                     email=validated_data.get('email'),
                     first_name=validated_data.get('first_name', ''),
                     last_name=validated_data.get('last_name', ''),
-                    company=company
+                    company=company,
                 )
-                
-                # Assign Role
+
                 if role:
                     UserRole.objects.create(user=user, role=role)
-                
-                # Create Employee
+
                 employee = Employee.objects.create(user=user, **validated_data)
             else:
-                # Create Employee without User
                 employee = Employee.objects.create(**validated_data)
 
-            # Handle Previous Employments
             for pe_data in previous_employments_data:
                 PreviousEmployment.objects.create(employee=employee, **pe_data)
-        
+
         return employee
 
     def update(self, instance, validated_data):
         previous_employments_data = validated_data.pop('previous_employments', None)
-        
+
         request = self.context.get('request')
         company = None
         if request and hasattr(request.user, 'company'):
             company = request.user.company
-            
-        instance.company = company 
-        
+
+        instance.company = company
+
         if instance.user:
             user = instance.user
             user.first_name = validated_data.get('first_name', user.first_name)
             user.last_name = validated_data.get('last_name', user.last_name)
             user.email = validated_data.get('email', user.email)
             user.save()
-        
-        # Update Employee fields
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
-        # Handle Previous Employments (Full replacement logic for simplicity)
         if previous_employments_data is not None:
             instance.previous_employments.all().delete()
             for pe_data in previous_employments_data:
                 PreviousEmployment.objects.create(employee=instance, **pe_data)
-        
+
         return instance
+
+    def get_user_details(self, obj):
+        if not obj.user:
+            return None
+        user_role = UserRole.objects.select_related('role').filter(user=obj.user).first()
+        return [
+            {
+                'username': obj.user.username,
+                'first_name': obj.user.first_name,
+                'last_name': obj.user.last_name,
+                'email': obj.user.email,
+                'role_id': user_role.role.id if user_role and user_role.role else None,
+                'role_name': user_role.role.role_name if user_role and user_role.role else None,
+            }
+        ]
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        # If linked to user, ensure we show the user's details if local fields are empty
-        ret['username'] = instance.user.username if instance.user else None
         if instance.user:
-            ret['first_name'] = instance.user.first_name
-            ret['last_name'] = instance.user.last_name
-            ret['email'] = instance.user.email
+            ret.pop('first_name', None)
+            ret.pop('last_name', None)
+            ret.pop('email', None)
+        else:
+            ret.pop('user_details', None)
         return ret
 
     def get_department_name(self, obj):
