@@ -11,13 +11,40 @@ from apps.rbac.models import Role, UserRole
 
 User = get_user_model()
 
+
+class DepartmentDesignationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Designation
+        fields = ['id', 'name', 'slug', 'is_active', 'created_at']
+
 class DepartmentSerializer(serializers.ModelSerializer):
-    head_name = serializers.CharField(source='head.get_full_name', read_only=True)
+    head_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Department
-        fields = ['id', 'name', 'slug', 'head', 'head_name', 'is_active', 'created_at']
+        fields = ['id', 'name', 'slug', 'head_name', 'is_active', 'created_at']
         read_only_fields = ['slug', 'created_at']
+
+    def get_head_name(self, obj):
+        return obj.head.full_name if obj.head else None
+
+
+class DepartmentDetailsSerializer(serializers.ModelSerializer):
+    head_details = serializers.SerializerMethodField()
+    designations = DepartmentDesignationSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Department
+        fields = ['id', 'name', 'slug', 'head_details', 'is_active', 'created_at', 'designations']
+        read_only_fields = ['slug', 'created_at']
+
+    def get_head_details(self, obj):
+        if not obj.head:
+            return None
+        return {
+            'id': obj.head.id,
+            'full_name': obj.head.full_name,
+        }
 
 class DesignationSerializer(serializers.ModelSerializer):
     department_name = serializers.CharField(source='department.name', read_only=True)
@@ -54,20 +81,35 @@ class PreviousEmploymentSerializer(serializers.ModelSerializer):
 
 class EmployeeListSerializer(serializers.ModelSerializer):
     full_name = serializers.ReadOnlyField()
-    department_name = serializers.CharField(source='department.name', read_only=True)
-    designation_name = serializers.CharField(source='designation.name', read_only=True)
+    designation_name = serializers.SerializerMethodField()
+  
 
     class Meta:
         model = Employee
         fields = [
-            'id', 'email', 'full_name', 'job_title', 
-            'designation_name', 'department_name', 'mobile_number'
+            'id', 'email', 'full_name', 
+            'designation_name', 'mobile_number'
         ]
 
+    def get_first_name(self, obj):
+        if obj.user:
+            return obj.user.first_name
+        return obj.first_name
+
+    def get_last_name(self, obj):
+        if obj.user:
+            return obj.user.last_name
+        return obj.last_name
+
+    def get_department_name(self, obj):
+        return obj.department.name if obj.department else None
+
+    def get_designation_name(self, obj):
+        return obj.designation.name if obj.designation else None
+
 class EmployeeSerializer(serializers.ModelSerializer):
-    full_name = serializers.ReadOnlyField()
-    department_name = serializers.CharField(source='department.name', read_only=True)
-    designation_name = serializers.CharField(source='designation.name', read_only=True)
+    department_name = serializers.SerializerMethodField()
+    designation_name = serializers.SerializerMethodField()
     previous_employments = PreviousEmploymentSerializer(many=True, required=False)
 
     # Fields for User creation
@@ -79,10 +121,10 @@ class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = [
-            'id', 'first_name', 'last_name', 'email', 'full_name',
-            'department', 'department_name', 'designation', 'designation_name',
+            'id', 'username', 'first_name', 'last_name', 'email',
+             'department','department_name', 'designation','designation_name',
             'is_active', 'created_at',
-            'create_user', 'username', 'password', 'role',
+            'create_user', 'password', 'role',
             # Personal Information
             'profile_photo', 'gender', 'date_of_birth', 'nationality', 'mobile_number',
             'current_address_uae', 'permanent_address_home_country',
@@ -93,7 +135,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'uae_visa_type', 'visa_number', 'uid_number', 'visa_issue_date', 'visa_expiry_date',
             'emirates_id_number', 'emirates_id_expiry_date', 'labor_card_number',
             # Employment
-            'job_title', 'employment_type', 'offer_letter_reference_number', 'contract_type',
+            'employment_type', 'offer_letter_reference_number', 'contract_type',
             'probation_period_months', 'date_of_joining', 'work_location',
             # Work Schedule
             'working_days', 'working_hours', 'overtime_eligible',
@@ -209,8 +251,15 @@ class EmployeeSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         # If linked to user, ensure we show the user's details if local fields are empty
+        ret['username'] = instance.user.username if instance.user else None
         if instance.user:
             ret['first_name'] = instance.user.first_name
             ret['last_name'] = instance.user.last_name
             ret['email'] = instance.user.email
         return ret
+
+    def get_department_name(self, obj):
+        return obj.department.name if obj.department else None
+
+    def get_designation_name(self, obj):
+        return obj.designation.name if obj.designation else None

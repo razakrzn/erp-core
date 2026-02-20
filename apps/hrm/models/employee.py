@@ -101,7 +101,6 @@ class Employee(models.Model):
     # Employment Details
     department = models.ForeignKey('hrm.Department', verbose_name=_("department"), on_delete=models.SET_NULL, null=True, blank=True, related_name='employees')
     designation = models.ForeignKey('hrm.Designation', verbose_name=_("designation"), on_delete=models.SET_NULL, null=True, blank=True, related_name='employees')
-    job_title = models.CharField(_("job title"), max_length=100, null=True, blank=True) # Specific title if different from designation
     
     class EmploymentType(models.TextChoices):
         FULL_TIME = "FULL_TIME", _("Full-time")

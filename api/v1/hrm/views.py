@@ -1,13 +1,14 @@
 from django.utils import timezone
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
+from django_filters import rest_framework as django_filters
 
 from core.utils.responses import APIResponse
 from apps.hrm.models.department import Department
 from apps.hrm.models.designation import Designation
 from apps.hrm.models.attendance import Attendance
 from apps.hrm.models.employee import Employee
-from .serializers import DepartmentSerializer, DesignationSerializer, AttendanceSerializer, EmployeeSerializer, EmployeeListSerializer
+from .serializers import DepartmentSerializer, DepartmentDetailsSerializer, DesignationSerializer, AttendanceSerializer, EmployeeSerializer, EmployeeListSerializer
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -19,12 +20,17 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     - Authenticated access by default
     - Basic search on name and slug
     """
-    queryset = Department.objects.all()
+    queryset = Department.objects.select_related('head').prefetch_related('designations')
     serializer_class = DepartmentSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["name", "slug"]
     ordering_fields = ["name", "created_at"]
     ordering = ["-created_at"]
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return DepartmentDetailsSerializer
+        return DepartmentSerializer
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -100,6 +106,14 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         )
 
 
+class DesignationFilter(django_filters.FilterSet):
+    department_id = django_filters.NumberFilter(field_name="department_id")
+
+    class Meta:
+        model = Designation
+        fields = ["department_id"]
+
+
 class DesignationViewSet(viewsets.ModelViewSet):
     """
     API v1 CRUD viewset for Designation.
@@ -108,10 +122,12 @@ class DesignationViewSet(viewsets.ModelViewSet):
     - List / retrieve / create / update / delete designations
     - Authenticated access by default
     - Basic search on name and slug
+    - Filter by department_id
     """
     queryset = Designation.objects.all()
     serializer_class = DesignationSerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    filter_backends = [django_filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = DesignationFilter
     search_fields = ["name", "slug"]
     ordering_fields = ["name", "created_at"]
     ordering = ["-created_at"]
