@@ -107,6 +107,15 @@ class EmployeeListSerializer(serializers.ModelSerializer):
     def get_designation_name(self, obj):
         return obj.designation.name if obj.designation else None
 
+
+class EmployeeLightweightSerializer(serializers.ModelSerializer):
+    full_name = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Employee
+        fields = ['id', 'full_name']
+
+
 class EmployeeSerializer(serializers.ModelSerializer):
     department_name = serializers.SerializerMethodField()
     designation_name = serializers.SerializerMethodField()

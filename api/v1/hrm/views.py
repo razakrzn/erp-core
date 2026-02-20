@@ -8,7 +8,15 @@ from apps.hrm.models.department import Department
 from apps.hrm.models.designation import Designation
 from apps.hrm.models.attendance import Attendance
 from apps.hrm.models.employee import Employee
-from .serializers import DepartmentSerializer, DepartmentDetailsSerializer, DesignationSerializer, AttendanceSerializer, EmployeeSerializer, EmployeeListSerializer
+from .serializers import (
+    DepartmentSerializer,
+    DepartmentDetailsSerializer,
+    DesignationSerializer,
+    AttendanceSerializer,
+    EmployeeSerializer,
+    EmployeeListSerializer,
+    EmployeeLightweightSerializer,
+)
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
@@ -418,3 +426,24 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             message="Employee deleted successfully.",
             status_code=status.HTTP_200_OK,
         )
+
+
+class EmployeeLightweightViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Lightweight employee API (id + full_name).
+    Useful for dropdowns/autocomplete.
+    """
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeLightweightSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ["first_name", "last_name", "user__first_name", "user__last_name", "email", "user__username"]
+    ordering_fields = ["created_at", "first_name"]
+    ordering = ["first_name", "last_name", "-created_at"]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Employee.objects.all()
+        if hasattr(user, 'company') and user.company:
+            return Employee.objects.filter(company=user.company)
+        return Employee.objects.none()
