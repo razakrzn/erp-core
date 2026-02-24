@@ -2,7 +2,7 @@ from django.db.models import Q
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 
-from apps.inventory.models import Brand, Category, Finish, Grade, Material, Size, Thickness
+from apps.inventory.models import Brand, Category, Finish, Grade, Material, Product, Size, Thickness
 from core.utils.responses import APIResponse
 
 from ..serializers import (
@@ -24,12 +24,33 @@ class BaseInventoryMasterViewSet(viewsets.ModelViewSet):
     dropdown_serializer_class = DropdownOptionSerializer
     dropdown_queryset_fields = ('id', 'name')
     dropdown_search_fields = ('name', 'code')
+    # Set to the reverse relation name from this model to Product (e.g. 'product', 'product_set')
+    # to enable dropdown filtering by product_name, grade, thickness, size.
+    dropdown_product_relation = None
 
     @staticmethod
     def _to_bool(value):
         if value is None:
             return False
         return value.lower() in {'1', 'true', 'yes', 'on'}
+
+    def _get_product_filter_kwargs(self):
+        """Build Product filter kwargs from query params for dropdown filtering."""
+        params = self.request.query_params
+        product_name = (params.get('product_name') or '').strip()
+        grade = (params.get('grade') or '').strip()
+        thickness = (params.get('thickness') or '').strip()
+        size = (params.get('size') or '').strip()
+        kwargs = {}
+        if product_name:
+            kwargs['name__iexact'] = product_name
+        if grade:
+            kwargs['grade__name__iexact'] = grade
+        if thickness:
+            kwargs['thickness__name__icontains'] = thickness
+        if size:
+            kwargs['size__name__icontains'] = size
+        return kwargs
 
     def get_dropdown_queryset(self):
         queryset = self.get_queryset().order_by('name')
@@ -44,6 +65,14 @@ class BaseInventoryMasterViewSet(viewsets.ModelViewSet):
             for field in self.dropdown_search_fields:
                 query |= Q(**{f'{field}__icontains': search_text})
             queryset = queryset.filter(query)
+
+        # Apply product-based filters (product_name, grade, thickness, size) when supported
+        relation = getattr(self, 'dropdown_product_relation', None)
+        if relation:
+            filter_kwargs = self._get_product_filter_kwargs()
+            if filter_kwargs:
+                prefix_kwargs = {f'{relation}__{k}': v for k, v in filter_kwargs.items()}
+                queryset = queryset.filter(**prefix_kwargs).distinct()
 
         return queryset.only(*self.dropdown_queryset_fields)
 
@@ -153,6 +182,7 @@ class SizeViewSet(BaseInventoryMasterViewSet):
     dropdown_search_fields = ('name', 'value', 'code')
     search_fields = ['name', 'value', 'code', 'slug']
     ordering_fields = ['name', 'created_at', 'updated_at']
+    dropdown_product_relation = 'product_set'
 
 
 class ThicknessViewSet(BaseInventoryMasterViewSet):
@@ -163,6 +193,7 @@ class ThicknessViewSet(BaseInventoryMasterViewSet):
     dropdown_search_fields = ('name', 'value', 'code')
     search_fields = ['name', 'code', 'slug']
     ordering_fields = ['name', 'created_at', 'updated_at']
+    dropdown_product_relation = 'product_set'
 
 
 class GradeViewSet(BaseInventoryMasterViewSet):
@@ -170,6 +201,7 @@ class GradeViewSet(BaseInventoryMasterViewSet):
     serializer_class = GradeSerializer
     search_fields = ['name', 'code', 'slug']
     ordering_fields = ['name', 'created_at', 'updated_at']
+    dropdown_product_relation = 'product'
 
 
 class FinishViewSet(BaseInventoryMasterViewSet):
@@ -177,3 +209,4 @@ class FinishViewSet(BaseInventoryMasterViewSet):
     serializer_class = FinishSerializer
     search_fields = ['name', 'code', 'slug']
     ordering_fields = ['name', 'created_at', 'updated_at']
+    dropdown_product_relation = 'product_set'
