@@ -22,6 +22,7 @@ class ProductNameFieldsSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'name',
+            'slug',
             'sku',
             'price',
             'category',
@@ -42,7 +43,7 @@ class ProductNameFieldsSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         ]
-        read_only_fields = ['sku', 'created_at', 'updated_at']
+        read_only_fields = ['slug', 'sku', 'created_at', 'updated_at']
 
     def get_category_name(self, obj):
         return obj.category.name if obj.category else None
@@ -72,6 +73,7 @@ class ProductSerializer(ProductNameFieldsSerializer):
         fields = [
             'id',
             'name',
+            'slug',
             'sku',
             'price',
             'category',
@@ -92,7 +94,7 @@ class ProductSerializer(ProductNameFieldsSerializer):
             'created_at',
             'updated_at',
         ]
-        read_only_fields = ['sku', 'created_at', 'updated_at']
+        read_only_fields = ['slug', 'sku', 'created_at', 'updated_at']
 
 
 class ProductListSerializer(ProductNameFieldsSerializer):
@@ -101,6 +103,7 @@ class ProductListSerializer(ProductNameFieldsSerializer):
         fields = [
             'id',
             'name',
+            'slug',
             'sku',
             'price',
             'category_name',

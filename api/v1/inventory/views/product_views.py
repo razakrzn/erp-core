@@ -10,6 +10,7 @@ from ..serializers import ProductDropdownSerializer, ProductListSerializer, Prod
 
 
 class ProductFilter(django_filters.FilterSet):
+    slug = django_filters.CharFilter(field_name='slug', lookup_expr='iexact')
     category_id = django_filters.UUIDFilter(field_name='category_id')
     brand_id = django_filters.UUIDFilter(field_name='brand_id')
     material_id = django_filters.UUIDFilter(field_name='material_id')
@@ -22,6 +23,7 @@ class ProductFilter(django_filters.FilterSet):
     class Meta:
         model = Product
         fields = [
+            'slug',
             'category_id',
             'brand_id',
             'material_id',
@@ -40,8 +42,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     filter_backends = [django_filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = ProductFilter
-    search_fields = ['name', 'sku']
-    ordering_fields = ['name', 'price', 'created_at', 'updated_at']
+    search_fields = ['name', 'slug', 'sku']
+    ordering_fields = ['name', 'slug', 'price', 'created_at', 'updated_at']
     ordering = ['-created_at']
 
     def get_serializer_class(self):
@@ -57,7 +59,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='dropdown')
     def dropdown(self, request, *args, **kwargs):
-        queryset = Product.objects.only('id', 'name', 'is_active').order_by('name')
+        queryset = Product.objects.only('id', 'name', 'slug', 'is_active').order_by('name')
 
         include_inactive = self._to_bool(request.query_params.get('include_inactive'))
         if not include_inactive:
@@ -65,7 +67,9 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         search_text = (request.query_params.get('q') or '').strip()
         if search_text:
-            queryset = queryset.filter(Q(name__icontains=search_text) | Q(sku__icontains=search_text))
+            queryset = queryset.filter(
+                Q(name__icontains=search_text) | Q(slug__icontains=search_text) | Q(sku__icontains=search_text)
+            )
 
         limit_param = request.query_params.get('limit')
         if limit_param:
