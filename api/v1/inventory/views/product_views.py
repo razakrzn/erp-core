@@ -1,10 +1,12 @@
 from django_filters import rest_framework as django_filters
+from django.db.models import Q
 from rest_framework import filters, status, viewsets
+from rest_framework.decorators import action
 
 from apps.inventory.models import Product
 from core.utils.responses import APIResponse
 
-from ..serializers import ProductSerializer
+from ..serializers import ProductDropdownSerializer, ProductSerializer
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -41,6 +43,42 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'sku']
     ordering_fields = ['name', 'price', 'created_at', 'updated_at']
     ordering = ['-created_at']
+
+    @staticmethod
+    def _to_bool(value):
+        if value is None:
+            return False
+        return value.lower() in {'1', 'true', 'yes', 'on'}
+
+    @action(detail=False, methods=['get'], url_path='dropdown')
+    def dropdown(self, request, *args, **kwargs):
+        queryset = Product.objects.only('id', 'name', 'sku', 'is_active').order_by('name')
+
+        include_inactive = self._to_bool(request.query_params.get('include_inactive'))
+        if not include_inactive:
+            queryset = queryset.filter(is_active=True)
+
+        search_text = (request.query_params.get('q') or '').strip()
+        if search_text:
+            queryset = queryset.filter(Q(name__icontains=search_text) | Q(sku__icontains=search_text))
+
+        limit_param = request.query_params.get('limit')
+        if limit_param:
+            try:
+                limit = max(1, int(limit_param))
+                queryset = queryset[:limit]
+            except ValueError:
+                return APIResponse.error(
+                    message='Invalid limit parameter. Please provide a positive integer.',
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                )
+
+        serializer = ProductDropdownSerializer(queryset, many=True)
+        return APIResponse.success(
+            data=serializer.data,
+            message='Products dropdown retrieved successfully.',
+            status_code=status.HTTP_200_OK,
+        )
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -95,4 +133,3 @@ class ProductViewSet(viewsets.ModelViewSet):
             message='Product deleted successfully.',
             status_code=status.HTTP_200_OK,
         )
-

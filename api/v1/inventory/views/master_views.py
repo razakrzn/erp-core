@@ -1,4 +1,6 @@
+from django.db.models import Q
 from rest_framework import filters, status, viewsets
+from rest_framework.decorators import action
 
 from apps.inventory.models import Brand, Category, Finish, Grade, Material, Size, Thickness
 from core.utils.responses import APIResponse
@@ -6,6 +8,8 @@ from core.utils.responses import APIResponse
 from ..serializers import (
     BrandSerializer,
     CategorySerializer,
+    DropdownOptionSerializer,
+    DropdownOptionWithValueSerializer,
     FinishSerializer,
     GradeSerializer,
     MaterialSerializer,
@@ -17,6 +21,53 @@ from ..serializers import (
 class BaseInventoryMasterViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     ordering = ['-created_at']
+    dropdown_serializer_class = DropdownOptionSerializer
+    dropdown_queryset_fields = ('id', 'name')
+    dropdown_search_fields = ('name', 'code')
+
+    @staticmethod
+    def _to_bool(value):
+        if value is None:
+            return False
+        return value.lower() in {'1', 'true', 'yes', 'on'}
+
+    def get_dropdown_queryset(self):
+        queryset = self.get_queryset().order_by('name')
+
+        include_inactive = self._to_bool(self.request.query_params.get('include_inactive'))
+        if not include_inactive:
+            queryset = queryset.filter(is_active=True)
+
+        search_text = (self.request.query_params.get('q') or '').strip()
+        if search_text:
+            query = Q()
+            for field in self.dropdown_search_fields:
+                query |= Q(**{f'{field}__icontains': search_text})
+            queryset = queryset.filter(query)
+
+        return queryset.only(*self.dropdown_queryset_fields)
+
+    @action(detail=False, methods=['get'], url_path='dropdown')
+    def dropdown(self, request, *args, **kwargs):
+        queryset = self.get_dropdown_queryset()
+        limit_param = request.query_params.get('limit')
+
+        if limit_param:
+            try:
+                limit = max(1, int(limit_param))
+                queryset = queryset[:limit]
+            except ValueError:
+                return APIResponse.error(
+                    message='Invalid limit parameter. Please provide a positive integer.',
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                )
+
+        serializer = self.dropdown_serializer_class(queryset, many=True)
+        return APIResponse.success(
+            data=serializer.data,
+            message=f'{self.queryset.model._meta.verbose_name_plural.title()} dropdown retrieved successfully.',
+            status_code=status.HTTP_200_OK,
+        )
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -97,6 +148,9 @@ class MaterialViewSet(BaseInventoryMasterViewSet):
 class SizeViewSet(BaseInventoryMasterViewSet):
     queryset = Size.objects.all()
     serializer_class = SizeSerializer
+    dropdown_serializer_class = DropdownOptionWithValueSerializer
+    dropdown_queryset_fields = ('id', 'name', 'value', 'code')
+    dropdown_search_fields = ('name', 'value', 'code')
     search_fields = ['name', 'value', 'code', 'slug']
     ordering_fields = ['name', 'created_at', 'updated_at']
 
@@ -104,6 +158,9 @@ class SizeViewSet(BaseInventoryMasterViewSet):
 class ThicknessViewSet(BaseInventoryMasterViewSet):
     queryset = Thickness.objects.all()
     serializer_class = ThicknessSerializer
+    dropdown_serializer_class = DropdownOptionWithValueSerializer
+    dropdown_queryset_fields = ('id', 'name', 'value', 'code')
+    dropdown_search_fields = ('name', 'value', 'code')
     search_fields = ['name', 'code', 'slug']
     ordering_fields = ['name', 'created_at', 'updated_at']
 
@@ -120,4 +177,3 @@ class FinishViewSet(BaseInventoryMasterViewSet):
     serializer_class = FinishSerializer
     search_fields = ['name', 'code', 'slug']
     ordering_fields = ['name', 'created_at', 'updated_at']
-

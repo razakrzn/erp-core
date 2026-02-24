@@ -3,6 +3,18 @@ from rest_framework import serializers
 from apps.inventory.models import Brand, Category, Finish, Grade, Material, Size, Thickness
 
 
+class DropdownOptionSerializer(serializers.Serializer):
+    value = serializers.IntegerField(source='id', read_only=True)
+    label = serializers.CharField(source='name', read_only=True)
+
+
+class DropdownOptionWithValueSerializer(DropdownOptionSerializer):
+    label = serializers.SerializerMethodField()
+
+    def get_label(self, obj):
+        return f'{obj.name} ({obj.value})'
+
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -50,4 +62,3 @@ class FinishSerializer(serializers.ModelSerializer):
         model = Finish
         fields = ['id', 'name', 'code', 'slug', 'is_active', 'created_at', 'updated_at']
         read_only_fields = ['code', 'slug', 'created_at', 'updated_at']
-

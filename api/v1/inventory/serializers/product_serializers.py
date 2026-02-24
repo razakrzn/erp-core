@@ -3,6 +3,16 @@ from rest_framework import serializers
 from apps.inventory.models import Product
 
 
+class ProductDropdownSerializer(serializers.Serializer):
+    value = serializers.IntegerField(source='id', read_only=True)
+    label = serializers.SerializerMethodField()
+
+    def get_label(self, obj):
+        if obj.sku:
+            return f'{obj.name} ({obj.sku})'
+        return obj.name
+
+
 class ProductSerializer(serializers.ModelSerializer):
     category_name = serializers.SerializerMethodField()
     brand_name = serializers.SerializerMethodField()
@@ -59,4 +69,3 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_finish_name(self, obj):
         return obj.finish.name if obj.finish else None
-
