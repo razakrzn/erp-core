@@ -8,7 +8,7 @@ class ProductDropdownSerializer(serializers.Serializer):
     label = serializers.CharField(source='name', read_only=True)
 
 
-class ProductSerializer(serializers.ModelSerializer):
+class ProductNameFieldsSerializer(serializers.ModelSerializer):
     category_name = serializers.SerializerMethodField()
     brand_name = serializers.SerializerMethodField()
     material_name = serializers.SerializerMethodField()
@@ -64,3 +64,53 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_finish_name(self, obj):
         return obj.finish.name if obj.finish else None
+
+
+class ProductSerializer(ProductNameFieldsSerializer):
+    class Meta:
+        model = Product
+        fields = [
+            'id',
+            'name',
+            'sku',
+            'price',
+            'category',
+            'category_name',
+            'brand',
+            'brand_name',
+            'material',
+            'material_name',
+            'size',
+            'size_name',
+            'thickness',
+            'thickness_name',
+            'grade',
+            'grade_name',
+            'finish',
+            'finish_name',
+            'is_active',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['sku', 'created_at', 'updated_at']
+
+
+class ProductListSerializer(ProductNameFieldsSerializer):
+    class Meta:
+        model = Product
+        fields = [
+            'id',
+            'name',
+            'sku',
+            'price',
+            'category_name',
+            'brand_name',
+            'material_name',
+            'size_name',
+            'thickness_name',
+            'grade_name',
+            'finish_name',
+            'is_active',
+            'created_at',
+            'updated_at',
+        ]

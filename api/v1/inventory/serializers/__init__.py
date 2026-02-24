@@ -9,7 +9,7 @@ from .master_serializers import (
     SizeSerializer,
     ThicknessSerializer,
 )
-from .product_serializers import ProductDropdownSerializer, ProductSerializer
+from .product_serializers import ProductDropdownSerializer, ProductListSerializer, ProductSerializer
 
 __all__ = [
     'BrandSerializer',
@@ -20,6 +20,7 @@ __all__ = [
     'GradeSerializer',
     'MaterialSerializer',
     'ProductDropdownSerializer',
+    'ProductListSerializer',
     'ProductSerializer',
     'SizeSerializer',
     'ThicknessSerializer',

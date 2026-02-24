@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from apps.inventory.models import Product
 from core.utils.responses import APIResponse
 
-from ..serializers import ProductDropdownSerializer, ProductSerializer
+from ..serializers import ProductDropdownSerializer, ProductListSerializer, ProductSerializer
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -43,6 +43,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'sku']
     ordering_fields = ['name', 'price', 'created_at', 'updated_at']
     ordering = ['-created_at']
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return ProductListSerializer
+        return ProductSerializer
 
     @staticmethod
     def _to_bool(value):
