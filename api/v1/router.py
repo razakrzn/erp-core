@@ -27,7 +27,7 @@ urlpatterns = [
     path("navigation/", include("api.v1.navigation.urls")),
     path("access-control/", include("api.v1.access_control.urls")),
     path("hrm/", include("api.v1.hrm.urls")),
+    path("inventory/", include("api.v1.inventory.urls")),
     path("", include("api.v1.rbac.urls")),
     *router.urls,
 ]
-
