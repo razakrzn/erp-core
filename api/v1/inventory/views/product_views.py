@@ -52,7 +52,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='dropdown')
     def dropdown(self, request, *args, **kwargs):
-        queryset = Product.objects.only('id', 'name', 'sku', 'is_active').order_by('name')
+        queryset = Product.objects.only('id', 'name', 'is_active').order_by('name')
 
         include_inactive = self._to_bool(request.query_params.get('include_inactive'))
         if not include_inactive:

@@ -5,12 +5,7 @@ from apps.inventory.models import Product
 
 class ProductDropdownSerializer(serializers.Serializer):
     value = serializers.IntegerField(source='id', read_only=True)
-    label = serializers.SerializerMethodField()
-
-    def get_label(self, obj):
-        if obj.sku:
-            return f'{obj.name} ({obj.sku})'
-        return obj.name
+    label = serializers.CharField(source='name', read_only=True)
 
 
 class ProductSerializer(serializers.ModelSerializer):
