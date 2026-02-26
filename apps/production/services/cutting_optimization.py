@@ -183,14 +183,18 @@ def run_cutting_optimization(
     normalized_sheets = stock_sheets or _build_default_sheets()
 
     # Filter out parts that exceed max sheet size (cannot be packed)
-    max_sheet_dim = max(
-        max(_round_dim(s["width"]), _round_dim(s["height"])) for s in normalized_sheets
-    )
+    # Use best-available sheet dimensions (max width/height across all sheet types)
+    max_sheet_width = max(_round_dim(s["width"]) for s in normalized_sheets)
+    max_sheet_height = max(_round_dim(s["height"]) for s in normalized_sheets)
+    sheet_max = max(max_sheet_width, max_sheet_height)
+    sheet_min = min(max_sheet_width, max_sheet_height)
+
     valid_parts = []
     oversized_parts = []
     for part in parts:
-        part_max_dim = max(part["width"], part["height"])
-        if part_max_dim > max_sheet_dim:
+        part_max = max(part["width"], part["height"])
+        part_min = min(part["width"], part["height"])
+        if part_max > sheet_max or part_min > sheet_min:
             oversized_parts.append(part)
         else:
             valid_parts.append(part)

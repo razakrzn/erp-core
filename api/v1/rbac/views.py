@@ -22,6 +22,7 @@ from api.v1.rbac.serializers import (
     RolePermissionWriteSerializer,
     RoleSerializer,
     RoleWriteSerializer,
+    UserRoleDetailsSerializer,
     UserRoleSerializer,
     UserRoleWriteSerializer,
 )
@@ -59,7 +60,7 @@ class RoleListCreateAPIView(APIView):
             
         serializer = RoleSerializer(queryset, many=True)
         return APIResponse.success(
-            data={"roles": serializer.data},
+            data=serializer.data,
             message="Success",
             status_code=status.HTTP_200_OK,
         )
@@ -271,7 +272,7 @@ class UserRoleListCreateAPIView(APIView):
             queryset = queryset.filter(role_id=role_id)
         serializer = UserRoleSerializer(queryset, many=True)
         return APIResponse.success(
-            data={"user_roles": serializer.data},
+            data=serializer.data,
             message="Success",
             status_code=status.HTTP_200_OK,
         )
@@ -303,7 +304,7 @@ class UserRoleDetailAPIView(APIView):
                 status_code=status.HTTP_404_NOT_FOUND,
             )
         return APIResponse.success(
-            data=UserRoleSerializer(ur).data,
+            data=UserRoleDetailsSerializer(ur).data,
             message="Success",
             status_code=status.HTTP_200_OK,
         )

@@ -51,6 +51,7 @@ class UserSerializer(serializers.ModelSerializer):
             "date_joined",
             "created_at",
         ]
+        extra_kwargs = {"company": {"write_only": True}}
     
     def get_company_details(self, obj):
         # 'obj' is the User instance
@@ -71,6 +72,13 @@ class UserSerializer(serializers.ModelSerializer):
         if obj.is_superuser:
             return "Superuser"
         return None
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Superusers have no company; omit company_details from response
+        if instance.is_superuser:
+            data.pop("company_details", None)
+        return data
 
     def create(self, validated_data):
         role = validated_data.pop("role_id", None)
