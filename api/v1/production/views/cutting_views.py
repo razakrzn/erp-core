@@ -6,7 +6,7 @@ from apps.production.models import CuttingOptimizationJob
 from apps.production.services import run_cutting_optimization
 from core.utils.responses import APIResponse
 
-from ..serializers import CuttingOptimizationJobSerializer
+from ..serializers import CuttingOptimizationJobListSerializer, CuttingOptimizationJobSerializer
 
 
 class CuttingOptimizationJobViewSet(viewsets.ModelViewSet):
@@ -55,13 +55,13 @@ class CuttingOptimizationJobViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
+            serializer = CuttingOptimizationJobListSerializer(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = CuttingOptimizationJobListSerializer(queryset, many=True)
         return APIResponse.success(
-            data=serializer.data,
-            message="Cutting optimization jobs retrieved successfully.",
+            data={"items": serializer.data, "pagination": None},
+            message="Data retrieved successfully",
             status_code=status.HTTP_200_OK,
         )
 

@@ -1,4 +1,7 @@
-from .cutting_serializers import CuttingOptimizationJobSerializer
+from .cutting_serializers import (
+    CuttingOptimizationJobListSerializer,
+    CuttingOptimizationJobSerializer,
+)
 from .manufacturing_serializers import (
     BOMExplosionSerializer,
     BatchTrackingSerializer,
@@ -17,6 +20,7 @@ __all__ = [
     "ProductionOrderSerializer",
     "ShopFloorControlSerializer",
     "BOMExplosionSerializer",
+    "CuttingOptimizationJobListSerializer",
     "CuttingOptimizationJobSerializer",
     "MachineIntegrationSerializer",
     "LaborTrackingSerializer",

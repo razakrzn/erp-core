@@ -5,6 +5,31 @@ from rest_framework import serializers
 from apps.production.models import CuttingOptimizationJob
 
 
+class CuttingOptimizationJobListSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for list view: fewer fields, error_message only when present."""
+
+    class Meta:
+        model = CuttingOptimizationJob
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "description",
+            "cad_file",
+            "status",
+            "error_message",
+            "is_active",
+            "created_at",
+            "updated_at",
+        ]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if not data.get("error_message"):
+            data.pop("error_message", None)
+        return data
+
+
 class CuttingOptimizationJobSerializer(serializers.ModelSerializer):
     class Meta:
         model = CuttingOptimizationJob
