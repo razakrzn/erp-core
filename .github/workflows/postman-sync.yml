@@ -47,8 +47,8 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install Postman CLI
-        run: npm install -g postman-cli
+      - name: Install OpenAPI-to-Postman converter
+        run: npm install -g openapi-to-postmanv2
 
       - name: Generate OpenAPI + Postman collection
         run: bash scripts/postman-sync.sh

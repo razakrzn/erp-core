@@ -9,8 +9,8 @@ set -euo pipefail
 #
 # Strategy:
 # 1) Generate OpenAPI (unless --no-openapi is passed)
-# 2) Generate Collection JSON using Postman CLI if available
-#    - If Postman CLI isn't installed, skip collection generation (OpenAPI still succeeds)
+# 2) Generate Collection JSON using openapi-to-postmanv2 (npm) or Postman CLI if available
+#    - If neither is available, skip collection generation (OpenAPI still succeeds)
 # 3) Self-test OpenAPI output (exists + non-empty)
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -32,13 +32,13 @@ Usage: scripts/postman-sync.sh [--no-openapi]
 
 Regenerates:
   - postman/specs/openapi.yaml (unless --no-openapi)
-  - postman/collections-generated/ERP Core API (Generated).collection.json (only if Postman CLI is installed)
+  - postman/collections-generated/ERP Core API (Generated).collection.json (if openapi-to-postmanv2 or Postman CLI is available)
 
 Options:
   --no-openapi  Skip drf-spectacular generation and use the existing openapi.yaml
 
 Exit codes:
-  - 0 success (including when collection generation is skipped because Postman CLI is missing)
+  - 0 success (including when collection generation is skipped because no converter is available)
   - 1 failure generating or validating OpenAPI
   - 2 invalid arguments
 USAGE
@@ -247,15 +247,25 @@ if [[ ! -s "$OPENAPI_FILE" ]]; then
   die "OpenAPI file missing or empty: $OPENAPI_FILE (re-run without --no-openapi, or check your spectacular setup)"
 fi
 
-# Generate Postman collection JSON using Postman CLI (if installed).
-if has_cmd postman; then
-  info "Postman CLI detected. Generating collection JSON -> $PM_COLLECTION_JSON"
-  # NOTE: this produces a portable Collection JSON artifact for import/CI usage.
-  if ! postman api import --file "$OPENAPI_FILE" --format openapi --output "$PM_COLLECTION_JSON" >/dev/null 2>&1; then
-    echo "[postman-sync] WARNING: postman api import failed; skipping collection generation." >&2
-    exit 0
+# Generate Postman collection JSON. Prefer openapi-to-postmanv2 (npm); the official
+# Postman CLI (npm postman-cli) does not provide "api import", so we use the converter.
+generate_collection() {
+  if has_cmd openapi2postmanv2; then
+    info "openapi2postmanv2 detected. Generating collection JSON -> $PM_COLLECTION_JSON"
+    if openapi2postmanv2 -s "$OPENAPI_FILE" -o "$PM_COLLECTION_JSON" -p 2>/dev/null; then
+      return 0
+    fi
   fi
+  if has_cmd postman; then
+    info "Postman CLI detected. Trying api import -> $PM_COLLECTION_JSON"
+    if postman api import --file "$OPENAPI_FILE" --format openapi --output "$PM_COLLECTION_JSON" 2>/dev/null; then
+      return 0
+    fi
+  fi
+  return 1
+}
 
+if generate_collection; then
   info "OK: OpenAPI generated + collection generated."
 
   # Option B: Auto-push to Postman workspace via Postman API (if env is configured)
@@ -268,6 +278,9 @@ if has_cmd postman; then
     fi
   fi
 else
-  info "Postman CLI not found; skipping collection generation. OpenAPI generated at: $OPENAPI_FILE"
+  echo "[postman-sync] WARNING: collection generation skipped. Install one of:" >&2
+  echo "  - npm install -g openapi-to-postmanv2   (recommended: openapi2postmanv2 -s <spec> -o <out> -p)" >&2
+  echo "  - Postman CLI with 'api import' support" >&2
+  echo "OpenAPI generated at: $OPENAPI_FILE" >&2
   exit 0
 fi
