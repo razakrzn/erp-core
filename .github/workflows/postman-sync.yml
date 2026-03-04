@@ -27,6 +27,11 @@ on:
 jobs:
   generate-and-sync:
     runs-on: ubuntu-latest
+    env:
+      POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+      POSTMAN_COLLECTION_UID: ${{ secrets.POSTMAN_COLLECTION_UID }}
+      POSTMAN_WORKSPACE_ID: ${{ secrets.POSTMAN_WORKSPACE_ID }}
+      POSTMAN_API_BASE_URL: ${{ secrets.POSTMAN_API_BASE_URL }}
 
     steps:
       - name: Checkout
@@ -61,11 +66,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Push collection to Postman workspace
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.POSTMAN_API_KEY != '' && (secrets.POSTMAN_COLLECTION_UID != '' || secrets.POSTMAN_WORKSPACE_ID != '')
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.POSTMAN_API_KEY != '' && (env.POSTMAN_COLLECTION_UID != '' || env.POSTMAN_WORKSPACE_ID != '')
         env:
-          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
-          POSTMAN_COLLECTION_UID: ${{ secrets.POSTMAN_COLLECTION_UID }}
-          POSTMAN_WORKSPACE_ID: ${{ secrets.POSTMAN_WORKSPACE_ID }}
-          POSTMAN_API_BASE_URL: ${{ secrets.POSTMAN_API_BASE_URL }}
           POSTMAN_COLLECTION_JSON: postman/collections-generated/ERP Core API (Generated).collection.json
         run: bash scripts/postman-push.sh
