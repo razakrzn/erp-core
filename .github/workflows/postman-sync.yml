@@ -1,10 +1,12 @@
 name: Postman Collection Sync
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
     paths:
+      - ".github/workflows/postman-sync.yml"
       - "api/**"
       - "apps/**"
       - "config/**"
@@ -15,6 +17,7 @@ on:
       - "postman/**"
   pull_request:
     paths:
+      - ".github/workflows/postman-sync.yml"
       - "api/**"
       - "apps/**"
       - "config/**"
