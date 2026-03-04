@@ -1,0 +1,27 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/api/v1/hrm/employees/'
+order: 17000
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Authorization
+    value: 'Bearer {{AccessToken}}'
+body:
+  type: json
+  content: |-
+    {}
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 2xx', function () {
+        pm.expect(pm.response.code).to.be.within(200, 299);
+      });
+
+      pm.test('Response is JSON (when body is present)', function () {
+        const ct = pm.response.headers.get('Content-Type') || '';
+        if (pm.response.text()) {
+          pm.expect(ct.toLowerCase()).to.include('application/json');
+        }
+      });

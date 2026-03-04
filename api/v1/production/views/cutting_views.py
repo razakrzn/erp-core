@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
 
 from apps.production.models import CuttingOptimizationJob
-from apps.production.services import run_cutting_optimization
+from apps.production.tasks import process_cutting_optimization_job_sync
 from core.utils.responses import APIResponse
 
 from ..serializers import CuttingOptimizationJobListSerializer, CuttingOptimizationJobSerializer
@@ -18,6 +18,21 @@ class CuttingOptimizationJobViewSet(viewsets.ModelViewSet):
     ordering_fields = ["created_at", "updated_at", "name", "status"]
     ordering = ["-created_at"]
 
+    @staticmethod
+    def _is_dxf_or_dwg(file_name: str) -> bool:
+        lower_name = (file_name or "").lower()
+        return lower_name.endswith(".dxf") or lower_name.endswith(".dwg")
+
+    def _job_has_reprocessable_cad(self, job: CuttingOptimizationJob) -> bool:
+        if not job.cad_file:
+            return False
+        if not self._is_dxf_or_dwg(job.cad_file.name):
+            return False
+        try:
+            return job.cad_file.storage.exists(job.cad_file.name)
+        except Exception:
+            return False
+
     def _dispatch_optimization(self, job):
         try:
             from apps.production.tasks import process_cutting_optimization_job
@@ -26,20 +41,7 @@ class CuttingOptimizationJobViewSet(viewsets.ModelViewSet):
         except Exception:
             # Fallback to sync processing when Celery/broker is unavailable.
             try:
-                result = run_cutting_optimization(job.cad_file.path, job.stock_sheets)
-                job.extracted_parts = result.get("parts", [])
-                job.optimization_result = result
-                job.status = "completed"
-                job.error_message = ""
-                job.save(
-                    update_fields=[
-                        "extracted_parts",
-                        "optimization_result",
-                        "status",
-                        "error_message",
-                        "updated_at",
-                    ]
-                )
+                process_cutting_optimization_job_sync(job)
             except Exception as exc:
                 job.status = "failed"
                 job.error_message = str(exc)
@@ -91,14 +93,37 @@ class CuttingOptimizationJobViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], url_path="retry")
     def retry(self, request, *args, **kwargs):
         job = self.get_object()
+
+        reuploaded_cad = request.FILES.get("cad_file")
+        if reuploaded_cad and not self._is_dxf_or_dwg(reuploaded_cad.name):
+            return APIResponse.error(
+                errors={"cad_file": ["Only .dxf or .dwg files are supported."]},
+                message="Validation error",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        update_fields = ["status", "error_message", "updated_at"]
+        if reuploaded_cad:
+            old_name = job.cad_file.name if job.cad_file else ""
+            job.cad_file = reuploaded_cad
+            if old_name and old_name != job.cad_file.name:
+                job.cad_file.storage.delete(old_name)
+            update_fields.append("cad_file")
+        elif not self._job_has_reprocessable_cad(job):
+            return APIResponse.error(
+                errors={"cad_file": ["Original CAD source is unavailable. Please reupload .dxf/.dwg and retry."]},
+                message="CAD reupload required",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
         job.status = "pending"
         job.error_message = ""
-        job.save(update_fields=["status", "error_message", "updated_at"])
+        job.save(update_fields=update_fields)
         self._dispatch_optimization(job)
         job.refresh_from_db()
         serializer = self.get_serializer(job)
         return APIResponse.success(
             data=serializer.data,
-            message="Cutting optimization reprocessing triggered successfully.",
+            message="Cutting optimization retry triggered successfully.",
             status_code=status.HTTP_200_OK,
         )

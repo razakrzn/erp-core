@@ -1,0 +1,7 @@
+$kind: collection
+name: ERP Core API
+description: |-
+  Auto-generated from Django/DRF routes in this repo.
+
+  Base path: /api/v1
+  Auth: JWT Bearer (Authorization: Bearer {{AccessToken}})

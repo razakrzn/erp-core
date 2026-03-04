@@ -1,0 +1,17 @@
+$kind: http-request
+method: DELETE
+url: '{{baseUrl}}/api/v1/hrm/attendance/:id/'
+order: 15000
+pathVariables:
+  - key: id
+    value: '1'
+headers:
+  - key: Authorization
+    value: 'Bearer {{AccessToken}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('Status code is 2xx', function () {
+        pm.expect(pm.response.code).to.be.within(200, 299);
+      });

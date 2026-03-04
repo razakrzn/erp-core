@@ -1,13 +1,52 @@
 from __future__ import annotations
 
+import io
+import logging
 from pathlib import Path
 import math
+from contextlib import contextmanager
 
 import ezdxf  # type: ignore[import-untyped]
+import matplotlib
 import numpy as np  # type: ignore[import-untyped]
+from openpyxl import Workbook
 from ezdxf.addons import odafc  # type: ignore[import-untyped]
+from ezdxf.addons.drawing import Frontend, RenderContext
+from ezdxf.addons.drawing.matplotlib import MatplotlibBackend
+matplotlib.use("Agg")
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
 from rectpack import newPacker  # type: ignore[import-untyped]
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
 from shapely.geometry import Polygon  # type: ignore[import-untyped]
+
+logger = logging.getLogger(__name__)
+_CAD_RENDER_NOISE_SNIPPETS = (
+    "copy process ignored ACDB_BLOCKREPRESENTATION_DATA",
+    "relative point size is not supported",
+)
+
+
+class _CadRenderNoiseFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        message = record.getMessage()
+        return not any(snippet in message for snippet in _CAD_RENDER_NOISE_SNIPPETS)
+
+
+@contextmanager
+def _suppress_known_cad_render_noise():
+    noise_filter = _CadRenderNoiseFilter()
+    root_logger = logging.getLogger()
+    ezdxf_logger = logging.getLogger("ezdxf")
+    root_logger.addFilter(noise_filter)
+    ezdxf_logger.addFilter(noise_filter)
+    try:
+        yield
+    finally:
+        root_logger.removeFilter(noise_filter)
+        ezdxf_logger.removeFilter(noise_filter)
+
 
 def _round_dim(value: float) -> float:
     return round(max(float(value), 0.0), 3)
@@ -269,4 +308,155 @@ def run_cutting_optimization(
             "oversized_parts": len(oversized_parts),
             "utilization_percent": utilization,
         },
+    }
+
+
+def _sanitize_stem(value: str) -> str:
+    stem = (value or "cutting-job").strip().replace(" ", "-")
+    safe = "".join(char for char in stem if char.isalnum() or char in {"-", "_"})
+    return safe or "cutting-job"
+
+
+def _layout_sequence(doc) -> list:
+    layouts = [doc.modelspace()]
+    layouts.extend(layout for layout in doc.layouts if layout.name.lower() != "model")
+    return layouts
+
+
+def _render_doc_to_pdf_bytes(doc, source_name: str) -> bytes:
+    buffer = io.BytesIO()
+    render_context = RenderContext(doc)
+    with _suppress_known_cad_render_noise():
+        with PdfPages(buffer) as pdf:
+            for layout in _layout_sequence(doc):
+                fig = plt.figure(figsize=(11.69, 8.27))
+                ax = fig.add_axes((0.02, 0.02, 0.96, 0.93))
+                ax.set_axis_off()
+                backend = MatplotlibBackend(ax)
+                Frontend(render_context, backend).draw_layout(layout, finalize=True)
+                fig.suptitle(f"{source_name} - {layout.name}", fontsize=10)
+                pdf.savefig(fig, bbox_inches="tight", dpi=150)
+                plt.close(fig)
+    return buffer.getvalue()
+
+
+def _remove_text_entities(doc) -> None:
+    for layout in _layout_sequence(doc):
+        for entity in list(layout.query("TEXT MTEXT ATTRIB ATTDEF")):
+            layout.delete_entity(entity)
+
+
+def build_cad_pdf(file_path: str, source_name: str) -> bytes:
+    """
+    Render complete CAD drawing (model + paper layouts) into a multi-page PDF.
+    """
+    doc = _load_doc(Path(file_path))
+    try:
+        # Vector PDF output keeps quality high while reducing file size pressure.
+        return _render_doc_to_pdf_bytes(doc, source_name)
+    except Exception as exc:
+        error_text = str(exc).lower()
+        if "font" not in error_text:
+            raise
+        logger.warning(
+            "CAD PDF rendering hit a font error for %s; retrying without text entities.",
+            source_name,
+            exc_info=True,
+        )
+        fallback_doc = _load_doc(Path(file_path))
+        _remove_text_entities(fallback_doc)
+        return _render_doc_to_pdf_bytes(fallback_doc, source_name)
+
+
+def _write_wrapped_lines(pdf: canvas.Canvas, lines: list[str], top_y: float) -> None:
+    y = top_y
+    for line in lines:
+        if y < 50:
+            pdf.showPage()
+            pdf.setFont("Helvetica", 10)
+            y = A4[1] - 50
+        pdf.drawString(40, y, line)
+        y -= 14
+
+
+def build_cutlist_pdf(result: dict, source_name: str) -> bytes:
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=A4)
+    pdf.setTitle(f"Cutlist-{source_name}")
+    pdf.setFont("Helvetica-Bold", 14)
+    pdf.drawString(40, A4[1] - 40, f"Cutlist - {source_name}")
+    pdf.setFont("Helvetica", 10)
+
+    summary = result.get("summary", {})
+    lines = [
+        f"Total parts: {summary.get('total_parts', 0)}",
+        f"Placed parts: {summary.get('placed_parts', 0)}",
+        f"Unplaced parts: {summary.get('unplaced_parts', 0)}",
+        f"Oversized parts: {summary.get('oversized_parts', 0)}",
+        f"Utilization: {summary.get('utilization_percent', 0.0)}%",
+        "",
+        "Placements:",
+    ]
+    for item in result.get("placements", []):
+        lines.append(
+            " - "
+            f"{item.get('part_id')} sheet={item.get('sheet')} "
+            f"x={item.get('x')} y={item.get('y')} "
+            f"w={item.get('width')} h={item.get('height')}"
+        )
+    _write_wrapped_lines(pdf, lines, A4[1] - 65)
+    pdf.save()
+    return buffer.getvalue()
+
+
+def build_cutlist_xlsx(result: dict) -> bytes:
+    workbook = Workbook()
+    summary_ws = workbook.active
+    summary_ws.title = "Summary"
+    summary_ws.append(["metric", "value"])
+    summary = result.get("summary", {})
+    summary_ws.append(["total_parts", summary.get("total_parts", 0)])
+    summary_ws.append(["placed_parts", summary.get("placed_parts", 0)])
+    summary_ws.append(["unplaced_parts", summary.get("unplaced_parts", 0)])
+    summary_ws.append(["oversized_parts", summary.get("oversized_parts", 0)])
+    summary_ws.append(["utilization_percent", summary.get("utilization_percent", 0.0)])
+
+    placement_ws = workbook.create_sheet("Placements")
+    placement_ws.append(["part_id", "sheet", "x", "y", "width", "height"])
+    for row in result.get("placements", []):
+        placement_ws.append(
+            [
+                row.get("part_id"),
+                row.get("sheet"),
+                row.get("x"),
+                row.get("y"),
+                row.get("width"),
+                row.get("height"),
+            ]
+        )
+
+    unplaced_ws = workbook.create_sheet("Unplaced")
+    unplaced_ws.append(["part_id", "width", "height"])
+    for row in result.get("unplaced_parts", []):
+        unplaced_ws.append([row.get("rid"), row.get("original_w"), row.get("original_h")])
+
+    oversized_ws = workbook.create_sheet("Oversized")
+    oversized_ws.append(["width", "height", "quantity"])
+    for row in result.get("oversized_parts", []):
+        oversized_ws.append([row.get("width"), row.get("height"), row.get("quantity", 1)])
+
+    buffer = io.BytesIO()
+    workbook.save(buffer)
+    return buffer.getvalue()
+
+
+def build_cutting_job_artifacts(result: dict, source_name: str, source_file_path: str) -> dict:
+    stem = _sanitize_stem(Path(source_name).stem)
+    return {
+        "cad_pdf_name": f"{stem}.pdf",
+        "cad_pdf_bytes": build_cad_pdf(source_file_path, source_name),
+        "cutlist_pdf_name": f"{stem}-cutlist.pdf",
+        "cutlist_pdf_bytes": build_cutlist_pdf(result, source_name),
+        "cutlist_xlsx_name": f"{stem}-cutlist.xlsx",
+        "cutlist_xlsx_bytes": build_cutlist_xlsx(result),
     }

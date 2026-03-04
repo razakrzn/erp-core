@@ -1,0 +1,42 @@
+$kind: http-example
+name: users - list
+request:
+  url: "{{baseUrl}}/api/v1/users/"
+  method: GET
+  headers:
+    Accept: application/json
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    server: gunicorn
+    date: Wed, 04 Mar 2026 10:07:31 GMT
+    connection: close
+    content-type: application/json
+    vary: Accept, origin
+    allow: GET, POST, HEAD, OPTIONS
+    x-frame-options: DENY
+    content-length: "1932"
+    x-content-type-options: nosniff
+    referrer-policy: same-origin
+    cross-origin-opener-policy: same-origin
+  body:
+    type: json
+    content: '{"success":true,"message":"Data retrieved
+      successfully","data":{"items":[{"id":33,"username":"editor","email":"editor@gmail.com","first_name":"editor","last_name":"1","company_details":{"id":15,"company_name":"New
+      Emerald Technical service
+      L.L.C"},"role_details":{"id":20,"role_name":"shahir"}},{"id":32,"username":"user1","email":"user1@gmail.com","first_name":"user1","last_name":"u","company_details":{"id":15,"company_name":"New
+      Emerald Technical service
+      L.L.C"},"role_details":{"id":19,"role_name":"HR"}},{"id":31,"username":"abcd","email":"adsjn@jkdne.co","first_name":"dasd","last_name":"dsaads","company_details":{"id":15,"company_name":"New
+      Emerald Technical service
+      L.L.C"},"role_details":{"id":18,"role_name":"Admin"}},{"id":30,"username":"abc1","email":"abc1@gmail.com","first_name":"abc","last_name":"ABC","company_details":{"id":15,"company_name":"New
+      Emerald Technical service
+      L.L.C"},"role_details":{"id":22,"role_name":"Checking
+      Role"}},{"id":29,"username":"shahiir","email":"shahirp70@gmail.com","first_name":"shahiir","last_name":"p","company_details":{"id":15,"company_name":"New
+      Emerald Technical service
+      L.L.C"},"role_details":{"id":19,"role_name":"HR"}},{"id":28,"username":"tester","email":"kalfan@example.com","first_name":"kalfan","last_name":"k","company_details":null,"role_details":{"id":19,"role_name":"HR"}},{"id":27,"username":"abc","email":"abcd@gmail.com","first_name":"abc","last_name":"d","company_details":{"id":15,"company_name":"New
+      Emerald Technical service
+      L.L.C"},"role_details":{"id":20,"role_name":"shahir"}},{"id":26,"username":"admin","email":"admin@emerald.com","first_name":"admin","last_name":"emerald","company_details":{"id":15,"company_name":"New
+      Emerald Technical service
+      L.L.C"},"role_details":{"id":18,"role_name":"Admin"}}],"pagination":{"count":8,"total_pages":1,"current_page":1,"next":null,"previous":null}},"status_code":200,"timestamp":"2026-03-04T10:07:31.235132+00:00"}'
+order: 1772618857895

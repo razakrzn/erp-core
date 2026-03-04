@@ -1,0 +1,14 @@
+name: ERP Core Local
+values:
+  - key: baseUrl
+    value: ''
+    enabled: true
+  - key: EMAIL
+    value: ''
+    enabled: true
+  - key: PASS
+    value: ''
+    enabled: true
+  - key: AccessToken
+    value: ''
+    enabled: true

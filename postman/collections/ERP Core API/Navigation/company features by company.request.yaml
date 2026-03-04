@@ -1,0 +1,15 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/v1/navigation/company/:company_id/features/'
+order: 12000
+pathVariables:
+  - key: company_id
+    value: '1'
+headers:
+  - key: Accept
+    value: application/json
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{AccessToken}}'

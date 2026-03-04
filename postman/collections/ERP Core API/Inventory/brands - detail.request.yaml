@@ -1,0 +1,15 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/api/v1/inventory/brands/:id/'
+order: 42000
+pathVariables:
+  - key: id
+    value: '1'
+headers:
+  - key: Accept
+    value: application/json
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{AccessToken}}'
