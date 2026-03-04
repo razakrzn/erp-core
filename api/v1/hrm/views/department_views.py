@@ -1,5 +1,6 @@
 from django_filters import rest_framework as django_filters
 from rest_framework import filters, status, viewsets
+from drf_spectacular.utils import extend_schema_view, extend_schema
 
 from apps.hrm.models.department import Department
 from apps.hrm.models.designation import Designation
@@ -9,6 +10,14 @@ from ..serializers.department_serializers import DepartmentDetailsSerializer, De
 from ..serializers.designation_serializers import DesignationSerializer
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["HRM"], summary="List departments", description="Paginated list of departments with search and ordering."),
+    retrieve=extend_schema(tags=["HRM"], summary="Get department", description="Retrieve a department by ID with head and designations."),
+    create=extend_schema(tags=["HRM"], summary="Create department", description="Create a new department."),
+    update=extend_schema(tags=["HRM"], summary="Update department", description="Full update of a department."),
+    partial_update=extend_schema(tags=["HRM"], summary="Partial update department", description="Partial update of a department."),
+    destroy=extend_schema(tags=["HRM"], summary="Delete department", description="Delete a department."),
+)
 class DepartmentViewSet(viewsets.ModelViewSet):
     """
     API v1 CRUD viewset for Department.

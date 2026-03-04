@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from drf_spectacular.utils import extend_schema
 
 from core.utils.responses import APIResponse
 
@@ -21,6 +22,13 @@ class LoginView(APIView):
     """
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        tags=["Auth"],
+        summary="Login",
+        description="Authenticate with username and password. Returns JWT access and refresh tokens plus user data.",
+        request=LoginSerializer,
+        responses={200: None},
+    )
     def post(self, request):
         serializer = LoginSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
@@ -50,6 +58,13 @@ class RefreshTokenView(APIView):
     """
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        tags=["Auth"],
+        summary="Refresh token",
+        description="Exchange a valid refresh token for a new access token.",
+        request=TokenRefreshSerializer,
+        responses={200: None, 401: None},
+    )
     def post(self, request):
         serializer = TokenRefreshSerializer(data=request.data)
         if not serializer.is_valid():

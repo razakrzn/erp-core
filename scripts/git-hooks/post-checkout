@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Git post-checkout hook: regenerate OpenAPI + Postman artifacts after branch switches.
+# Safe + idempotent: overwrites generated files only.
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+"$ROOT_DIR/scripts/postman-sync.sh" || true

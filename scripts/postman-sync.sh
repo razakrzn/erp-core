@@ -4,8 +4,8 @@ set -euo pipefail
 # Sync OpenAPI -> Postman artifacts (spec-first)
 # - (Optional) Generates OpenAPI spec via drf-spectacular management command
 # - Writes to postman/specs/openapi.yaml
-# - Generates a deterministic Postman Collection JSON committed in repo:
-#     postman/collections-generated/ERP Core API.collection.json
+# - Generates a deterministic Postman Collection JSON artifact (local-only by default):
+#     postman/collections-generated/ERP Core API (Generated).collection.json
 #
 # Strategy:
 # 1) Generate OpenAPI (unless --no-openapi is passed)
@@ -20,7 +20,7 @@ SPEC_DIR="postman/specs"
 OPENAPI_FILE="$SPEC_DIR/openapi.yaml"
 
 GENERATED_DIR="postman/collections-generated"
-PM_COLLECTION_JSON="$GENERATED_DIR/ERP Core API.collection.json"
+PM_COLLECTION_JSON="$GENERATED_DIR/ERP Core API (Generated).collection.json"
 
 mkdir -p "$SPEC_DIR" "$GENERATED_DIR"
 
@@ -32,7 +32,7 @@ Usage: scripts/postman-sync.sh [--no-openapi]
 
 Regenerates:
   - postman/specs/openapi.yaml (unless --no-openapi)
-  - postman/collections-generated/ERP Core API.collection.json (only if Postman CLI is installed)
+  - postman/collections-generated/ERP Core API (Generated).collection.json (only if Postman CLI is installed)
 
 Options:
   --no-openapi  Skip drf-spectacular generation and use the existing openapi.yaml
@@ -77,12 +77,35 @@ has_cmd() {
   command -v "$1" >/dev/null 2>&1
 }
 
+detect_compose_cmd() {
+  # Prefer Docker Compose v2 (`docker compose`). Fall back to legacy `docker-compose`.
+  if has_cmd docker && docker compose version >/dev/null 2>&1; then
+    echo "docker compose"
+    return 0
+  fi
+  if has_cmd docker-compose; then
+    echo "docker-compose"
+    return 0
+  fi
+  return 1
+}
+
+compose_cmd="$(detect_compose_cmd || true)"
+compose_file="$ROOT_DIR/docker-compose.yml"
+compose_project_args=()
+if [[ -n "$compose_cmd" && -f "$compose_file" ]]; then
+  compose_project_args=(-f "$compose_file")
+fi
+
 detect_python_runner() {
   # Outputs a command prefix suitable for running `manage.py`:
   #   - Local python executable path
   #   - Or `poetry run python`
   #   - Or `pipenv run python`
-  #   - Or `docker compose exec ... python`
+  #   - Or `python3`/`python`
+  #
+  # NOTE: We intentionally do NOT auto-fall back to Docker here; OpenAPI generation is handled
+  # by a docker-compose path (more reliable when dev runs via docker compose).
   if [[ -x "$ROOT_DIR/.venv/bin/python" ]]; then
     echo "$ROOT_DIR/.venv/bin/python"
     return 0
@@ -111,32 +134,110 @@ detect_python_runner() {
     return 0
   fi
 
-  if has_cmd docker && (has_cmd docker-compose || (has_cmd docker && docker compose version >/dev/null 2>&1)); then
-    if docker compose -f "$ROOT_DIR/docker-compose.yml" ps --services >/dev/null 2>&1; then
-      if docker compose -f "$ROOT_DIR/docker-compose.yml" ps web >/dev/null 2>&1; then
-        # Prefer running inside the web container if it's up.
-        echo "docker compose -f $ROOT_DIR/docker-compose.yml exec -T web python"
-        return 0
-      fi
+  return 1
+}
+
+detect_django_service_name() {
+  # Best-effort: prefer common Django service names.
+  # In this repo's docker-compose.yml the service is `web`.
+  [[ -n "$compose_cmd" ]] || return 1
+
+  local services
+  # `config --services` does not require running containers and works in CI.
+  services="$($compose_cmd "${compose_project_args[@]}" config --services 2>/dev/null || true)"
+  if [[ -z "$services" ]]; then
+    services="$($compose_cmd "${compose_project_args[@]}" ps --services 2>/dev/null || true)"
+  fi
+  [[ -n "$services" ]] || return 1
+
+  for candidate in web api app backend django; do
+    if echo "$services" | tr ' ' '\n' | grep -qx "$candidate"; then
+      echo "$candidate"
+      return 0
     fi
+  done
+
+  # Fallback: if there's exactly one service built from the repo root, user likely meant that.
+  # (We keep it simple and just fall back to `web` if present; otherwise error.)
+  return 1
+}
+
+is_compose_service_running() {
+  local service="$1"
+  [[ -n "$compose_cmd" ]] || return 1
+
+  # `ps -q` returns container id(s) for running services.
+  local cid
+  cid="$($compose_cmd "${compose_project_args[@]}" ps -q "$service" 2>/dev/null || true)"
+  [[ -n "$cid" ]]
+}
+
+generate_openapi_via_docker_compose() {
+  local service="$1"
+
+  [[ -n "$compose_cmd" ]] || return 1
+  [[ -f "$compose_file" ]] || return 1
+
+  if ! is_compose_service_running "$service"; then
+    echo "[postman-sync] docker compose service '$service' is not running." >&2
+    echo "[postman-sync] Start it with: $compose_cmd ${compose_project_args[*]} up -d $service" >&2
+    echo "[postman-sync] Will try local python fallback for OpenAPI generation." >&2
+    return 2
   fi
 
-  return 1
+  info "Generating OpenAPI via docker compose -> $OPENAPI_FILE"
+  # Because the repo is volume-mounted into the container (.:/app), writing to /app/postman/... writes to host.
+  $compose_cmd "${compose_project_args[@]}" exec -T "$service" python manage.py spectacular --file "$OPENAPI_FILE" >/dev/null
 }
 
 python_runner="$(detect_python_runner || true)"
 
-if [[ "$NO_OPENAPI" == "0" ]]; then
-  info "Generating OpenAPI schema -> $OPENAPI_FILE"
-
-  # Only run if manage.py exists.
-  [[ -f "$ROOT_DIR/manage.py" ]] || die "manage.py not found at repo root ($ROOT_DIR)."
-
-  [[ -n "$python_runner" ]] || die "Unable to find a Python runner. Tried: .venv/venv, poetry, pipenv, python3/python, docker compose." 
-
+generate_openapi_locally() {
+  [[ -n "$python_runner" ]] || return 1
+  info "Generating OpenAPI schema locally -> $OPENAPI_FILE"
   # Generate the OpenAPI file (idempotent overwrite).
   # shellcheck disable=SC2086
   $python_runner manage.py spectacular --file "$OPENAPI_FILE" >/dev/null
+}
+
+if [[ "$NO_OPENAPI" == "0" ]]; then
+  # Only run if manage.py exists.
+  [[ -f "$ROOT_DIR/manage.py" ]] || die "manage.py not found at repo root ($ROOT_DIR)."
+
+  # Prefer docker-compose based generation when available (more reliable when dev runs via docker compose).
+  if [[ -n "$compose_cmd" && -f "$compose_file" ]]; then
+    django_service="$(detect_django_service_name || true)"
+    if [[ -z "$django_service" ]]; then
+      echo "[postman-sync] docker compose detected but couldn't determine Django service name." >&2
+      echo "[postman-sync] Expected one of: web, api, app, backend, django" >&2
+      if [[ -n "$python_runner" ]]; then
+        generate_openapi_locally
+      else
+        echo "[postman-sync] Skipping OpenAPI generation (no local python fallback found)." >&2
+      fi
+    else
+      docker_gen_rc=0
+      generate_openapi_via_docker_compose "$django_service" || docker_gen_rc=$?
+      if [[ "$docker_gen_rc" -ne 0 ]]; then
+        if [[ "$docker_gen_rc" -eq 2 ]] && [[ -n "$python_runner" ]]; then
+          generate_openapi_locally
+        elif [[ "$docker_gen_rc" -eq 2 ]]; then
+          echo "[postman-sync] OpenAPI generation skipped: docker service not running and no local python runner found." >&2
+          echo "[postman-sync] Leaving existing $OPENAPI_FILE as-is." >&2
+        else
+          die "Docker compose OpenAPI generation failed."
+        fi
+      fi
+    fi
+  elif [[ -n "$python_runner" ]]; then
+    generate_openapi_locally
+  else
+    echo "[postman-sync] OpenAPI generation skipped: docker compose not available and no local python runner found." >&2
+    echo "[postman-sync] To enable generation:" >&2
+    echo "[postman-sync]  - Install Docker Desktop (or docker engine) and ensure '$compose_file' exists; then run: docker compose up -d web" >&2
+    echo "[postman-sync]  - OR create a local venv and install dependencies." >&2
+    echo "[postman-sync] Leaving existing $OPENAPI_FILE as-is." >&2
+  fi
 else
   info "--no-openapi specified; using existing $OPENAPI_FILE"
 fi
@@ -156,6 +257,16 @@ if has_cmd postman; then
   fi
 
   info "OK: OpenAPI generated + collection generated."
+
+  # Option B: Auto-push to Postman workspace via Postman API (if env is configured)
+  if [[ -n "${POSTMAN_API_KEY:-}" && ( -n "${POSTMAN_COLLECTION_UID:-}" || -n "${POSTMAN_WORKSPACE_ID:-}" ) ]]; then
+    export POSTMAN_COLLECTION_JSON="$PM_COLLECTION_JSON"
+    if "$ROOT_DIR/scripts/postman-push.sh"; then
+      info "Postman workspace updated."
+    else
+      echo "[postman-sync] WARNING: postman-push failed; collection file was still generated locally." >&2
+    fi
+  fi
 else
   info "Postman CLI not found; skipping collection generation. OpenAPI generated at: $OPENAPI_FILE"
   exit 0

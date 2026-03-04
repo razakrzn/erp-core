@@ -104,9 +104,35 @@ REST_FRAMEWORK = {
 # OpenAPI schema (drf-spectacular)
 SPECTACULAR_SETTINGS = {
     "TITLE": "ERP Core API",
-    "DESCRIPTION": "API for ERP Core.",
+    "DESCRIPTION": (
+        "REST API for ERP Core: companies, accounts, auth (JWT), HRM (employees, departments, "
+        "designations, attendance), inventory, production (orders, cutting, BOM, etc.), "
+        "navigation, access control, and RBAC. Use JWT access tokens in the Authorization header."
+    ),
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "TAGS": [
+        {"name": "Auth", "description": "Login and JWT token refresh."},
+        {"name": "Company", "description": "Company CRUD and settings."},
+        {"name": "Accounts", "description": "User accounts and check-username."},
+        {"name": "Navigation", "description": "Modules, features, permissions, sidebar."},
+        {"name": "Access control", "description": "API access and permissions."},
+        {"name": "HRM", "description": "Departments, designations, employees, attendance."},
+        {"name": "Inventory", "description": "Products, materials, categories, brands, sizes."},
+        {"name": "Production", "description": "Orders, cutting optimization, BOM, labor, etc."},
+        {"name": "RBAC", "description": "Role-based access control."},
+    ],
+    "TAGS_ORDER": [
+        "Auth",
+        "Company",
+        "Accounts",
+        "Navigation",
+        "Access control",
+        "HRM",
+        "Inventory",
+        "Production",
+        "RBAC",
+    ],
 }
 
 MIDDLEWARE = [

@@ -1,0 +1,11 @@
+$kind: collection
+name: ERP Core API Tests
+description: |-
+  Hand-maintained test collection (local-mode YAML).
+
+  Use this collection for functional checks, regression tests, and auth flows.
+  The reference collection is generated from OpenAPI and stored as a local-only artifact under postman/collections-generated/.
+variables:
+  - key: baseUrl
+    value: '{{baseUrl}}'
+    disabled: true

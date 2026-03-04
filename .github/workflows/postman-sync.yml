@@ -1,0 +1,71 @@
+name: Postman Collection Sync
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "api/**"
+      - "apps/**"
+      - "config/**"
+      - "manage.py"
+      - "requirements*.txt"
+      - "scripts/postman-sync.sh"
+      - "scripts/postman-push.sh"
+      - "postman/**"
+  pull_request:
+    paths:
+      - "api/**"
+      - "apps/**"
+      - "config/**"
+      - "manage.py"
+      - "requirements*.txt"
+      - "scripts/postman-sync.sh"
+      - "scripts/postman-push.sh"
+      - "postman/**"
+
+jobs:
+  generate-and-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Postman CLI
+        run: npm install -g postman-cli
+
+      - name: Generate OpenAPI + Postman collection
+        run: bash scripts/postman-sync.sh
+
+      - name: Upload generated collection artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-generated-collection
+          path: postman/collections-generated/ERP Core API (Generated).collection.json
+          if-no-files-found: warn
+
+      - name: Push collection to Postman workspace
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.POSTMAN_API_KEY != '' && (secrets.POSTMAN_COLLECTION_UID != '' || secrets.POSTMAN_WORKSPACE_ID != '')
+        env:
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+          POSTMAN_COLLECTION_UID: ${{ secrets.POSTMAN_COLLECTION_UID }}
+          POSTMAN_WORKSPACE_ID: ${{ secrets.POSTMAN_WORKSPACE_ID }}
+          POSTMAN_API_BASE_URL: ${{ secrets.POSTMAN_API_BASE_URL }}
+          POSTMAN_COLLECTION_JSON: postman/collections-generated/ERP Core API (Generated).collection.json
+        run: bash scripts/postman-push.sh

@@ -1,5 +1,6 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.permissions import IsAuthenticated
+from drf_spectacular.utils import extend_schema_view, extend_schema
 
 from apps.company.models import Company
 from core.utils.responses import APIResponse
@@ -8,6 +9,14 @@ from .permissions import IsCompanyAdminOrReadOnly
 from .serializers import CompanySerializer
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["Company"], summary="List companies", description="Paginated list with search on name/code and ordering."),
+    retrieve=extend_schema(tags=["Company"], summary="Get company", description="Retrieve a single company by ID."),
+    create=extend_schema(tags=["Company"], summary="Create company", description="Create a new company."),
+    update=extend_schema(tags=["Company"], summary="Update company", description="Full update of a company."),
+    partial_update=extend_schema(tags=["Company"], summary="Partial update company", description="Partial update of a company."),
+    destroy=extend_schema(tags=["Company"], summary="Delete company", description="Delete a company."),
+)
 class CompanyViewSet(viewsets.ModelViewSet):
     """
     API v1 CRUD viewset for Company.
