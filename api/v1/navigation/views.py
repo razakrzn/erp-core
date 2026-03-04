@@ -37,6 +37,7 @@ class FeatureListAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = FeatureSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         company_id = getattr(request.user, "company_id", None) if request.user.is_authenticated else None
@@ -123,6 +124,7 @@ class CompanyFeatureListAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = FeatureSerializer
 
     def get(self, request: Request, company_id: int, *args: Any, **kwargs: Any) -> Response:
         enabled_feature_ids = list(
@@ -201,6 +203,7 @@ class SidebarAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = SidebarFeatureSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         company = getattr(request.user, "company", None)
@@ -225,6 +228,7 @@ class EnableFeatureAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = FeatureWriteSerializer
 
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         company_id = getattr(request, "company_id", None) or kwargs.get("company_id")
@@ -279,6 +283,7 @@ class DisableFeatureAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = FeatureWriteSerializer
 
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         company_id = getattr(request, "company_id", None) or kwargs.get("company_id")
@@ -334,6 +339,7 @@ class FeatureReadOnlyListAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = FeatureReadOnlySerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         features = Feature.objects.order_by("order", "feature_name")
@@ -354,6 +360,7 @@ class FeatureCreateAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated, IsSuperuser]
+    serializer_class = FeatureWriteSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         features = (
@@ -391,6 +398,7 @@ class FeatureDetailAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated, IsSuperuser]
+    serializer_class = FeatureWriteSerializer
 
     def _get_feature(self, pk: int) -> Feature | None:
         return Feature.objects.filter(pk=pk).prefetch_related("modules__permissions").first()
@@ -475,6 +483,7 @@ class ModuleReadOnlyListAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = ModuleReadOnlySerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         modules = Module.objects.order_by("feature", "order", "module_name")
@@ -492,6 +501,7 @@ class ModuleListCreateAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated, IsSuperuser]
+    serializer_class = ModuleWriteSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = Module.objects.prefetch_related("permissions").order_by("feature", "order", "module_name")
@@ -528,6 +538,7 @@ class ModuleDetailAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated, IsSuperuser]
+    serializer_class = ModuleWriteSerializer
 
     def _get_module(self, pk: int) -> Module | None:
         return Module.objects.filter(pk=pk).prefetch_related("permissions").first()
@@ -611,6 +622,7 @@ class PermissionListCreateAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = PermissionWriteSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = Permission.objects.order_by("module", "permission_name")
@@ -647,6 +659,7 @@ class PermissionDetailAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
+    serializer_class = PermissionWriteSerializer
 
     def _get_permission(self, pk: int) -> Permission | None:
         return Permission.objects.filter(pk=pk).first()

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from rest_framework import serializers
 
 from apps.inventory.models import Product
@@ -45,25 +47,25 @@ class ProductNameFieldsSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['slug', 'sku', 'created_at', 'updated_at']
 
-    def get_category_name(self, obj):
+    def get_category_name(self, obj: Product) -> str | None:
         return obj.category.name if obj.category else None
 
-    def get_brand_name(self, obj):
+    def get_brand_name(self, obj: Product) -> str | None:
         return obj.brand.name if obj.brand else None
 
-    def get_material_name(self, obj):
+    def get_material_name(self, obj: Product) -> str | None:
         return obj.material.name if obj.material else None
 
-    def get_size_name(self, obj):
+    def get_size_name(self, obj: Product) -> str | None:
         return obj.size.name if obj.size else None
 
-    def get_thickness_name(self, obj):
+    def get_thickness_name(self, obj: Product) -> str | None:
         return obj.thickness.name if obj.thickness else None
 
-    def get_grade_name(self, obj):
+    def get_grade_name(self, obj: Product) -> str | None:
         return obj.grade.name if obj.grade else None
 
-    def get_finish_name(self, obj):
+    def get_finish_name(self, obj: Product) -> str | None:
         return obj.finish.name if obj.finish else None
 
 

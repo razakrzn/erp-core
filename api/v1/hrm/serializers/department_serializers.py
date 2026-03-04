@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 from rest_framework import serializers
 
 from apps.hrm.models.department import Department
@@ -18,7 +22,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'head_name', 'is_active', 'created_at']
         read_only_fields = ['slug', 'created_at']
 
-    def get_head_name(self, obj):
+    def get_head_name(self, obj: Department) -> str | None:
         return obj.head.full_name if obj.head else None
 
 
@@ -31,7 +35,7 @@ class DepartmentDetailsSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'head_details', 'is_active', 'created_at', 'designations']
         read_only_fields = ['slug', 'created_at']
 
-    def get_head_details(self, obj):
+    def get_head_details(self, obj: Department) -> dict[str, Any] | None:
         if not obj.head:
             return None
         return {

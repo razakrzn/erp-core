@@ -2772,12 +2772,28 @@ paths:
         required: true
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeatureWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FeatureWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FeatureWrite'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureWrite'
+          description: ''
   /api/v1/navigation/company/{company_id}/enable-features/:
     post:
       operationId: v1_navigation_company_enable_features_create
@@ -2790,12 +2806,28 @@ paths:
         required: true
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeatureWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FeatureWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FeatureWrite'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureWrite'
+          description: ''
   /api/v1/navigation/company/{company_id}/features/:
     get:
       operationId: v1_navigation_company_features_retrieve_2
@@ -2816,7 +2848,11 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feature'
+          description: ''
   /api/v1/navigation/company/features/:
     get:
       operationId: v1_navigation_company_features_retrieve
@@ -2831,7 +2867,11 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feature'
+          description: ''
   /api/v1/navigation/features/:
     get:
       operationId: v1_navigation_features_retrieve
@@ -2844,19 +2884,39 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureWrite'
+          description: ''
     post:
       operationId: v1_navigation_features_create
       description: List all features (GET) or create a new Feature (POST). Superuser
         only.
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeatureWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FeatureWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FeatureWrite'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureWrite'
+          description: ''
   /api/v1/navigation/features/{id}/:
     get:
       operationId: v1_navigation_features_retrieve_2
@@ -2875,7 +2935,11 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureWrite'
+          description: ''
     put:
       operationId: v1_navigation_features_update
       description: Retrieve, update (PUT/PATCH), or delete a Feature by id. Superuser
@@ -2888,12 +2952,28 @@ paths:
         required: true
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeatureWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FeatureWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FeatureWrite'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureWrite'
+          description: ''
     patch:
       operationId: v1_navigation_features_partial_update
       description: Retrieve, update (PUT/PATCH), or delete a Feature by id. Superuser
@@ -2906,12 +2986,27 @@ paths:
         required: true
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedFeatureWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedFeatureWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedFeatureWrite'
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureWrite'
+          description: ''
     delete:
       operationId: v1_navigation_features_destroy
       description: Retrieve, update (PUT/PATCH), or delete a Feature by id. Superuser
@@ -2943,7 +3038,11 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureReadOnly'
+          description: ''
   /api/v1/navigation/modules/:
     get:
       operationId: v1_navigation_modules_retrieve
@@ -2955,18 +3054,38 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleWrite'
+          description: ''
     post:
       operationId: v1_navigation_modules_create
       description: List all modules (GET) or create a module (POST). Superuser only.
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ModuleWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ModuleWrite'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleWrite'
+          description: ''
   /api/v1/navigation/modules/{id}/:
     get:
       operationId: v1_navigation_modules_retrieve_2
@@ -2985,7 +3104,11 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleWrite'
+          description: ''
     put:
       operationId: v1_navigation_modules_update
       description: Retrieve, update (PUT/PATCH), or delete a Module by id. Superuser
@@ -2998,12 +3121,28 @@ paths:
         required: true
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ModuleWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ModuleWrite'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleWrite'
+          description: ''
     patch:
       operationId: v1_navigation_modules_partial_update
       description: Retrieve, update (PUT/PATCH), or delete a Module by id. Superuser
@@ -3016,12 +3155,27 @@ paths:
         required: true
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedModuleWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedModuleWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedModuleWrite'
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleWrite'
+          description: ''
     delete:
       operationId: v1_navigation_modules_destroy
       description: Retrieve, update (PUT/PATCH), or delete a Module by id. Superuser
@@ -3053,7 +3207,11 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleReadOnly'
+          description: ''
   /api/v1/navigation/permissions/:
     get:
       operationId: v1_navigation_permissions_retrieve
@@ -3065,18 +3223,38 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionWrite'
+          description: ''
     post:
       operationId: v1_navigation_permissions_create
       description: List all permissions (GET) or create a permission (POST).
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PermissionWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PermissionWrite'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionWrite'
+          description: ''
   /api/v1/navigation/permissions/{id}/:
     get:
       operationId: v1_navigation_permissions_retrieve_2
@@ -3094,7 +3272,11 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionWrite'
+          description: ''
     put:
       operationId: v1_navigation_permissions_update
       description: Retrieve, update (PUT/PATCH), or delete a Permission by id.
@@ -3106,12 +3288,28 @@ paths:
         required: true
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PermissionWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PermissionWrite'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionWrite'
+          description: ''
     patch:
       operationId: v1_navigation_permissions_partial_update
       description: Retrieve, update (PUT/PATCH), or delete a Permission by id.
@@ -3123,12 +3321,27 @@ paths:
         required: true
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPermissionWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPermissionWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPermissionWrite'
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionWrite'
+          description: ''
     delete:
       operationId: v1_navigation_permissions_destroy
       description: Retrieve, update (PUT/PATCH), or delete a Permission by id.
@@ -3161,7 +3374,11 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SidebarFeature'
+          description: ''
   /api/v1/production/batch-tracking/:
     get:
       operationId: v1_production_batch_tracking_list
@@ -5065,18 +5282,38 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleHierarchyWrite'
+          description: ''
     post:
       operationId: v1_role_hierarchies_create
       description: List role hierarchy links (GET) or create one (POST).
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleHierarchyWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RoleHierarchyWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RoleHierarchyWrite'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleHierarchyWrite'
+          description: ''
   /api/v1/role-hierarchies/{id}/:
     get:
       operationId: v1_role_hierarchies_retrieve_2
@@ -5094,7 +5331,11 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleHierarchy'
+          description: ''
     delete:
       operationId: v1_role_hierarchies_destroy
       description: Retrieve or delete a RoleHierarchy by id.
@@ -5123,18 +5364,38 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RolePermissionWrite'
+          description: ''
     post:
       operationId: v1_role_permissions_create
       description: List role-permission links (GET) or create one (POST).
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RolePermissionWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RolePermissionWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RolePermissionWrite'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RolePermissionWrite'
+          description: ''
   /api/v1/role-permissions/{id}/:
     get:
       operationId: v1_role_permissions_retrieve_2
@@ -5153,7 +5414,11 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RolePermission'
+          description: ''
     delete:
       operationId: v1_role_permissions_destroy
       description: Retrieve or delete a RolePermission by id (no PUT/PATCH for join
@@ -5183,18 +5448,38 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleWrite'
+          description: ''
     post:
       operationId: v1_roles_create
       description: List roles (GET) or create a role (POST).
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RoleWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RoleWrite'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleWrite'
+          description: ''
   /api/v1/roles/{id}/:
     get:
       operationId: v1_roles_retrieve_2
@@ -5212,7 +5497,11 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleWrite'
+          description: ''
     put:
       operationId: v1_roles_update
       description: Retrieve, update (PUT/PATCH), or delete a Role by id.
@@ -5224,12 +5513,28 @@ paths:
         required: true
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RoleWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RoleWrite'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleWrite'
+          description: ''
     patch:
       operationId: v1_roles_partial_update
       description: Retrieve, update (PUT/PATCH), or delete a Role by id.
@@ -5241,12 +5546,27 @@ paths:
         required: true
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRoleWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRoleWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRoleWrite'
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleWrite'
+          description: ''
     delete:
       operationId: v1_roles_destroy
       description: Retrieve, update (PUT/PATCH), or delete a Role by id.
@@ -5275,18 +5595,38 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRoleWrite'
+          description: ''
     post:
       operationId: v1_user_roles_create
       description: List user-role assignments (GET) or create one (POST).
       tags:
       - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRoleWrite'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRoleWrite'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRoleWrite'
+        required: true
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRoleWrite'
+          description: ''
   /api/v1/user-roles/{id}/:
     get:
       operationId: v1_user_roles_retrieve_2
@@ -5304,7 +5644,11 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRoleDetails'
+          description: ''
     delete:
       operationId: v1_user_roles_destroy
       description: Retrieve or delete a UserRole by id.
@@ -5836,7 +6180,7 @@ components:
           format: uri
           nullable: true
         cad_reupload_required:
-          type: string
+          type: boolean
           readOnly: true
         status:
           allOf:
@@ -5910,6 +6254,7 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         head_name:
           type: string
+          nullable: true
           readOnly: true
         is_active:
           type: boolean
@@ -5960,7 +6305,9 @@ components:
           readOnly: true
           pattern: ^[-a-zA-Z0-9_]+$
         head_details:
-          type: string
+          type: object
+          additionalProperties: {}
+          nullable: true
           readOnly: true
         is_active:
           type: boolean
@@ -6039,15 +6386,21 @@ components:
           nullable: true
         department_name:
           type: string
+          nullable: true
           readOnly: true
         designation:
           type: integer
           nullable: true
         designation_name:
           type: string
+          nullable: true
           readOnly: true
         user_details:
-          type: string
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          nullable: true
           readOnly: true
         is_active:
           type: boolean
@@ -6326,12 +6679,14 @@ components:
           readOnly: true
         email:
           type: string
+          nullable: true
           readOnly: true
         full_name:
           type: string
           readOnly: true
         designation_name:
           type: string
+          nullable: true
           readOnly: true
         mobile_number:
           type: string
@@ -6358,6 +6713,86 @@ components:
         * `FLEXIBLE` - Flexible Working
         * `REMOTE` - Remote Work
         * `JOB_SHARE` - Job Sharing
+    Feature:
+      type: object
+      description: Serializer for Feature with nested modules (and their permissions).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        feature_code:
+          type: string
+          description: Stable identifier used in code/configuration.
+          maxLength: 100
+        feature_name:
+          type: string
+          description: Human-readable name shown in the UI.
+          maxLength: 150
+        icon:
+          type: string
+          nullable: true
+          description: Optional icon name for this feature.
+          maxLength: 100
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Controls display order in navigation (lower appears first).
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Module'
+          readOnly: true
+      required:
+      - feature_code
+      - feature_name
+      - id
+      - modules
+    FeatureReadOnly:
+      type: object
+      description: 'Read-only serializer for Feature: id, feature_code, feature_name
+        only.'
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        feature_code:
+          type: string
+          readOnly: true
+          description: Stable identifier used in code/configuration.
+        feature_name:
+          type: string
+          readOnly: true
+          description: Human-readable name shown in the UI.
+      required:
+      - feature_code
+      - feature_name
+      - id
+    FeatureWrite:
+      type: object
+      description: Serializer for creating and updating Feature (no nested modules).
+      properties:
+        feature_code:
+          type: string
+          description: Stable identifier used in code/configuration.
+          maxLength: 100
+        feature_name:
+          type: string
+          description: Human-readable name shown in the UI.
+          maxLength: 150
+        icon:
+          type: string
+          nullable: true
+          description: Optional icon name for this feature.
+          maxLength: 100
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Controls display order in navigation (lower appears first).
+      required:
+      - feature_code
+      - feature_name
     Finish:
       type: object
       properties:
@@ -6585,6 +7020,104 @@ components:
         * `PUT` - PUT
         * `PATCH` - PATCH
         * `DELETE` - DELETE
+    Module:
+      type: object
+      description: Serializer for Module with nested permissions.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        feature_name:
+          type: string
+          description: Human-readable name shown in the UI.
+          readOnly: true
+        module_code:
+          type: string
+          description: Stable identifier used in code/configuration.
+          maxLength: 120
+        module_name:
+          type: string
+          description: Human-readable name shown in the UI.
+          maxLength: 150
+        route:
+          type: string
+          nullable: true
+          description: Frontend route path for this module, if applicable.
+          maxLength: 200
+        icon:
+          type: string
+          nullable: true
+          description: Optional icon name for this module.
+          maxLength: 100
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Controls display order within a feature.
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+          readOnly: true
+      required:
+      - feature_name
+      - id
+      - module_code
+      - module_name
+      - permissions
+    ModuleReadOnly:
+      type: object
+      description: 'Read-only serializer for Module: id, module_code, module_name
+        only.'
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        module_code:
+          type: string
+          readOnly: true
+          description: Stable identifier used in code/configuration.
+        module_name:
+          type: string
+          readOnly: true
+          description: Human-readable name shown in the UI.
+      required:
+      - id
+      - module_code
+      - module_name
+    ModuleWrite:
+      type: object
+      description: Serializer for creating and updating Module (no nested permissions).
+      properties:
+        feature:
+          type: integer
+        module_code:
+          type: string
+          description: Stable identifier used in code/configuration.
+          maxLength: 120
+        module_name:
+          type: string
+          description: Human-readable name shown in the UI.
+          maxLength: 150
+        route:
+          type: string
+          nullable: true
+          description: Frontend route path for this module, if applicable.
+          maxLength: 200
+        icon:
+          type: string
+          nullable: true
+          description: Optional icon name for this module.
+          maxLength: 100
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Controls display order within a feature.
+      required:
+      - feature
+      - module_code
+      - module_name
     NullEnum:
       enum:
       - null
@@ -7428,7 +7961,7 @@ components:
           format: uri
           nullable: true
         cad_reupload_required:
-          type: string
+          type: boolean
           readOnly: true
         status:
           allOf:
@@ -7477,6 +8010,7 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         head_name:
           type: string
+          nullable: true
           readOnly: true
         is_active:
           type: boolean
@@ -7536,15 +8070,21 @@ components:
           nullable: true
         department_name:
           type: string
+          nullable: true
           readOnly: true
         designation:
           type: integer
           nullable: true
         designation_name:
           type: string
+          nullable: true
           readOnly: true
         user_details:
-          type: string
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          nullable: true
           readOnly: true
         is_active:
           type: boolean
@@ -7797,6 +8337,28 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PreviousEmployment'
+    PatchedFeatureWrite:
+      type: object
+      description: Serializer for creating and updating Feature (no nested modules).
+      properties:
+        feature_code:
+          type: string
+          description: Stable identifier used in code/configuration.
+          maxLength: 100
+        feature_name:
+          type: string
+          description: Human-readable name shown in the UI.
+          maxLength: 150
+        icon:
+          type: string
+          nullable: true
+          description: Optional icon name for this feature.
+          maxLength: 100
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Controls display order in navigation (lower appears first).
     PatchedFinish:
       type: object
       properties:
@@ -7953,6 +8515,49 @@ components:
           type: string
           format: date-time
           readOnly: true
+    PatchedModuleWrite:
+      type: object
+      description: Serializer for creating and updating Module (no nested permissions).
+      properties:
+        feature:
+          type: integer
+        module_code:
+          type: string
+          description: Stable identifier used in code/configuration.
+          maxLength: 120
+        module_name:
+          type: string
+          description: Human-readable name shown in the UI.
+          maxLength: 150
+        route:
+          type: string
+          nullable: true
+          description: Frontend route path for this module, if applicable.
+          maxLength: 200
+        icon:
+          type: string
+          nullable: true
+          description: Optional icon name for this module.
+          maxLength: 100
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Controls display order within a feature.
+    PatchedPermissionWrite:
+      type: object
+      description: Serializer for creating and updating Permission.
+      properties:
+        module:
+          type: integer
+        permission_code:
+          type: string
+          description: Stable permission code used in RBAC checks.
+          maxLength: 150
+        permission_name:
+          type: string
+          description: Human-readable permission label.
+          maxLength: 150
     PatchedProduct:
       type: object
       properties:
@@ -7977,42 +8582,49 @@ components:
           type: integer
         category_name:
           type: string
+          nullable: true
           readOnly: true
         brand:
           type: integer
           nullable: true
         brand_name:
           type: string
+          nullable: true
           readOnly: true
         material:
           type: integer
           nullable: true
         material_name:
           type: string
+          nullable: true
           readOnly: true
         size:
           type: integer
           nullable: true
         size_name:
           type: string
+          nullable: true
           readOnly: true
         thickness:
           type: integer
           nullable: true
         thickness_name:
           type: string
+          nullable: true
           readOnly: true
         grade:
           type: integer
           nullable: true
         grade_name:
           type: string
+          nullable: true
           readOnly: true
         finish:
           type: integer
           nullable: true
         finish_name:
           type: string
+          nullable: true
           readOnly: true
         is_active:
           type: boolean
@@ -8140,6 +8752,30 @@ components:
         production_order:
           type: integer
           nullable: true
+    PatchedRoleWrite:
+      type: object
+      description: Serializer for creating and updating Role (optional permissions
+        on create and PUT/PATCH).
+      properties:
+        role_name:
+          type: string
+          maxLength: 150
+        role_code:
+          type: string
+          maxLength: 150
+        description:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        permissions:
+          type: array
+          items:
+            type: integer
+            writeOnly: true
+          writeOnly: true
+          description: Optional list of permission IDs to assign on create or replace
+            on update (PUT/PATCH).
     PatchedShopFloorControl:
       type: object
       properties:
@@ -8308,10 +8944,16 @@ components:
           type: string
           maxLength: 150
         company_details:
-          type: string
+          type: object
+          additionalProperties: {}
+          nullable: true
           readOnly: true
         role_details:
-          type: string
+          oneOf:
+          - type: object
+            additionalProperties: {}
+          - type: string
+          nullable: true
           readOnly: true
         role_id:
           type: integer
@@ -8361,6 +9003,48 @@ components:
           pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
         production_order:
           type: integer
+    Permission:
+      type: object
+      description: Serializer for navigation Permission (used by RBAC).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        module_name:
+          type: string
+          description: Human-readable name shown in the UI.
+          readOnly: true
+        permission_code:
+          type: string
+          description: Stable permission code used in RBAC checks.
+          maxLength: 150
+        permission_name:
+          type: string
+          description: Human-readable permission label.
+          maxLength: 150
+      required:
+      - id
+      - module_name
+      - permission_code
+      - permission_name
+    PermissionWrite:
+      type: object
+      description: Serializer for creating and updating Permission.
+      properties:
+        module:
+          type: integer
+        permission_code:
+          type: string
+          description: Stable permission code used in RBAC checks.
+          maxLength: 150
+        permission_name:
+          type: string
+          description: Human-readable permission label.
+          maxLength: 150
+      required:
+      - module
+      - permission_code
+      - permission_name
     PreviousEmployment:
       type: object
       properties:
@@ -8414,42 +9098,49 @@ components:
           type: integer
         category_name:
           type: string
+          nullable: true
           readOnly: true
         brand:
           type: integer
           nullable: true
         brand_name:
           type: string
+          nullable: true
           readOnly: true
         material:
           type: integer
           nullable: true
         material_name:
           type: string
+          nullable: true
           readOnly: true
         size:
           type: integer
           nullable: true
         size_name:
           type: string
+          nullable: true
           readOnly: true
         thickness:
           type: integer
           nullable: true
         thickness_name:
           type: string
+          nullable: true
           readOnly: true
         grade:
           type: integer
           nullable: true
         grade_name:
           type: string
+          nullable: true
           readOnly: true
         finish:
           type: integer
           nullable: true
         finish_name:
           type: string
+          nullable: true
           readOnly: true
         is_active:
           type: boolean
@@ -8498,24 +9189,31 @@ components:
           pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
         category_name:
           type: string
+          nullable: true
           readOnly: true
         brand_name:
           type: string
+          nullable: true
           readOnly: true
         material_name:
           type: string
+          nullable: true
           readOnly: true
         size_name:
           type: string
+          nullable: true
           readOnly: true
         thickness_name:
           type: string
+          nullable: true
           readOnly: true
         grade_name:
           type: string
+          nullable: true
           readOnly: true
         finish_name:
           type: string
+          nullable: true
           readOnly: true
         is_active:
           type: boolean
@@ -8688,6 +9386,85 @@ components:
       - name
       - slug
       - updated_at
+    RoleHierarchy:
+      type: object
+      description: Serializer for RoleHierarchy (parent–child role).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        parent_role:
+          type: integer
+        child_role:
+          type: integer
+      required:
+      - child_role
+      - id
+      - parent_role
+    RoleHierarchyWrite:
+      type: object
+      description: Serializer for creating RoleHierarchy.
+      properties:
+        parent_role:
+          type: integer
+        child_role:
+          type: integer
+      required:
+      - child_role
+      - parent_role
+    RolePermission:
+      type: object
+      description: Serializer for RolePermission (role–permission link).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        role:
+          type: integer
+        permission:
+          type: integer
+      required:
+      - id
+      - permission
+      - role
+    RolePermissionWrite:
+      type: object
+      description: Serializer for creating RolePermission.
+      properties:
+        role:
+          type: integer
+        permission:
+          type: integer
+      required:
+      - permission
+      - role
+    RoleWrite:
+      type: object
+      description: Serializer for creating and updating Role (optional permissions
+        on create and PUT/PATCH).
+      properties:
+        role_name:
+          type: string
+          maxLength: 150
+        role_code:
+          type: string
+          maxLength: 150
+        description:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        permissions:
+          type: array
+          items:
+            type: integer
+            writeOnly: true
+          writeOnly: true
+          description: Optional list of permission IDs to assign on create or replace
+            on update (PUT/PATCH).
+      required:
+      - role_code
+      - role_name
     ShopFloorControl:
       type: object
       properties:
@@ -8734,6 +9511,45 @@ components:
       - production_order
       - slug
       - updated_at
+    SidebarFeature:
+      type: object
+      description: Minimal feature payload for sidebar with nested modules.
+      properties:
+        feature_code:
+          type: string
+        feature_name:
+          type: string
+        icon:
+          type: string
+          nullable: true
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/SidebarModule'
+      required:
+      - feature_code
+      - feature_name
+      - icon
+      - modules
+    SidebarModule:
+      type: object
+      description: Minimal module payload for sidebar (e.g. from sidebar_builder).
+      properties:
+        module_code:
+          type: string
+        module_name:
+          type: string
+        route:
+          type: string
+          nullable: true
+        icon:
+          type: string
+          nullable: true
+      required:
+      - icon
+      - module_code
+      - module_name
+      - route
     Size:
       type: object
       properties:
@@ -8955,10 +9771,16 @@ components:
           type: string
           maxLength: 150
         company_details:
-          type: string
+          type: object
+          additionalProperties: {}
+          nullable: true
           readOnly: true
         role_details:
-          type: string
+          oneOf:
+          - type: object
+            additionalProperties: {}
+          - type: string
+          nullable: true
           readOnly: true
         role_id:
           type: integer
@@ -8976,6 +9798,41 @@ components:
       - id
       - role_details
       - username
+    UserRoleDetails:
+      type: object
+      description: 'Serializer for UserRole detail: full user details and role details.'
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        assigned_at:
+          type: string
+          format: date-time
+          readOnly: true
+        user_details:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+        role_details:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+      required:
+      - assigned_at
+      - id
+      - role_details
+      - user_details
+    UserRoleWrite:
+      type: object
+      description: Serializer for creating UserRole.
+      properties:
+        user:
+          type: integer
+        role:
+          type: integer
+      required:
+      - role
+      - user
     WIPTracking:
       type: object
       properties:

@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers
@@ -15,7 +19,7 @@ class PreviousEmploymentSerializer(serializers.ModelSerializer):
 
 
 class EmployeeListSerializer(serializers.ModelSerializer):
-    full_name = serializers.ReadOnlyField()
+    full_name = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
     designation_name = serializers.SerializerMethodField()
 
@@ -29,34 +33,40 @@ class EmployeeListSerializer(serializers.ModelSerializer):
             'mobile_number',
         ]
 
-    def get_first_name(self, obj):
+    def get_first_name(self, obj: Employee) -> str | None:
         if obj.user:
             return obj.user.first_name
         return obj.first_name
 
-    def get_last_name(self, obj):
+    def get_last_name(self, obj: Employee) -> str | None:
         if obj.user:
             return obj.user.last_name
         return obj.last_name
 
-    def get_department_name(self, obj):
+    def get_department_name(self, obj: Employee) -> str | None:
         return obj.department.name if obj.department else None
 
-    def get_designation_name(self, obj):
+    def get_designation_name(self, obj: Employee) -> str | None:
         return obj.designation.name if obj.designation else None
 
-    def get_email(self, obj):
+    def get_email(self, obj: Employee) -> str | None:
         if obj.user:
             return obj.user.email
         return obj.email
 
+    def get_full_name(self, obj: Employee) -> str:
+        return obj.full_name or ""
+
 
 class EmployeeLightweightSerializer(serializers.ModelSerializer):
-    full_name = serializers.ReadOnlyField()
+    full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Employee
         fields = ['id', 'full_name']
+
+    def get_full_name(self, obj: Employee) -> str:
+        return obj.full_name or ""
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
@@ -193,7 +203,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
         return instance
 
-    def get_user_details(self, obj):
+    def get_user_details(self, obj: Employee) -> list[dict[str, Any]] | None:
         if not obj.user:
             return None
         user_role = UserRole.objects.select_related('role').filter(user=obj.user).first()
@@ -218,8 +228,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
             ret.pop('user_details', None)
         return ret
 
-    def get_department_name(self, obj):
+    def get_department_name(self, obj: Employee) -> str | None:
         return obj.department.name if obj.department else None
 
-    def get_designation_name(self, obj):
+    def get_designation_name(self, obj: Employee) -> str | None:
         return obj.designation.name if obj.designation else None

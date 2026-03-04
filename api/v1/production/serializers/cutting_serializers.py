@@ -90,7 +90,7 @@ class CuttingOptimizationJobSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"cad_file": "This field is required."})
         return attrs
 
-    def get_cad_reupload_required(self, obj):
+    def get_cad_reupload_required(self, obj: CuttingOptimizationJob) -> bool:
         if not obj.cad_file:
             return True
         lower_name = (obj.cad_file.name or "").lower()

@@ -46,7 +46,7 @@ def _get_company_id(request: Request, kwargs: dict) -> int | None:
 
 class RoleListCreateAPIView(APIView):
     """List roles (GET) or create a role (POST)."""
-
+    serializer_class = RoleWriteSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = Role.objects.order_by("company", "role_name")
@@ -113,6 +113,7 @@ class RoleListCreateAPIView(APIView):
 
 class RoleDetailAPIView(APIView):
     """Retrieve, update (PUT/PATCH), or delete a Role by id."""
+    serializer_class = RoleWriteSerializer
 
     def _get_role(self, pk: int) -> Role | None:
         return Role.objects.filter(pk=pk).prefetch_related("role_permissions").first()
@@ -193,6 +194,7 @@ class RoleDetailAPIView(APIView):
 
 class RolePermissionListCreateAPIView(APIView):
     """List role-permission links (GET) or create one (POST)."""
+    serializer_class = RolePermissionWriteSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = RolePermission.objects.select_related("role", "permission").order_by("role", "permission")
@@ -227,6 +229,7 @@ class RolePermissionListCreateAPIView(APIView):
 
 class RolePermissionDetailAPIView(APIView):
     """Retrieve or delete a RolePermission by id (no PUT/PATCH for join table)."""
+    serializer_class = RolePermissionSerializer
 
     def get(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
         rp = RolePermission.objects.filter(pk=pk).select_related("role", "permission").first()
@@ -261,6 +264,7 @@ class RolePermissionDetailAPIView(APIView):
 
 class UserRoleListCreateAPIView(APIView):
     """List user-role assignments (GET) or create one (POST)."""
+    serializer_class = UserRoleWriteSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = UserRole.objects.select_related("user", "role").order_by("user", "role")
@@ -295,6 +299,7 @@ class UserRoleListCreateAPIView(APIView):
 
 class UserRoleDetailAPIView(APIView):
     """Retrieve or delete a UserRole by id."""
+    serializer_class = UserRoleDetailsSerializer
 
     def get(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
         ur = UserRole.objects.filter(pk=pk).select_related("user", "role").first()
@@ -329,6 +334,7 @@ class UserRoleDetailAPIView(APIView):
 
 class RoleHierarchyListCreateAPIView(APIView):
     """List role hierarchy links (GET) or create one (POST)."""
+    serializer_class = RoleHierarchyWriteSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         queryset = RoleHierarchy.objects.select_related("parent_role", "child_role").order_by("parent_role", "child_role")
@@ -363,6 +369,7 @@ class RoleHierarchyListCreateAPIView(APIView):
 
 class RoleHierarchyDetailAPIView(APIView):
     """Retrieve or delete a RoleHierarchy by id."""
+    serializer_class = RoleHierarchySerializer
 
     def get(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
         rh = RoleHierarchy.objects.filter(pk=pk).select_related("parent_role", "child_role").first()

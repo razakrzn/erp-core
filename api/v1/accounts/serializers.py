@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -53,7 +57,7 @@ class UserSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {"company": {"write_only": True}}
     
-    def get_company_details(self, obj):
+    def get_company_details(self, obj: User) -> dict[str, Any] | None:
         # 'obj' is the User instance
         if obj.company:
             return {
@@ -62,7 +66,7 @@ class UserSerializer(serializers.ModelSerializer):
             }
         return None
 
-    def get_role_details(self, obj):
+    def get_role_details(self, obj: User) -> dict[str, Any] | str | None:
         user_role = obj.user_roles.select_related("role").first()
         if user_role:
             return {
