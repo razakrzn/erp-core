@@ -1,7 +1,0 @@
-$kind: http-request
-method: GET
-url: '{{baseUrl}}/api/inventory/'
-order: 3000
-headers:
-  - key: Authorization
-    value: 'Bearer {{AccessToken}}'
