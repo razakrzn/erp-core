@@ -51,9 +51,18 @@ if ! command -v jq >/dev/null 2>&1; then
   die "jq is required to wrap the collection JSON. Install jq or set POSTMAN_COLLECTION_UID and use a pre-wrapped payload."
 fi
 
-BODY=$(jq -n --slurpfile c "$COLLECTION_JSON" '{collection: $c[0]}')
-if [[ -z "$BODY" ]]; then
+BODY_FILE="$(mktemp)"
+cleanup() {
+  rm -f "$BODY_FILE"
+}
+trap cleanup EXIT
+
+if ! jq -n --slurpfile c "$COLLECTION_JSON" '{collection: $c[0]}' > "$BODY_FILE"; then
   die "jq failed to build request body from $COLLECTION_JSON"
+fi
+
+if [[ ! -s "$BODY_FILE" ]]; then
+  die "Generated request body is empty: $BODY_FILE"
 fi
 
 if [[ -n "${POSTMAN_COLLECTION_UID:-}" ]]; then
@@ -62,7 +71,7 @@ if [[ -n "${POSTMAN_COLLECTION_UID:-}" ]]; then
   RESP=$(curl -s -w "\n%{http_code}" -X PUT \
     -H "X-API-Key: $API_KEY" \
     -H "Content-Type: application/json" \
-    -d "$BODY" \
+    --data-binary "@$BODY_FILE" \
     "$API_BASE/collections/$POSTMAN_COLLECTION_UID")
   HTTP_CODE=$(echo "$RESP" | tail -n1)
   BODY_RESP=$(echo "$RESP" | sed '$d')
@@ -79,7 +88,7 @@ elif [[ -n "${POSTMAN_WORKSPACE_ID:-}" ]]; then
   RESP=$(curl -s -w "\n%{http_code}" -X POST \
     -H "X-API-Key: $API_KEY" \
     -H "Content-Type: application/json" \
-    -d "$BODY" \
+    --data-binary "@$BODY_FILE" \
     "$API_BASE/collections?workspace=$POSTMAN_WORKSPACE_ID")
   HTTP_CODE=$(echo "$RESP" | tail -n1)
   BODY_RESP=$(echo "$RESP" | sed '$d')
