@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "apps.access_control",
     "apps.rbac",
     "apps.hrm",
+    "apps.crm",
     "apps.inventory",
     "apps.production",
 ]
