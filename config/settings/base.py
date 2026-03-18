@@ -73,9 +73,10 @@ INSTALLED_APPS = [
     "apps.access_control",
     "apps.rbac",
     "apps.hrm",
-    "apps.crm",
+    "apps.crm.apps.CrmConfig",
     "apps.inventory",
     "apps.production",
+    "apps.assessment.apps.AssessmentConfig",
 ]
 
 REST_FRAMEWORK = {
