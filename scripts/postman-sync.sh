@@ -91,13 +91,6 @@ post_process_collection_auth_automation() {
   tmp_file="$(mktemp)"
 
   if ! jq '
-    def ensure_var($key):
-      if ((.variable // []) | map(.key) | index($key)) == null then
-        .variable = ((.variable // []) + [{"type":"string","value":"","key":$key}])
-      else
-        .
-      end;
-
     def automation_event:
       {
         "listen": "test",
@@ -108,15 +101,18 @@ post_process_collection_auth_automation() {
             "let json = null;",
             "try { json = pm.response.json(); } catch (e) {}",
             "if (json && typeof json === '\''object'\'') {",
-            "  const access = json.access || json.access_token || json.token || null;",
-            "  const refresh = json.refresh || json.refresh_token || null;",
+            "  const payload = json.data && typeof json.data === '\''object'\'' ? json.data : json;",
+            "  const access = payload.access || payload.access_token || payload.token || null;",
+            "  const refresh = payload.refresh || payload.refresh_token || null;",
             "  if (access) {",
             "    pm.collectionVariables.set('\''bearerToken'\'', access);",
             "    pm.environment.set('\''bearerToken'\'', access);",
+            "    pm.globals.set('\''bearerToken'\'', access);",
             "  }",
             "  if (refresh) {",
             "    pm.collectionVariables.set('\''refreshToken'\'', refresh);",
             "    pm.environment.set('\''refreshToken'\'', refresh);",
+            "    pm.globals.set('\''refreshToken'\'', refresh);",
             "  }",
             "}",
             "",
@@ -125,7 +121,7 @@ post_process_collection_auth_automation() {
             "const isAuthRequest = requestPath.includes('\''/api/v1/auth/login/'\'') || requestPath.includes('\''/api/v1/auth/refresh/'\'');",
             "if (pm.response.code === 401 && !isAuthRequest) {",
             "  const alreadyRetried = pm.collectionVariables.get('\''__autoRefreshRetrying'\'') === '\''1'\'';",
-            "  const refreshToken = pm.collectionVariables.get('\''refreshToken'\'') || pm.environment.get('\''refreshToken'\'');",
+            "  const refreshToken = pm.collectionVariables.get('\''refreshToken'\'') || pm.environment.get('\''refreshToken'\'') || pm.globals.get('\''refreshToken'\'');",
             "  if (!alreadyRetried && refreshToken) {",
             "    pm.collectionVariables.set('\''__autoRefreshRetrying'\'', '\''1'\'');",
             "    pm.sendRequest({",
@@ -141,15 +137,18 @@ post_process_collection_auth_automation() {
             "        let refreshJson = null;",
             "        try { refreshJson = res.json(); } catch (e) {}",
             "        if (res.code >= 200 && res.code < 300 && refreshJson && typeof refreshJson === '\''object'\'') {",
-            "          const newAccess = refreshJson.access || refreshJson.access_token || refreshJson.token || null;",
-            "          const newRefresh = refreshJson.refresh || refreshJson.refresh_token || null;",
+            "          const refreshPayload = refreshJson.data && typeof refreshJson.data === '\''object'\'' ? refreshJson.data : refreshJson;",
+            "          const newAccess = refreshPayload.access || refreshPayload.access_token || refreshPayload.token || null;",
+            "          const newRefresh = refreshPayload.refresh || refreshPayload.refresh_token || null;",
             "          if (newAccess) {",
             "            pm.collectionVariables.set('\''bearerToken'\'', newAccess);",
             "            pm.environment.set('\''bearerToken'\'', newAccess);",
+            "            pm.globals.set('\''bearerToken'\'', newAccess);",
             "          }",
             "          if (newRefresh) {",
             "            pm.collectionVariables.set('\''refreshToken'\'', newRefresh);",
             "            pm.environment.set('\''refreshToken'\'', newRefresh);",
+            "            pm.globals.set('\''refreshToken'\'', newRefresh);",
             "          }",
             "          // Retry works in Collection Runner/Newman flows.",
             "          if (newAccess) {",
@@ -196,8 +195,7 @@ post_process_collection_auth_automation() {
         end;
 
     .
-    | ensure_var("bearerToken")
-    | ensure_var("refreshToken")
+    | .variable = ((.variable // []) | map(select((.key != "bearerToken") and (.key != "refreshToken"))))
     | .event = (
         ((.event // [])
           | map(
