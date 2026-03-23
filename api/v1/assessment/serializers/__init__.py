@@ -1,9 +1,16 @@
-from .boq_serializers import BoqItemSerializer, BoqSerializer
+from .boq_serializers import (
+    BoqDetailSerializer,
+    BoqItemDetailSerializer,
+    BoqItemListSerializer,
+    BoqListSerializer,
+)
 from .quote_serializers import FinishSerializer, QuoteItemSerializer, QuoteSerializer, TermSerializer
 
 __all__ = [
-    "BoqSerializer",
-    "BoqItemSerializer",
+    "BoqListSerializer",
+    "BoqDetailSerializer",
+    "BoqItemListSerializer",
+    "BoqItemDetailSerializer",
     "QuoteSerializer",
     "QuoteItemSerializer",
     "FinishSerializer",
