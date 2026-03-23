@@ -1,2 +1,10 @@
 name: Globals
-values: []
+values:
+  - key: bearerToken
+    value: ""
+    type: default
+    enabled: true
+  - key: refreshToken
+    value: ""
+    type: default
+    enabled: true

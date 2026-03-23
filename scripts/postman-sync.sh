@@ -77,6 +77,148 @@ has_cmd() {
   command -v "$1" >/dev/null 2>&1
 }
 
+post_process_collection_auth_automation() {
+  # Add Postman automation after generation:
+  # - Capture access/refresh tokens from response JSON and store in variables.
+  # - Ensure bearerToken/refreshToken variables exist in collection.
+  # - Make auth/login and auth/refresh requests explicitly noauth.
+  if ! has_cmd jq; then
+    echo "[postman-sync] WARNING: jq not found; skipping auth automation post-processing." >&2
+    return 0
+  fi
+
+  local tmp_file
+  tmp_file="$(mktemp)"
+
+  if ! jq '
+    def ensure_var($key):
+      if ((.variable // []) | map(.key) | index($key)) == null then
+        .variable = ((.variable // []) + [{"type":"string","value":"","key":$key}])
+      else
+        .
+      end;
+
+    def automation_event:
+      {
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "// AUTO_TOKEN_CAPTURE_V1",
+            "let json = null;",
+            "try { json = pm.response.json(); } catch (e) {}",
+            "if (json && typeof json === '\''object'\'') {",
+            "  const access = json.access || json.access_token || json.token || null;",
+            "  const refresh = json.refresh || json.refresh_token || null;",
+            "  if (access) {",
+            "    pm.collectionVariables.set('\''bearerToken'\'', access);",
+            "    pm.environment.set('\''bearerToken'\'', access);",
+            "  }",
+            "  if (refresh) {",
+            "    pm.collectionVariables.set('\''refreshToken'\'', refresh);",
+            "    pm.environment.set('\''refreshToken'\'', refresh);",
+            "  }",
+            "}",
+            "",
+            "// AUTO_REFRESH_ON_401_V1",
+            "const requestPath = pm.request && pm.request.url && pm.request.url.getPath ? pm.request.url.getPath() : '\'''\'';",
+            "const isAuthRequest = requestPath.includes('\''/api/v1/auth/login/'\'') || requestPath.includes('\''/api/v1/auth/refresh/'\'');",
+            "if (pm.response.code === 401 && !isAuthRequest) {",
+            "  const alreadyRetried = pm.collectionVariables.get('\''__autoRefreshRetrying'\'') === '\''1'\'';",
+            "  const refreshToken = pm.collectionVariables.get('\''refreshToken'\'') || pm.environment.get('\''refreshToken'\'');",
+            "  if (!alreadyRetried && refreshToken) {",
+            "    pm.collectionVariables.set('\''__autoRefreshRetrying'\'', '\''1'\'');",
+            "    pm.sendRequest({",
+            "      url: '\''{{baseUrl}}/api/v1/auth/refresh/'\'',",
+            "      method: '\''POST'\'',",
+            "      header: { '\''Content-Type'\'': '\''application/json'\'' },",
+            "      body: {",
+            "        mode: '\''raw'\'',",
+            "        raw: JSON.stringify({ refresh: refreshToken })",
+            "      }",
+            "    }, function (err, res) {",
+            "      if (!err && res) {",
+            "        let refreshJson = null;",
+            "        try { refreshJson = res.json(); } catch (e) {}",
+            "        if (res.code >= 200 && res.code < 300 && refreshJson && typeof refreshJson === '\''object'\'') {",
+            "          const newAccess = refreshJson.access || refreshJson.access_token || refreshJson.token || null;",
+            "          const newRefresh = refreshJson.refresh || refreshJson.refresh_token || null;",
+            "          if (newAccess) {",
+            "            pm.collectionVariables.set('\''bearerToken'\'', newAccess);",
+            "            pm.environment.set('\''bearerToken'\'', newAccess);",
+            "          }",
+            "          if (newRefresh) {",
+            "            pm.collectionVariables.set('\''refreshToken'\'', newRefresh);",
+            "            pm.environment.set('\''refreshToken'\'', newRefresh);",
+            "          }",
+            "          // Retry works in Collection Runner/Newman flows.",
+            "          if (newAccess) {",
+            "            if (pm.execution && typeof pm.execution.setNextRequest === '\''function'\'') {",
+            "              pm.execution.setNextRequest(pm.info.requestName);",
+            "            } else if (typeof postman !== '\''undefined'\'' && typeof postman.setNextRequest === '\''function'\'') {",
+            "              postman.setNextRequest(pm.info.requestName);",
+            "            }",
+            "          }",
+            "        }",
+            "      }",
+            "      pm.collectionVariables.unset('\''__autoRefreshRetrying'\'');",
+            "    });",
+            "  } else {",
+            "    pm.collectionVariables.unset('\''__autoRefreshRetrying'\'');",
+            "  }",
+            "} else if (pm.response.code !== 401) {",
+            "  pm.collectionVariables.unset('\''__autoRefreshRetrying'\'');",
+            "}"
+          ]
+        }
+      };
+
+    def normalize_auth_items:
+      if (.item? | type) == "array" then
+        .item |= map(normalize_auth_items)
+      else
+        .
+      end
+      | if (.request? | type) == "object" then
+          (.request.url.path? // []) as $p
+          | if ($p | type) == "array"
+               and (($p | length) >= 4)
+               and ($p[0] == "api")
+               and ($p[1] == "v1")
+               and ($p[2] == "auth")
+               and (($p[3] == "login") or ($p[3] == "refresh")) then
+              .request.auth = {"type":"noauth"}
+            else
+              .
+            end
+        else
+          .
+        end;
+
+    .
+    | ensure_var("bearerToken")
+    | ensure_var("refreshToken")
+    | .event = (
+        ((.event // [])
+          | map(
+              select(
+                (.listen != "test")
+                or (((.script.exec // []) | index("// AUTO_TOKEN_CAPTURE_V1")) == null)
+              )
+            )
+        ) + [automation_event]
+      )
+    | normalize_auth_items
+  ' "$PM_COLLECTION_JSON" > "$tmp_file"; then
+    rm -f "$tmp_file"
+    echo "[postman-sync] WARNING: failed to post-process collection for auth automation." >&2
+    return 0
+  fi
+
+  mv "$tmp_file" "$PM_COLLECTION_JSON"
+  info "Auth automation added to collection (token capture + login/refresh noauth)."
+}
+
 detect_compose_cmd() {
   # Prefer Docker Compose v2 (`docker compose`). Fall back to legacy `docker-compose`.
   if has_cmd docker && docker compose version >/dev/null 2>&1; then
@@ -266,6 +408,7 @@ generate_collection() {
 }
 
 if generate_collection; then
+  post_process_collection_auth_automation
   info "OK: OpenAPI generated + collection generated."
 
   # Option B: Auto-push to Postman workspace via Postman API (if env is configured)
