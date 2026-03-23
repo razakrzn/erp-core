@@ -1,5 +1,4 @@
 import uuid
-from decimal import Decimal
 
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -81,8 +80,6 @@ class BoqItem(models.Model):
     description = models.TextField(_("description"), blank=True)
     quantity = models.DecimalField(_("quantity"), max_digits=14, decimal_places=3, default=0)
     unit = models.CharField(_("unit"), max_length=50)
-    unit_price = models.DecimalField(_("unit price"), max_digits=14, decimal_places=2, default=0)
-    amount = models.DecimalField(_("amount"), max_digits=14, decimal_places=2, default=0)
     is_template = models.BooleanField(_("is template"), default=False)
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
@@ -93,7 +90,4 @@ class BoqItem(models.Model):
     def save(self, *args, **kwargs):
         if not self.item_code:
             self.item_code = f"BOQ-ITEM-{uuid.uuid4().hex[:8].upper()}"
-        quantity = self.quantity if self.quantity is not None else Decimal("0")
-        unit_price = self.unit_price if self.unit_price is not None else Decimal("0")
-        self.amount = quantity * unit_price
         super().save(*args, **kwargs)
