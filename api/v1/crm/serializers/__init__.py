@@ -1,9 +1,11 @@
 from .customer_serializers import CustomerSerializer
-from .enquiry_serializers import EnquirySerializer
-from .leadmanagement_serializers import LeadManagementSerializer
+from .enquiry_serializers import EnquiryDetailSerializer, EnquiryListSerializer
+from .leadmanagement_serializers import LeadManagementDetailSerializer, LeadManagementListSerializer
 
 __all__ = [
     "CustomerSerializer",
-    "EnquirySerializer",
-    "LeadManagementSerializer",
+    "EnquiryListSerializer",
+    "EnquiryDetailSerializer",
+    "LeadManagementListSerializer",
+    "LeadManagementDetailSerializer",
 ]

@@ -9,10 +9,4 @@ class Migration(migrations.Migration):
         ("crm", "0007_enquiry_code"),
     ]
 
-    operations = [
-        migrations.RenameField(
-            model_name="enquiry",
-            old_name="status",
-            new_name="boq_status",
-        ),
-    ]
+    operations = []

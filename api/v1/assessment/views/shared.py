@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from core.utils.responses import APIResponse
 
 
-class BaseCRMViewSet(viewsets.ModelViewSet):
+class BaseAssessmentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     ordering = ["-created_at"]
 

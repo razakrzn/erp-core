@@ -75,7 +75,9 @@ class BoqAdmin(admin.ModelAdmin):
     enquiry_project_name.short_description = "project name"
 
     def enquiry_status(self, obj):
-        return obj.enquiry.boq_status if obj.enquiry else ""
+        if not obj.enquiry:
+            return ""
+        return obj.enquiry.status
 
     enquiry_status.short_description = "status"
 
@@ -178,9 +180,9 @@ class QuoteAdmin(admin.ModelAdmin):
     def boq_enquiry_status(self, obj):
         if not obj.boq or not obj.boq.enquiry:
             return ""
-        return obj.boq.enquiry.boq_status
+        return obj.boq.enquiry.status
 
-    boq_enquiry_status.short_description = "enquiry boq status"
+    boq_enquiry_status.short_description = "enquiry status"
 
     def boq_enquiry_client_name(self, obj):
         if not obj.boq or not obj.boq.enquiry:
