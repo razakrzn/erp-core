@@ -79,6 +79,41 @@ class BoqItemViewSet(BaseAssessmentViewSet):
             return BoqItemListSerializer
         return BoqItemDetailSerializer
 
+    @staticmethod
+    def _parse_boolean_query_param(raw_value, field_name):
+        if raw_value is None:
+            return None
+        normalized = str(raw_value).strip().lower()
+        if normalized in {"true", "1", "yes"}:
+            return True
+        if normalized in {"false", "0", "no"}:
+            return False
+        raise ValidationError({field_name: "Invalid boolean value. Use true or false."})
+
+    @action(detail=False, methods=["get"], url_path="by-boq")
+    def by_boq(self, request, *args, **kwargs):
+        boq_id = request.query_params.get("boq_id")
+        if boq_id in (None, ""):
+            raise ValidationError({"boq_id": "This query parameter is required."})
+
+        queryset = self.get_queryset().filter(boq_id=boq_id)
+        is_template = self._parse_boolean_query_param(request.query_params.get("is_template"), "is_template")
+        if is_template is not None:
+            queryset = queryset.filter(is_template=is_template)
+
+        queryset = queryset.order_by("-created_at")
+        page = self.paginate_queryset(queryset)
+        serializer = BoqItemDetailSerializer(page if page is not None else queryset, many=True)
+
+        if page is not None:
+            return self.get_paginated_response(serializer.data)
+
+        return APIResponse.success(
+            data=serializer.data,
+            message="Boq items retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
     def create(self, request, *args, **kwargs):
         payload = request.data
 
