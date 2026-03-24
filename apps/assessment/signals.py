@@ -1,25 +1,14 @@
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
-from .models import Boq, BoqItem, Quote, QuoteItem
-
-
-@receiver(post_save, sender=BoqItem)
-def mark_enquiry_boq_approved(sender, instance, created, **kwargs):
-    if not created:
-        return
-    boq = instance.boq
-    if not boq or not boq.enquiry:
-        return
-    if not boq.is_approved and not boq.is_rejected:
-        boq.is_approved = True
-        boq.save(update_fields=["is_approved"])
-    boq._sync_enquiry_status()
+from .models import Boq, Quote, QuoteItem
 
 
 @receiver(post_save, sender=Boq)
 def create_quote_when_boq_approved(sender, instance, **kwargs):
     if not instance.is_approved or instance.is_rejected:
+        if instance.quotes.exists():
+            instance.quotes.all().delete()
         return
     if instance.quotes.exists():
         return

@@ -4,7 +4,7 @@ from apps.assessment.models import Boq, BoqItem
 
 
 class BoqListSerializer(serializers.ModelSerializer):
-    enquiry_project_name = serializers.CharField(source="enquiry.project_name", read_only=True)
+    project_name = serializers.CharField(source="enquiry.project_name", read_only=True)
     status = serializers.CharField(source="enquiry.status", read_only=True)
 
     class Meta:
@@ -12,7 +12,7 @@ class BoqListSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "boq_number",
-            "enquiry_project_name",
+            "project_name",
             "status",
             "created_at",
         ]
@@ -119,7 +119,7 @@ class BoqItemListSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["item_code", "created_at"]
 
-    def get_enquiry_project_name(self, obj):
+    def get_project_name(self, obj):
         if not obj.boq or not obj.boq.enquiry:
             return ""
         return obj.boq.enquiry.project_name
@@ -154,13 +154,13 @@ class BoqItemDetailSerializer(serializers.ModelSerializer):
     def get_boq(self, obj):
         if not obj.boq:
             return None
-        enquiry_project_name = ""
+        project_name = ""
         if obj.boq.enquiry:
-            enquiry_project_name = obj.boq.enquiry.project_name
+            project_name = obj.boq.enquiry.project_name
         return {
             "id": obj.boq.id,
             "boq_number": obj.boq.boq_number,
-            "enquiry_project_name": enquiry_project_name,
+            "project_name": project_name,
             "is_approved": obj.boq.is_approved,
             "is_rejected": obj.boq.is_rejected,
         }
