@@ -15024,7 +15024,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15044,7 +15044,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15064,7 +15064,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15084,7 +15084,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15104,7 +15104,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15124,7 +15124,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15144,7 +15144,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15164,7 +15164,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15184,7 +15184,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15204,7 +15204,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15224,7 +15224,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15244,7 +15244,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15264,7 +15264,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15284,7 +15284,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15304,7 +15304,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15324,7 +15324,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15344,7 +15344,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15364,7 +15364,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15384,7 +15384,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15404,7 +15404,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15424,7 +15424,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15444,7 +15444,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15464,7 +15464,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15484,7 +15484,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15504,7 +15504,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15524,7 +15524,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15544,7 +15544,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15564,7 +15564,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15584,7 +15584,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15604,7 +15604,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15624,7 +15624,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15644,7 +15644,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
@@ -15664,7 +15664,7 @@ components:
           default: true
         message:
           type: string
-          default: Data retrieved successfully.
+          default: Success
         status_code:
           type: integer
           default: 200
