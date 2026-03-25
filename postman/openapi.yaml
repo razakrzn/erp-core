@@ -7194,6 +7194,8 @@ paths:
   /api/v1/settings/global-terms/:
     get:
       operationId: v1_settings_global_terms_list
+      description: Paginated list of global terms.
+      summary: List global terms
       parameters:
       - name: ordering
         required: false
@@ -7220,7 +7222,7 @@ paths:
         schema:
           type: string
       tags:
-      - v1
+      - Settings
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -7229,23 +7231,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedGlobalTermsList'
+                $ref: '#/components/schemas/PaginatedGlobalTermsListResponseList'
           description: ''
     post:
       operationId: v1_settings_global_terms_create
+      description: Create a new global term.
+      summary: Create global term
       tags:
-      - v1
+      - Settings
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GlobalTerms'
+              $ref: '#/components/schemas/GlobalTermsDetail'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/GlobalTerms'
+              $ref: '#/components/schemas/GlobalTermsDetail'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/GlobalTerms'
+              $ref: '#/components/schemas/GlobalTermsDetail'
         required: true
       security:
       - jwtAuth: []
@@ -7255,11 +7259,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GlobalTerms'
+                $ref: '#/components/schemas/GlobalTermsResponse'
           description: ''
   /api/v1/settings/global-terms/{id}/:
     get:
       operationId: v1_settings_global_terms_retrieve
+      description: Retrieve a global term by ID.
+      summary: Get global term
       parameters:
       - in: path
         name: id
@@ -7268,7 +7274,7 @@ paths:
         description: A unique integer value identifying this global terms.
         required: true
       tags:
-      - v1
+      - Settings
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -7277,10 +7283,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GlobalTerms'
+                $ref: '#/components/schemas/GlobalTermsResponse'
           description: ''
     put:
       operationId: v1_settings_global_terms_update
+      description: Full update of a global term.
+      summary: Update global term
       parameters:
       - in: path
         name: id
@@ -7289,18 +7297,18 @@ paths:
         description: A unique integer value identifying this global terms.
         required: true
       tags:
-      - v1
+      - Settings
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GlobalTerms'
+              $ref: '#/components/schemas/GlobalTermsDetail'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/GlobalTerms'
+              $ref: '#/components/schemas/GlobalTermsDetail'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/GlobalTerms'
+              $ref: '#/components/schemas/GlobalTermsDetail'
         required: true
       security:
       - jwtAuth: []
@@ -7310,10 +7318,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GlobalTerms'
+                $ref: '#/components/schemas/GlobalTermsResponse'
           description: ''
     patch:
       operationId: v1_settings_global_terms_partial_update
+      description: Partial update of a global term.
+      summary: Partial update global term
       parameters:
       - in: path
         name: id
@@ -7322,18 +7332,18 @@ paths:
         description: A unique integer value identifying this global terms.
         required: true
       tags:
-      - v1
+      - Settings
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedGlobalTerms'
+              $ref: '#/components/schemas/PatchedGlobalTermsDetail'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedGlobalTerms'
+              $ref: '#/components/schemas/PatchedGlobalTermsDetail'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedGlobalTerms'
+              $ref: '#/components/schemas/PatchedGlobalTermsDetail'
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -7342,10 +7352,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GlobalTerms'
+                $ref: '#/components/schemas/GlobalTermsResponse'
           description: ''
     delete:
       operationId: v1_settings_global_terms_destroy
+      description: Delete a global term.
+      summary: Delete global term
       parameters:
       - in: path
         name: id
@@ -7354,13 +7366,85 @@ paths:
         description: A unique integer value identifying this global terms.
         required: true
       tags:
-      - v1
+      - Settings
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
         '204':
           description: No response body
+  /api/v1/settings/global-terms/{id}/approve/:
+    post:
+      operationId: v1_settings_global_terms_approve_create
+      description: Approve or unapprove a global term using is_approved integer/boolean
+        flag in request body.
+      summary: Approve/Unapprove global term
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this global terms.
+        required: true
+      tags:
+      - Settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GlobalTermsDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GlobalTermsDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GlobalTermsDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalTermsResponse'
+          description: ''
+    patch:
+      operationId: v1_settings_global_terms_approve_partial_update
+      description: Approve or unapprove a global term using is_approved integer/boolean
+        flag in request body.
+      summary: Approve/Unapprove global term
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this global terms.
+        required: true
+      tags:
+      - Settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedGlobalTermsDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedGlobalTermsDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedGlobalTermsDetail'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalTermsResponse'
+          description: ''
   /api/v1/user-roles/:
     get:
       operationId: v1_user_roles_retrieve
@@ -8908,7 +8992,7 @@ components:
         * `Male` - Male
         * `Female` - Female
         * `Other` - Other
-    GlobalTerms:
+    GlobalTermsDetail:
       type: object
       properties:
         id:
@@ -8955,6 +9039,70 @@ components:
       - id
       - title
       - updated_at
+    GlobalTermsList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        category:
+          type: string
+          maxLength: 150
+        is_default:
+          type: boolean
+        created_by:
+          type: string
+          readOnly: true
+      required:
+      - category
+      - created_by
+      - id
+      - title
+    GlobalTermsListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Success
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GlobalTermsList'
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    GlobalTermsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Success
+        data:
+          $ref: '#/components/schemas/GlobalTermsDetail'
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
     Grade:
       type: object
       properties:
@@ -9711,7 +9859,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Finish'
-    PaginatedGlobalTermsList:
+    PaginatedGlobalTermsListResponseList:
       type: object
       required:
       - count
@@ -9733,7 +9881,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/GlobalTerms'
+            $ref: '#/components/schemas/GlobalTermsListResponse'
     PaginatedGradeList:
       type: object
       required:
@@ -10965,7 +11113,7 @@ components:
           type: string
           format: date-time
           readOnly: true
-    PatchedGlobalTerms:
+    PatchedGlobalTermsDetail:
       type: object
       properties:
         id:

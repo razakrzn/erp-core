@@ -50,3 +50,19 @@ class GlobalTermsDetailSerializer(GlobalTermsBaseSerializer):
             "approved_at",
         ]
         read_only_fields = ["created_at", "updated_at", "created_by", "approved_by", "approved_at"]
+
+
+class GlobalTermsResponseSerializer(serializers.Serializer):
+    success = serializers.BooleanField(default=True)
+    message = serializers.CharField(default="Success")
+    data = GlobalTermsDetailSerializer()
+    status_code = serializers.IntegerField(default=200)
+    timestamp = serializers.DateTimeField()
+
+
+class GlobalTermsListResponseSerializer(serializers.Serializer):
+    success = serializers.BooleanField(default=True)
+    message = serializers.CharField(default="Success")
+    data = GlobalTermsListSerializer(many=True)
+    status_code = serializers.IntegerField(default=200)
+    timestamp = serializers.DateTimeField()
