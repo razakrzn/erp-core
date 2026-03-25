@@ -61,7 +61,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/APIAccessRule'
+                $ref: '#/components/schemas/WrappedAPIAccessRule'
           description: ''
   /api/v1/access-control/{id}/:
     get:
@@ -84,7 +84,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/APIAccessRule'
+                $ref: '#/components/schemas/WrappedAPIAccessRule'
           description: ''
     put:
       operationId: v1_access_control_update
@@ -118,7 +118,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/APIAccessRule'
+                $ref: '#/components/schemas/WrappedAPIAccessRule'
           description: ''
     patch:
       operationId: v1_access_control_partial_update
@@ -151,7 +151,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/APIAccessRule'
+                $ref: '#/components/schemas/WrappedAPIAccessRule'
           description: ''
     delete:
       operationId: v1_access_control_destroy
@@ -185,7 +185,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/APIAccessRule'
+                $ref: '#/components/schemas/WrappedAPIAccessRule'
           description: ''
   /api/v1/assessment/boq-items/:
     get:
@@ -251,7 +251,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BoqItemDetail'
+                $ref: '#/components/schemas/WrappedBoqItemDetail'
           description: ''
   /api/v1/assessment/boq-items/{id}/:
     get:
@@ -273,7 +273,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BoqItemDetail'
+                $ref: '#/components/schemas/WrappedBoqItemDetail'
           description: ''
     put:
       operationId: v1_assessment_boq_items_update
@@ -306,7 +306,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BoqItemDetail'
+                $ref: '#/components/schemas/WrappedBoqItemDetail'
           description: ''
     patch:
       operationId: v1_assessment_boq_items_partial_update
@@ -338,7 +338,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BoqItemDetail'
+                $ref: '#/components/schemas/WrappedBoqItemDetail'
           description: ''
     delete:
       operationId: v1_assessment_boq_items_destroy
@@ -370,7 +370,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BoqItemDetail'
+                $ref: '#/components/schemas/WrappedBoqItemDetail'
           description: ''
   /api/v1/assessment/boqs/:
     get:
@@ -435,7 +435,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BoqDetail'
+                $ref: '#/components/schemas/WrappedBoqDetail'
           description: ''
   /api/v1/assessment/boqs/{id}/:
     get:
@@ -457,7 +457,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BoqDetail'
+                $ref: '#/components/schemas/WrappedBoqDetail'
           description: ''
     put:
       operationId: v1_assessment_boqs_update
@@ -489,7 +489,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BoqDetail'
+                $ref: '#/components/schemas/WrappedBoqDetail'
           description: ''
     patch:
       operationId: v1_assessment_boqs_partial_update
@@ -521,7 +521,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BoqDetail'
+                $ref: '#/components/schemas/WrappedBoqDetail'
           description: ''
     delete:
       operationId: v1_assessment_boqs_destroy
@@ -571,7 +571,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BoqDetail'
+                $ref: '#/components/schemas/WrappedBoqDetail'
           description: ''
   /api/v1/assessment/boqs/{id}/reject/:
     patch:
@@ -604,7 +604,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BoqDetail'
+                $ref: '#/components/schemas/WrappedBoqDetail'
           description: ''
   /api/v1/assessment/finishes/:
     get:
@@ -670,7 +670,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Finish'
+                $ref: '#/components/schemas/WrappedFinish'
           description: ''
   /api/v1/assessment/finishes/{id}/:
     get:
@@ -692,7 +692,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Finish'
+                $ref: '#/components/schemas/WrappedFinish'
           description: ''
     put:
       operationId: v1_assessment_finishes_update
@@ -725,7 +725,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Finish'
+                $ref: '#/components/schemas/WrappedFinish'
           description: ''
     patch:
       operationId: v1_assessment_finishes_partial_update
@@ -757,7 +757,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Finish'
+                $ref: '#/components/schemas/WrappedFinish'
           description: ''
     delete:
       operationId: v1_assessment_finishes_destroy
@@ -840,7 +840,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QuoteItem'
+                $ref: '#/components/schemas/WrappedQuoteItem'
           description: ''
   /api/v1/assessment/quote-items/{id}/:
     get:
@@ -862,7 +862,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QuoteItem'
+                $ref: '#/components/schemas/WrappedQuoteItem'
           description: ''
     put:
       operationId: v1_assessment_quote_items_update
@@ -895,7 +895,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QuoteItem'
+                $ref: '#/components/schemas/WrappedQuoteItem'
           description: ''
     patch:
       operationId: v1_assessment_quote_items_partial_update
@@ -927,7 +927,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QuoteItem'
+                $ref: '#/components/schemas/WrappedQuoteItem'
           description: ''
     delete:
       operationId: v1_assessment_quote_items_destroy
@@ -1009,7 +1009,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QuoteDetail'
+                $ref: '#/components/schemas/WrappedQuoteDetail'
           description: ''
   /api/v1/assessment/quotes/{id}/:
     get:
@@ -1031,7 +1031,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QuoteDetail'
+                $ref: '#/components/schemas/WrappedQuoteDetail'
           description: ''
     put:
       operationId: v1_assessment_quotes_update
@@ -1063,7 +1063,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QuoteDetail'
+                $ref: '#/components/schemas/WrappedQuoteDetail'
           description: ''
     patch:
       operationId: v1_assessment_quotes_partial_update
@@ -1095,7 +1095,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/QuoteDetail'
+                $ref: '#/components/schemas/WrappedQuoteDetail'
           description: ''
     delete:
       operationId: v1_assessment_quotes_destroy
@@ -1178,7 +1178,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Term'
+                $ref: '#/components/schemas/WrappedTerm'
           description: ''
   /api/v1/assessment/terms/{id}/:
     get:
@@ -1200,7 +1200,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Term'
+                $ref: '#/components/schemas/WrappedTerm'
           description: ''
     put:
       operationId: v1_assessment_terms_update
@@ -1233,7 +1233,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Term'
+                $ref: '#/components/schemas/WrappedTerm'
           description: ''
     patch:
       operationId: v1_assessment_terms_partial_update
@@ -1265,7 +1265,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Term'
+                $ref: '#/components/schemas/WrappedTerm'
           description: ''
     delete:
       operationId: v1_assessment_terms_destroy
@@ -1429,7 +1429,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Company'
+                $ref: '#/components/schemas/WrappedCompany'
           description: ''
   /api/v1/companies/{id}/:
     get:
@@ -1453,7 +1453,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Company'
+                $ref: '#/components/schemas/WrappedCompany'
           description: ''
     put:
       operationId: v1_companies_update
@@ -1488,7 +1488,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Company'
+                $ref: '#/components/schemas/WrappedCompany'
           description: ''
     patch:
       operationId: v1_companies_partial_update
@@ -1522,7 +1522,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Company'
+                $ref: '#/components/schemas/WrappedCompany'
           description: ''
     delete:
       operationId: v1_companies_destroy
@@ -1607,7 +1607,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Customer'
+                $ref: '#/components/schemas/WrappedCustomer'
           description: ''
   /api/v1/crm/customers/{id}/:
     get:
@@ -1629,7 +1629,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Customer'
+                $ref: '#/components/schemas/WrappedCustomer'
           description: ''
     put:
       operationId: v1_crm_customers_update
@@ -1662,7 +1662,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Customer'
+                $ref: '#/components/schemas/WrappedCustomer'
           description: ''
     patch:
       operationId: v1_crm_customers_partial_update
@@ -1694,7 +1694,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Customer'
+                $ref: '#/components/schemas/WrappedCustomer'
           description: ''
     delete:
       operationId: v1_crm_customers_destroy
@@ -1777,7 +1777,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EnquiryDetail'
+                $ref: '#/components/schemas/WrappedEnquiryDetail'
           description: ''
   /api/v1/crm/enquiries/{id}/:
     get:
@@ -1799,7 +1799,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EnquiryDetail'
+                $ref: '#/components/schemas/WrappedEnquiryDetail'
           description: ''
     put:
       operationId: v1_crm_enquiries_update
@@ -1832,7 +1832,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EnquiryDetail'
+                $ref: '#/components/schemas/WrappedEnquiryDetail'
           description: ''
     patch:
       operationId: v1_crm_enquiries_partial_update
@@ -1864,7 +1864,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EnquiryDetail'
+                $ref: '#/components/schemas/WrappedEnquiryDetail'
           description: ''
     delete:
       operationId: v1_crm_enquiries_destroy
@@ -1947,7 +1947,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LeadManagementDetail'
+                $ref: '#/components/schemas/WrappedLeadManagementDetail'
           description: ''
   /api/v1/crm/leads/{id}/:
     get:
@@ -1969,7 +1969,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LeadManagementDetail'
+                $ref: '#/components/schemas/WrappedLeadManagementDetail'
           description: ''
     put:
       operationId: v1_crm_leads_update
@@ -2002,7 +2002,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LeadManagementDetail'
+                $ref: '#/components/schemas/WrappedLeadManagementDetail'
           description: ''
     patch:
       operationId: v1_crm_leads_partial_update
@@ -2034,7 +2034,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LeadManagementDetail'
+                $ref: '#/components/schemas/WrappedLeadManagementDetail'
           description: ''
     delete:
       operationId: v1_crm_leads_destroy
@@ -2112,7 +2112,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Attendance'
+                $ref: '#/components/schemas/WrappedAttendance'
           description: ''
   /api/v1/hrm/attendance/check-out/:
     post:
@@ -2142,7 +2142,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Attendance'
+                $ref: '#/components/schemas/WrappedAttendance'
           description: ''
   /api/v1/hrm/attendance/report/:
     get:
@@ -2160,7 +2160,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Attendance'
+                $ref: '#/components/schemas/WrappedAttendance'
           description: ''
   /api/v1/hrm/departments/:
     get:
@@ -2230,7 +2230,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Department'
+                $ref: '#/components/schemas/WrappedDepartment'
           description: ''
   /api/v1/hrm/departments/{id}/:
     get:
@@ -2254,7 +2254,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DepartmentDetails'
+                $ref: '#/components/schemas/WrappedDepartmentDetails'
           description: ''
     put:
       operationId: v1_hrm_departments_update
@@ -2289,7 +2289,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Department'
+                $ref: '#/components/schemas/WrappedDepartment'
           description: ''
     patch:
       operationId: v1_hrm_departments_partial_update
@@ -2323,7 +2323,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Department'
+                $ref: '#/components/schemas/WrappedDepartment'
           description: ''
     delete:
       operationId: v1_hrm_departments_destroy
@@ -2428,7 +2428,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Designation'
+                $ref: '#/components/schemas/WrappedDesignation'
           description: ''
   /api/v1/hrm/designations/{id}/:
     get:
@@ -2458,7 +2458,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Designation'
+                $ref: '#/components/schemas/WrappedDesignation'
           description: ''
     put:
       operationId: v1_hrm_designations_update
@@ -2499,7 +2499,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Designation'
+                $ref: '#/components/schemas/WrappedDesignation'
           description: ''
     patch:
       operationId: v1_hrm_designations_partial_update
@@ -2539,7 +2539,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Designation'
+                $ref: '#/components/schemas/WrappedDesignation'
           description: ''
     delete:
       operationId: v1_hrm_designations_destroy
@@ -2643,7 +2643,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Employee'
+                $ref: '#/components/schemas/WrappedEmployee'
           description: ''
   /api/v1/hrm/employees-lightweight/:
     get:
@@ -2711,7 +2711,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EmployeeLightweight'
+                $ref: '#/components/schemas/WrappedEmployeeLightweight'
           description: ''
   /api/v1/hrm/employees/{id}/:
     get:
@@ -2740,7 +2740,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Employee'
+                $ref: '#/components/schemas/WrappedEmployee'
           description: ''
     put:
       operationId: v1_hrm_employees_update
@@ -2779,7 +2779,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Employee'
+                $ref: '#/components/schemas/WrappedEmployee'
           description: ''
     patch:
       operationId: v1_hrm_employees_partial_update
@@ -2818,7 +2818,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Employee'
+                $ref: '#/components/schemas/WrappedEmployee'
           description: ''
     delete:
       operationId: v1_hrm_employees_destroy
@@ -2908,7 +2908,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Brand'
+                $ref: '#/components/schemas/WrappedBrand'
           description: ''
   /api/v1/inventory/brands/{id}/:
     get:
@@ -2930,7 +2930,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Brand'
+                $ref: '#/components/schemas/WrappedBrand'
           description: ''
     put:
       operationId: v1_inventory_brands_update
@@ -2963,7 +2963,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Brand'
+                $ref: '#/components/schemas/WrappedBrand'
           description: ''
     patch:
       operationId: v1_inventory_brands_partial_update
@@ -2995,7 +2995,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Brand'
+                $ref: '#/components/schemas/WrappedBrand'
           description: ''
     delete:
       operationId: v1_inventory_brands_destroy
@@ -3027,7 +3027,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Brand'
+                $ref: '#/components/schemas/WrappedBrand'
           description: ''
   /api/v1/inventory/categories/:
     get:
@@ -3093,7 +3093,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
+                $ref: '#/components/schemas/WrappedCategory'
           description: ''
   /api/v1/inventory/categories/{id}/:
     get:
@@ -3115,7 +3115,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
+                $ref: '#/components/schemas/WrappedCategory'
           description: ''
     put:
       operationId: v1_inventory_categories_update
@@ -3148,7 +3148,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
+                $ref: '#/components/schemas/WrappedCategory'
           description: ''
     patch:
       operationId: v1_inventory_categories_partial_update
@@ -3180,7 +3180,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
+                $ref: '#/components/schemas/WrappedCategory'
           description: ''
     delete:
       operationId: v1_inventory_categories_destroy
@@ -3212,7 +3212,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
+                $ref: '#/components/schemas/WrappedCategory'
           description: ''
   /api/v1/inventory/finishes/:
     get:
@@ -3278,7 +3278,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Finish'
+                $ref: '#/components/schemas/WrappedFinish'
           description: ''
   /api/v1/inventory/finishes/{id}/:
     get:
@@ -3300,7 +3300,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Finish'
+                $ref: '#/components/schemas/WrappedFinish'
           description: ''
     put:
       operationId: v1_inventory_finishes_update
@@ -3333,7 +3333,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Finish'
+                $ref: '#/components/schemas/WrappedFinish'
           description: ''
     patch:
       operationId: v1_inventory_finishes_partial_update
@@ -3365,7 +3365,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Finish'
+                $ref: '#/components/schemas/WrappedFinish'
           description: ''
     delete:
       operationId: v1_inventory_finishes_destroy
@@ -3397,7 +3397,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Finish'
+                $ref: '#/components/schemas/WrappedFinish'
           description: ''
   /api/v1/inventory/grades/:
     get:
@@ -3463,7 +3463,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Grade'
+                $ref: '#/components/schemas/WrappedGrade'
           description: ''
   /api/v1/inventory/grades/{id}/:
     get:
@@ -3485,7 +3485,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Grade'
+                $ref: '#/components/schemas/WrappedGrade'
           description: ''
     put:
       operationId: v1_inventory_grades_update
@@ -3518,7 +3518,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Grade'
+                $ref: '#/components/schemas/WrappedGrade'
           description: ''
     patch:
       operationId: v1_inventory_grades_partial_update
@@ -3550,7 +3550,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Grade'
+                $ref: '#/components/schemas/WrappedGrade'
           description: ''
     delete:
       operationId: v1_inventory_grades_destroy
@@ -3582,7 +3582,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Grade'
+                $ref: '#/components/schemas/WrappedGrade'
           description: ''
   /api/v1/inventory/materials/:
     get:
@@ -3648,7 +3648,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Material'
+                $ref: '#/components/schemas/WrappedMaterial'
           description: ''
   /api/v1/inventory/materials/{id}/:
     get:
@@ -3670,7 +3670,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Material'
+                $ref: '#/components/schemas/WrappedMaterial'
           description: ''
     put:
       operationId: v1_inventory_materials_update
@@ -3703,7 +3703,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Material'
+                $ref: '#/components/schemas/WrappedMaterial'
           description: ''
     patch:
       operationId: v1_inventory_materials_partial_update
@@ -3735,7 +3735,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Material'
+                $ref: '#/components/schemas/WrappedMaterial'
           description: ''
     delete:
       operationId: v1_inventory_materials_destroy
@@ -3767,7 +3767,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Material'
+                $ref: '#/components/schemas/WrappedMaterial'
           description: ''
   /api/v1/inventory/products/:
     get:
@@ -3876,7 +3876,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/WrappedProduct'
           description: ''
   /api/v1/inventory/products/{id}/:
     get:
@@ -3898,7 +3898,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/WrappedProduct'
           description: ''
     put:
       operationId: v1_inventory_products_update
@@ -3931,7 +3931,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/WrappedProduct'
           description: ''
     patch:
       operationId: v1_inventory_products_partial_update
@@ -3963,7 +3963,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/WrappedProduct'
           description: ''
     delete:
       operationId: v1_inventory_products_destroy
@@ -3995,7 +3995,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/WrappedProduct'
           description: ''
   /api/v1/inventory/sizes/:
     get:
@@ -4061,7 +4061,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Size'
+                $ref: '#/components/schemas/WrappedSize'
           description: ''
   /api/v1/inventory/sizes/{id}/:
     get:
@@ -4083,7 +4083,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Size'
+                $ref: '#/components/schemas/WrappedSize'
           description: ''
     put:
       operationId: v1_inventory_sizes_update
@@ -4116,7 +4116,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Size'
+                $ref: '#/components/schemas/WrappedSize'
           description: ''
     patch:
       operationId: v1_inventory_sizes_partial_update
@@ -4148,7 +4148,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Size'
+                $ref: '#/components/schemas/WrappedSize'
           description: ''
     delete:
       operationId: v1_inventory_sizes_destroy
@@ -4180,7 +4180,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Size'
+                $ref: '#/components/schemas/WrappedSize'
           description: ''
   /api/v1/inventory/thickness/:
     get:
@@ -4246,7 +4246,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Thickness'
+                $ref: '#/components/schemas/WrappedThickness'
           description: ''
   /api/v1/inventory/thickness/{id}/:
     get:
@@ -4268,7 +4268,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Thickness'
+                $ref: '#/components/schemas/WrappedThickness'
           description: ''
     put:
       operationId: v1_inventory_thickness_update
@@ -4301,7 +4301,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Thickness'
+                $ref: '#/components/schemas/WrappedThickness'
           description: ''
     patch:
       operationId: v1_inventory_thickness_partial_update
@@ -4333,7 +4333,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Thickness'
+                $ref: '#/components/schemas/WrappedThickness'
           description: ''
     delete:
       operationId: v1_inventory_thickness_destroy
@@ -4365,7 +4365,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Thickness'
+                $ref: '#/components/schemas/WrappedThickness'
           description: ''
   /api/v1/navigation/company/{company_id}/disable-features/:
     post:
@@ -4399,7 +4399,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FeatureWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/navigation/company/{company_id}/enable-features/:
     post:
@@ -4433,7 +4433,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FeatureWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/navigation/company/{company_id}/features/:
     get:
@@ -4458,7 +4458,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Feature'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/navigation/company/features/:
     get:
@@ -4477,7 +4477,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Feature'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/navigation/features/:
     get:
@@ -4494,7 +4494,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FeatureWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     post:
       operationId: v1_navigation_features_create
@@ -4522,7 +4522,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FeatureWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/navigation/features/{id}/:
     get:
@@ -4545,7 +4545,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FeatureWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     put:
       operationId: v1_navigation_features_update
@@ -4579,7 +4579,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FeatureWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     patch:
       operationId: v1_navigation_features_partial_update
@@ -4612,7 +4612,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FeatureWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     delete:
       operationId: v1_navigation_features_destroy
@@ -4648,7 +4648,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FeatureReadOnly'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/navigation/modules/:
     get:
@@ -4664,7 +4664,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ModuleWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     post:
       operationId: v1_navigation_modules_create
@@ -4691,7 +4691,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ModuleWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/navigation/modules/{id}/:
     get:
@@ -4714,7 +4714,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ModuleWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     put:
       operationId: v1_navigation_modules_update
@@ -4748,7 +4748,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ModuleWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     patch:
       operationId: v1_navigation_modules_partial_update
@@ -4781,7 +4781,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ModuleWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     delete:
       operationId: v1_navigation_modules_destroy
@@ -4817,7 +4817,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ModuleReadOnly'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/navigation/permissions/:
     get:
@@ -4833,7 +4833,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PermissionWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     post:
       operationId: v1_navigation_permissions_create
@@ -4860,7 +4860,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PermissionWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/navigation/permissions/{id}/:
     get:
@@ -4882,7 +4882,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PermissionWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     put:
       operationId: v1_navigation_permissions_update
@@ -4915,7 +4915,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PermissionWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     patch:
       operationId: v1_navigation_permissions_partial_update
@@ -4947,7 +4947,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PermissionWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     delete:
       operationId: v1_navigation_permissions_destroy
@@ -4984,7 +4984,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SidebarFeature'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/production/batch-tracking/:
     get:
@@ -5050,7 +5050,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BatchTracking'
+                $ref: '#/components/schemas/WrappedBatchTracking'
           description: ''
   /api/v1/production/batch-tracking/{id}/:
     get:
@@ -5072,7 +5072,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BatchTracking'
+                $ref: '#/components/schemas/WrappedBatchTracking'
           description: ''
     put:
       operationId: v1_production_batch_tracking_update
@@ -5105,7 +5105,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BatchTracking'
+                $ref: '#/components/schemas/WrappedBatchTracking'
           description: ''
     patch:
       operationId: v1_production_batch_tracking_partial_update
@@ -5137,7 +5137,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BatchTracking'
+                $ref: '#/components/schemas/WrappedBatchTracking'
           description: ''
     delete:
       operationId: v1_production_batch_tracking_destroy
@@ -5220,7 +5220,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BOMExplosion'
+                $ref: '#/components/schemas/WrappedBOMExplosion'
           description: ''
   /api/v1/production/bom-explosion/{id}/:
     get:
@@ -5242,7 +5242,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BOMExplosion'
+                $ref: '#/components/schemas/WrappedBOMExplosion'
           description: ''
     put:
       operationId: v1_production_bom_explosion_update
@@ -5275,7 +5275,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BOMExplosion'
+                $ref: '#/components/schemas/WrappedBOMExplosion'
           description: ''
     patch:
       operationId: v1_production_bom_explosion_partial_update
@@ -5307,7 +5307,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BOMExplosion'
+                $ref: '#/components/schemas/WrappedBOMExplosion'
           description: ''
     delete:
       operationId: v1_production_bom_explosion_destroy
@@ -5387,7 +5387,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CuttingOptimizationJob'
+                $ref: '#/components/schemas/WrappedCuttingOptimizationJob'
           description: ''
   /api/v1/production/cutting-optimization/{id}/:
     get:
@@ -5409,7 +5409,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CuttingOptimizationJob'
+                $ref: '#/components/schemas/WrappedCuttingOptimizationJob'
           description: ''
     put:
       operationId: v1_production_cutting_optimization_update
@@ -5439,7 +5439,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CuttingOptimizationJob'
+                $ref: '#/components/schemas/WrappedCuttingOptimizationJob'
           description: ''
     patch:
       operationId: v1_production_cutting_optimization_partial_update
@@ -5468,7 +5468,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CuttingOptimizationJob'
+                $ref: '#/components/schemas/WrappedCuttingOptimizationJob'
           description: ''
     delete:
       operationId: v1_production_cutting_optimization_destroy
@@ -5516,7 +5516,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CuttingOptimizationJob'
+                $ref: '#/components/schemas/WrappedCuttingOptimizationJob'
           description: ''
   /api/v1/production/labor-tracking/:
     get:
@@ -5582,7 +5582,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LaborTracking'
+                $ref: '#/components/schemas/WrappedLaborTracking'
           description: ''
   /api/v1/production/labor-tracking/{id}/:
     get:
@@ -5604,7 +5604,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LaborTracking'
+                $ref: '#/components/schemas/WrappedLaborTracking'
           description: ''
     put:
       operationId: v1_production_labor_tracking_update
@@ -5637,7 +5637,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LaborTracking'
+                $ref: '#/components/schemas/WrappedLaborTracking'
           description: ''
     patch:
       operationId: v1_production_labor_tracking_partial_update
@@ -5669,7 +5669,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LaborTracking'
+                $ref: '#/components/schemas/WrappedLaborTracking'
           description: ''
     delete:
       operationId: v1_production_labor_tracking_destroy
@@ -5752,7 +5752,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MachineIntegration'
+                $ref: '#/components/schemas/WrappedMachineIntegration'
           description: ''
   /api/v1/production/machine-integration/{id}/:
     get:
@@ -5774,7 +5774,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MachineIntegration'
+                $ref: '#/components/schemas/WrappedMachineIntegration'
           description: ''
     put:
       operationId: v1_production_machine_integration_update
@@ -5807,7 +5807,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MachineIntegration'
+                $ref: '#/components/schemas/WrappedMachineIntegration'
           description: ''
     patch:
       operationId: v1_production_machine_integration_partial_update
@@ -5839,7 +5839,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MachineIntegration'
+                $ref: '#/components/schemas/WrappedMachineIntegration'
           description: ''
     delete:
       operationId: v1_production_machine_integration_destroy
@@ -5922,7 +5922,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductionOrder'
+                $ref: '#/components/schemas/WrappedProductionOrder'
           description: ''
   /api/v1/production/production-orders/{id}/:
     get:
@@ -5944,7 +5944,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductionOrder'
+                $ref: '#/components/schemas/WrappedProductionOrder'
           description: ''
     put:
       operationId: v1_production_production_orders_update
@@ -5977,7 +5977,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductionOrder'
+                $ref: '#/components/schemas/WrappedProductionOrder'
           description: ''
     patch:
       operationId: v1_production_production_orders_partial_update
@@ -6009,7 +6009,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductionOrder'
+                $ref: '#/components/schemas/WrappedProductionOrder'
           description: ''
     delete:
       operationId: v1_production_production_orders_destroy
@@ -6092,7 +6092,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductionPlanning'
+                $ref: '#/components/schemas/WrappedProductionPlanning'
           description: ''
   /api/v1/production/production-planning/{id}/:
     get:
@@ -6114,7 +6114,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductionPlanning'
+                $ref: '#/components/schemas/WrappedProductionPlanning'
           description: ''
     put:
       operationId: v1_production_production_planning_update
@@ -6147,7 +6147,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductionPlanning'
+                $ref: '#/components/schemas/WrappedProductionPlanning'
           description: ''
     patch:
       operationId: v1_production_production_planning_partial_update
@@ -6179,7 +6179,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProductionPlanning'
+                $ref: '#/components/schemas/WrappedProductionPlanning'
           description: ''
     delete:
       operationId: v1_production_production_planning_destroy
@@ -6262,7 +6262,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RejectionReworkManagement'
+                $ref: '#/components/schemas/WrappedRejectionReworkManagement'
           description: ''
   /api/v1/production/rejection-rework/{id}/:
     get:
@@ -6284,7 +6284,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RejectionReworkManagement'
+                $ref: '#/components/schemas/WrappedRejectionReworkManagement'
           description: ''
     put:
       operationId: v1_production_rejection_rework_update
@@ -6317,7 +6317,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RejectionReworkManagement'
+                $ref: '#/components/schemas/WrappedRejectionReworkManagement'
           description: ''
     patch:
       operationId: v1_production_rejection_rework_partial_update
@@ -6349,7 +6349,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RejectionReworkManagement'
+                $ref: '#/components/schemas/WrappedRejectionReworkManagement'
           description: ''
     delete:
       operationId: v1_production_rejection_rework_destroy
@@ -6432,7 +6432,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ShopFloorControl'
+                $ref: '#/components/schemas/WrappedShopFloorControl'
           description: ''
   /api/v1/production/shop-floor-control/{id}/:
     get:
@@ -6454,7 +6454,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ShopFloorControl'
+                $ref: '#/components/schemas/WrappedShopFloorControl'
           description: ''
     put:
       operationId: v1_production_shop_floor_control_update
@@ -6487,7 +6487,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ShopFloorControl'
+                $ref: '#/components/schemas/WrappedShopFloorControl'
           description: ''
     patch:
       operationId: v1_production_shop_floor_control_partial_update
@@ -6519,7 +6519,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ShopFloorControl'
+                $ref: '#/components/schemas/WrappedShopFloorControl'
           description: ''
     delete:
       operationId: v1_production_shop_floor_control_destroy
@@ -6602,7 +6602,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubcontractingManagement'
+                $ref: '#/components/schemas/WrappedSubcontractingManagement'
           description: ''
   /api/v1/production/subcontracting/{id}/:
     get:
@@ -6624,7 +6624,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubcontractingManagement'
+                $ref: '#/components/schemas/WrappedSubcontractingManagement'
           description: ''
     put:
       operationId: v1_production_subcontracting_update
@@ -6657,7 +6657,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubcontractingManagement'
+                $ref: '#/components/schemas/WrappedSubcontractingManagement'
           description: ''
     patch:
       operationId: v1_production_subcontracting_partial_update
@@ -6689,7 +6689,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubcontractingManagement'
+                $ref: '#/components/schemas/WrappedSubcontractingManagement'
           description: ''
     delete:
       operationId: v1_production_subcontracting_destroy
@@ -6772,7 +6772,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WIPTracking'
+                $ref: '#/components/schemas/WrappedWIPTracking'
           description: ''
   /api/v1/production/wip-tracking/{id}/:
     get:
@@ -6794,7 +6794,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WIPTracking'
+                $ref: '#/components/schemas/WrappedWIPTracking'
           description: ''
     put:
       operationId: v1_production_wip_tracking_update
@@ -6827,7 +6827,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WIPTracking'
+                $ref: '#/components/schemas/WrappedWIPTracking'
           description: ''
     patch:
       operationId: v1_production_wip_tracking_partial_update
@@ -6859,7 +6859,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WIPTracking'
+                $ref: '#/components/schemas/WrappedWIPTracking'
           description: ''
     delete:
       operationId: v1_production_wip_tracking_destroy
@@ -6892,7 +6892,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoleHierarchyWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     post:
       operationId: v1_role_hierarchies_create
@@ -6919,7 +6919,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoleHierarchyWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/role-hierarchies/{id}/:
     get:
@@ -6941,7 +6941,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoleHierarchy'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     delete:
       operationId: v1_role_hierarchies_destroy
@@ -6974,7 +6974,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RolePermissionWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     post:
       operationId: v1_role_permissions_create
@@ -7001,7 +7001,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RolePermissionWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/role-permissions/{id}/:
     get:
@@ -7024,7 +7024,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RolePermission'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     delete:
       operationId: v1_role_permissions_destroy
@@ -7058,7 +7058,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoleWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     post:
       operationId: v1_roles_create
@@ -7085,7 +7085,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoleWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/roles/{id}/:
     get:
@@ -7107,7 +7107,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoleWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     put:
       operationId: v1_roles_update
@@ -7140,7 +7140,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoleWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     patch:
       operationId: v1_roles_partial_update
@@ -7172,7 +7172,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RoleWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     delete:
       operationId: v1_roles_destroy
@@ -7259,7 +7259,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GlobalTermsResponse'
+                $ref: '#/components/schemas/WrappedGlobalTermsDetail'
           description: ''
   /api/v1/settings/global-terms/{id}/:
     get:
@@ -7283,7 +7283,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GlobalTermsResponse'
+                $ref: '#/components/schemas/WrappedGlobalTermsDetail'
           description: ''
     put:
       operationId: v1_settings_global_terms_update
@@ -7318,7 +7318,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GlobalTermsResponse'
+                $ref: '#/components/schemas/WrappedGlobalTermsDetail'
           description: ''
     patch:
       operationId: v1_settings_global_terms_partial_update
@@ -7352,7 +7352,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GlobalTermsResponse'
+                $ref: '#/components/schemas/WrappedGlobalTermsDetail'
           description: ''
     delete:
       operationId: v1_settings_global_terms_destroy
@@ -7408,7 +7408,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GlobalTermsResponse'
+                $ref: '#/components/schemas/WrappedGlobalTermsDetail'
           description: ''
     patch:
       operationId: v1_settings_global_terms_approve_partial_update
@@ -7443,7 +7443,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GlobalTermsResponse'
+                $ref: '#/components/schemas/WrappedGlobalTermsDetail'
           description: ''
   /api/v1/user-roles/:
     get:
@@ -7459,7 +7459,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserRoleWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     post:
       operationId: v1_user_roles_create
@@ -7486,7 +7486,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserRoleWrite'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
   /api/v1/user-roles/{id}/:
     get:
@@ -7508,7 +7508,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserRoleDetails'
+                $ref: '#/components/schemas/WrappedMetaclass'
           description: ''
     delete:
       operationId: v1_user_roles_destroy
@@ -7595,7 +7595,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/WrappedUser'
           description: ''
   /api/v1/users/{id}/:
     get:
@@ -7619,7 +7619,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/WrappedUser'
           description: ''
     put:
       operationId: v1_users_update
@@ -7654,7 +7654,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/WrappedUser'
           description: ''
     patch:
       operationId: v1_users_partial_update
@@ -7688,7 +7688,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/WrappedUser'
           description: ''
     delete:
       operationId: v1_users_destroy
@@ -8861,61 +8861,6 @@ components:
       - client
       - id
       - project_name
-    Feature:
-      type: object
-      description: Serializer for Feature with nested modules (and their permissions).
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        feature_code:
-          type: string
-          description: Stable identifier used in code/configuration.
-          maxLength: 100
-        feature_name:
-          type: string
-          description: Human-readable name shown in the UI.
-          maxLength: 150
-        icon:
-          type: string
-          nullable: true
-          description: Optional icon name for this feature.
-          maxLength: 100
-        order:
-          type: integer
-          maximum: 2147483647
-          minimum: -2147483648
-          description: Controls display order in navigation (lower appears first).
-        modules:
-          type: array
-          items:
-            $ref: '#/components/schemas/Module'
-          readOnly: true
-      required:
-      - feature_code
-      - feature_name
-      - id
-      - modules
-    FeatureReadOnly:
-      type: object
-      description: 'Read-only serializer for Feature: id, feature_code, feature_name
-        only.'
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        feature_code:
-          type: string
-          readOnly: true
-          description: Stable identifier used in code/configuration.
-        feature_name:
-          type: string
-          readOnly: true
-          description: Human-readable name shown in the UI.
-      required:
-      - feature_code
-      - feature_name
-      - id
     FeatureWrite:
       type: object
       description: Serializer for creating and updating Feature (no nested modules).
@@ -9061,26 +9006,6 @@ components:
       - created_by
       - id
       - title
-    GlobalTermsResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          default: true
-        message:
-          type: string
-          default: Success
-        data:
-          $ref: '#/components/schemas/GlobalTermsDetail'
-        status_code:
-          type: integer
-          default: 200
-        timestamp:
-          type: string
-          format: date-time
-      required:
-      - data
-      - timestamp
     Grade:
       type: object
       properties:
@@ -9345,71 +9270,6 @@ components:
         * `PUT` - PUT
         * `PATCH` - PATCH
         * `DELETE` - DELETE
-    Module:
-      type: object
-      description: Serializer for Module with nested permissions.
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        feature_name:
-          type: string
-          description: Human-readable name shown in the UI.
-          readOnly: true
-        module_code:
-          type: string
-          description: Stable identifier used in code/configuration.
-          maxLength: 120
-        module_name:
-          type: string
-          description: Human-readable name shown in the UI.
-          maxLength: 150
-        route:
-          type: string
-          nullable: true
-          description: Frontend route path for this module, if applicable.
-          maxLength: 200
-        icon:
-          type: string
-          nullable: true
-          description: Optional icon name for this module.
-          maxLength: 100
-        order:
-          type: integer
-          maximum: 2147483647
-          minimum: -2147483648
-          description: Controls display order within a feature.
-        permissions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Permission'
-          readOnly: true
-      required:
-      - feature_name
-      - id
-      - module_code
-      - module_name
-      - permissions
-    ModuleReadOnly:
-      type: object
-      description: 'Read-only serializer for Module: id, module_code, module_name
-        only.'
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        module_code:
-          type: string
-          readOnly: true
-          description: Stable identifier used in code/configuration.
-        module_name:
-          type: string
-          readOnly: true
-          description: Human-readable name shown in the UI.
-      required:
-      - id
-      - module_code
-      - module_name
     ModuleWrite:
       type: object
       description: Serializer for creating and updating Module (no nested permissions).
@@ -12907,30 +12767,6 @@ components:
           pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
         production_order:
           type: integer
-    Permission:
-      type: object
-      description: Serializer for navigation Permission (used by RBAC).
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        module_name:
-          type: string
-          description: Human-readable name shown in the UI.
-          readOnly: true
-        permission_code:
-          type: string
-          description: Stable permission code used in RBAC checks.
-          maxLength: 150
-        permission_name:
-          type: string
-          description: Human-readable permission label.
-          maxLength: 150
-      required:
-      - id
-      - module_name
-      - permission_code
-      - permission_name
     PermissionWrite:
       type: object
       description: Serializer for creating and updating Permission.
@@ -13501,21 +13337,6 @@ components:
       - name
       - slug
       - updated_at
-    RoleHierarchy:
-      type: object
-      description: Serializer for RoleHierarchy (parent–child role).
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        parent_role:
-          type: integer
-        child_role:
-          type: integer
-      required:
-      - child_role
-      - id
-      - parent_role
     RoleHierarchyWrite:
       type: object
       description: Serializer for creating RoleHierarchy.
@@ -13527,21 +13348,6 @@ components:
       required:
       - child_role
       - parent_role
-    RolePermission:
-      type: object
-      description: Serializer for RolePermission (role–permission link).
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        role:
-          type: integer
-        permission:
-          type: integer
-      required:
-      - id
-      - permission
-      - role
     RolePermissionWrite:
       type: object
       description: Serializer for creating RolePermission.
@@ -13626,45 +13432,6 @@ components:
       - production_order
       - slug
       - updated_at
-    SidebarFeature:
-      type: object
-      description: Minimal feature payload for sidebar with nested modules.
-      properties:
-        feature_code:
-          type: string
-        feature_name:
-          type: string
-        icon:
-          type: string
-          nullable: true
-        modules:
-          type: array
-          items:
-            $ref: '#/components/schemas/SidebarModule'
-      required:
-      - feature_code
-      - feature_name
-      - icon
-      - modules
-    SidebarModule:
-      type: object
-      description: Minimal module payload for sidebar (e.g. from sidebar_builder).
-      properties:
-        module_code:
-          type: string
-        module_name:
-          type: string
-        route:
-          type: string
-          nullable: true
-        icon:
-          type: string
-          nullable: true
-      required:
-      - icon
-      - module_code
-      - module_name
-      - route
     Size:
       type: object
       properties:
@@ -13946,30 +13713,6 @@ components:
       - id
       - role_details
       - username
-    UserRoleDetails:
-      type: object
-      description: 'Serializer for UserRole detail: full user details and role details.'
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        assigned_at:
-          type: string
-          format: date-time
-          readOnly: true
-        user_details:
-          type: object
-          additionalProperties: {}
-          readOnly: true
-        role_details:
-          type: object
-          additionalProperties: {}
-          readOnly: true
-      required:
-      - assigned_at
-      - id
-      - role_details
-      - user_details
     UserRoleWrite:
       type: object
       description: Serializer for creating UserRole.
@@ -14043,6 +13786,763 @@ components:
         * `Site` - Site
         * `Warehouse` - Warehouse
         * `Other` - Other
+    WrappedAPIAccessRule:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/APIAccessRule'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedAttendance:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Attendance'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedBOMExplosion:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/BOMExplosion'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedBatchTracking:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/BatchTracking'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedBoqDetail:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/BoqDetail'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedBoqItemDetail:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/BoqItemDetail'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedBrand:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Brand'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedCategory:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Category'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedCompany:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Company'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedCustomer:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Customer'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedCuttingOptimizationJob:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CuttingOptimizationJob'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedDepartment:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Department'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedDepartmentDetails:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/DepartmentDetails'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedDesignation:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Designation'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedEmployee:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Employee'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedEmployeeLightweight:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/EmployeeLightweight'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedEnquiryDetail:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/EnquiryDetail'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedFinish:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Finish'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedGlobalTermsDetail:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/GlobalTermsDetail'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedGrade:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Grade'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedLaborTracking:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/LaborTracking'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedLeadManagementDetail:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/LeadManagementDetail'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedMachineIntegration:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/MachineIntegration'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedMaterial:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Material'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedMetaclass:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - timestamp
+    WrappedProduct:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Product'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedProductionOrder:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ProductionOrder'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedProductionPlanning:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ProductionPlanning'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedQuoteDetail:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/QuoteDetail'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedQuoteItem:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/QuoteItem'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedRejectionReworkManagement:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/RejectionReworkManagement'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedShopFloorControl:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ShopFloorControl'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedSize:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Size'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedSubcontractingManagement:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/SubcontractingManagement'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedTerm:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Term'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedThickness:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Thickness'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedUser:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/User'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
+    WrappedWIPTracking:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/WIPTracking'
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Data retrieved successfully.
+        status_code:
+          type: integer
+          default: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - data
+      - timestamp
   securitySchemes:
     cookieAuth:
       type: apiKey

@@ -9,7 +9,6 @@ from core.utils.responses import APIResponse
 from ..serializers import (
     GlobalTermsDetailSerializer,
     GlobalTermsListSerializer,
-    GlobalTermsResponseSerializer,
 )
 from .shared import BaseSettingsViewSet
 
@@ -24,28 +23,24 @@ from .shared import BaseSettingsViewSet
         tags=["Settings"],
         summary="Get global term",
         description="Retrieve a global term by ID.",
-        responses={200: GlobalTermsResponseSerializer},
     ),
     create=extend_schema(
         tags=["Settings"],
         summary="Create global term",
         description="Create a new global term.",
         request=GlobalTermsDetailSerializer,
-        responses={201: GlobalTermsResponseSerializer},
     ),
     update=extend_schema(
         tags=["Settings"],
         summary="Update global term",
         description="Full update of a global term.",
         request=GlobalTermsDetailSerializer,
-        responses={200: GlobalTermsResponseSerializer},
     ),
     partial_update=extend_schema(
         tags=["Settings"],
         summary="Partial update global term",
         description="Partial update of a global term.",
         request=GlobalTermsDetailSerializer,
-        responses={200: GlobalTermsResponseSerializer},
     ),
     destroy=extend_schema(
         tags=["Settings"],
@@ -56,7 +51,6 @@ from .shared import BaseSettingsViewSet
         tags=["Settings"],
         summary="Approve/Unapprove global term",
         description="Approve or unapprove a global term using is_approved integer/boolean flag in request body.",
-        responses={200: GlobalTermsResponseSerializer},
     ),
 )
 class GlobalTermsViewSet(BaseSettingsViewSet):
