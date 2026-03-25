@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters, status, serializers
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
-from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, inline_serializer
 
 from core.utils.responses import APIResponse
 
@@ -161,7 +161,16 @@ class CheckUsernameAPIView(APIView):
         summary="Check username availability",
         description="Check if a username is available (case-insensitive). Returns suggestions if taken. No auth required.",
         parameters=[OpenApiParameter("username", str, OpenApiParameter.QUERY, required=True, description="Username to check")],
-        responses={200: None},
+        responses={
+            200: inline_serializer(
+                name="UsernameCheckResponse",
+                fields={
+                    "available": serializers.BooleanField(),
+                    "message": serializers.CharField(),
+                    "suggestions": serializers.ListField(child=serializers.CharField())
+                }
+            )
+        },
     )
     def get(self, request):
         username = request.query_params.get("username", "").strip()

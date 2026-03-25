@@ -1,7 +1,7 @@
 from django.utils import timezone
-from rest_framework import filters, status
+from rest_framework import filters, status, serializers
 from rest_framework.decorators import action
-from drf_spectacular.utils import extend_schema_view, extend_schema
+from drf_spectacular.utils import extend_schema_view, extend_schema, inline_serializer
 
 from apps.settings.models import GlobalTerms
 from core.utils.responses import APIResponse
@@ -51,6 +51,11 @@ from .shared import BaseSettingsViewSet
         tags=["Settings"],
         summary="Approve/Unapprove global term",
         description="Approve or unapprove a global term using is_approved integer/boolean flag in request body.",
+        request=inline_serializer(
+            name="GlobalTermsApproveRequest",
+            fields={"is_approved": serializers.BooleanField()}
+        ),
+        responses={200: GlobalTermsDetailSerializer}
     ),
 )
 class GlobalTermsViewSet(BaseSettingsViewSet):

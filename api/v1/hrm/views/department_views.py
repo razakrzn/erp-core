@@ -110,6 +110,14 @@ class DesignationFilter(django_filters.FilterSet):
         fields = ["department_id"]
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["HRM"], summary="List designations", description="Paginated list of designations with search on name/slug and filtering by department."),
+    retrieve=extend_schema(tags=["HRM"], summary="Get designation", description="Retrieve a single designation by ID."),
+    create=extend_schema(tags=["HRM"], summary="Create designation", description="Create a new designation."),
+    update=extend_schema(tags=["HRM"], summary="Update designation", description="Full update of a designation."),
+    partial_update=extend_schema(tags=["HRM"], summary="Partial update designation", description="Partial update of a designation."),
+    destroy=extend_schema(tags=["HRM"], summary="Delete designation", description="Delete a designation."),
+)
 class DesignationViewSet(viewsets.ModelViewSet):
     """
     API v1 CRUD viewset for Designation.

@@ -11,6 +11,7 @@ paths:
     get:
       operationId: v1_access_control_list
       description: API endpoint that allows API Access Rules to be viewed or edited.
+      summary: List API access rules
       parameters:
       - name: page
         required: false
@@ -25,7 +26,7 @@ paths:
         schema:
           type: integer
       tags:
-      - v1
+      - Access Control
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -39,8 +40,9 @@ paths:
     post:
       operationId: v1_access_control_create
       description: API endpoint that allows API Access Rules to be viewed or edited.
+      summary: Create API access rule
       tags:
-      - v1
+      - Access Control
       requestBody:
         content:
           application/json:
@@ -67,6 +69,7 @@ paths:
     get:
       operationId: v1_access_control_retrieve
       description: API endpoint that allows API Access Rules to be viewed or edited.
+      summary: Get API access rule
       parameters:
       - in: path
         name: id
@@ -75,7 +78,7 @@ paths:
         description: A unique integer value identifying this API access rule.
         required: true
       tags:
-      - v1
+      - Access Control
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -89,6 +92,7 @@ paths:
     put:
       operationId: v1_access_control_update
       description: API endpoint that allows API Access Rules to be viewed or edited.
+      summary: Update API access rule
       parameters:
       - in: path
         name: id
@@ -97,7 +101,7 @@ paths:
         description: A unique integer value identifying this API access rule.
         required: true
       tags:
-      - v1
+      - Access Control
       requestBody:
         content:
           application/json:
@@ -123,6 +127,7 @@ paths:
     patch:
       operationId: v1_access_control_partial_update
       description: API endpoint that allows API Access Rules to be viewed or edited.
+      summary: Partial update API access rule
       parameters:
       - in: path
         name: id
@@ -131,7 +136,7 @@ paths:
         description: A unique integer value identifying this API access rule.
         required: true
       tags:
-      - v1
+      - Access Control
       requestBody:
         content:
           application/json:
@@ -156,6 +161,7 @@ paths:
     delete:
       operationId: v1_access_control_destroy
       description: API endpoint that allows API Access Rules to be viewed or edited.
+      summary: Delete API access rule
       parameters:
       - in: path
         name: id
@@ -164,7 +170,7 @@ paths:
         description: A unique integer value identifying this API access rule.
         required: true
       tags:
-      - v1
+      - Access Control
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -175,8 +181,9 @@ paths:
     get:
       operationId: v1_access_control_available_endpoints_retrieve
       description: API endpoint that allows API Access Rules to be viewed or edited.
+      summary: List all available API endpoints
       tags:
-      - v1
+      - Access Control
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -185,11 +192,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedAPIAccessRule'
+                $ref: '#/components/schemas/AvailableEndpointsResponse'
           description: ''
   /api/v1/assessment/boq-items/:
     get:
       operationId: v1_assessment_boq_items_list
+      summary: List BOQ items
       parameters:
       - name: ordering
         required: false
@@ -216,7 +224,7 @@ paths:
         schema:
           type: string
       tags:
-      - v1
+      - Assessment
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -232,6 +240,31 @@ paths:
       description: Create multiple BOQ items by providing a parent BOQ ID/Number and
         a list of items.
       summary: Batch create BOQ items
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
       tags:
       - Assessment
       requestBody:
@@ -254,11 +287,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedBoqItemDetail'
+                $ref: '#/components/schemas/PaginatedBoqItemDetailList'
           description: ''
   /api/v1/assessment/boq-items/{id}/:
     get:
       operationId: v1_assessment_boq_items_retrieve
+      summary: Get BOQ item details
       parameters:
       - in: path
         name: id
@@ -267,7 +301,7 @@ paths:
         description: A unique integer value identifying this boq item.
         required: true
       tags:
-      - v1
+      - Assessment
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -276,7 +310,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedBoqItemDetail'
+                $ref: '#/components/schemas/BoqItemDetail'
           description: ''
     put:
       operationId: v1_assessment_boq_items_update
@@ -312,7 +346,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedBoqItemDetail'
+                $ref: '#/components/schemas/BoqItemDetail'
           description: ''
     patch:
       operationId: v1_assessment_boq_items_partial_update
@@ -347,10 +381,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedBoqItemDetail'
+                $ref: '#/components/schemas/BoqItemDetail'
           description: ''
     delete:
       operationId: v1_assessment_boq_items_destroy
+      summary: Delete BOQ item
       parameters:
       - in: path
         name: id
@@ -359,18 +394,53 @@ paths:
         description: A unique integer value identifying this boq item.
         required: true
       tags:
-      - v1
+      - Assessment
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '204':
+        '200':
           description: No response body
   /api/v1/assessment/boq-items/by-boq/:
     get:
-      operationId: v1_assessment_boq_items_by_boq_retrieve
+      operationId: v1_assessment_boq_items_by_boq_list
+      summary: List BOQ items by BOQ ID
+      parameters:
+      - in: query
+        name: boq_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: is_template
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
       tags:
-      - v1
+      - Assessment
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -379,11 +449,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedBoqItemDetail'
+                $ref: '#/components/schemas/PaginatedBoqItemDetailList'
           description: ''
   /api/v1/assessment/boqs/:
     get:
       operationId: v1_assessment_boqs_list
+      summary: List BOQs
       parameters:
       - name: ordering
         required: false
@@ -410,7 +481,7 @@ paths:
         schema:
           type: string
       tags:
-      - v1
+      - Assessment
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -423,8 +494,9 @@ paths:
           description: ''
     post:
       operationId: v1_assessment_boqs_create
+      summary: Create BOQ
       tags:
-      - v1
+      - Assessment
       requestBody:
         content:
           application/json:
@@ -444,11 +516,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedBoqDetail'
+                $ref: '#/components/schemas/BoqDetail'
           description: ''
   /api/v1/assessment/boqs/{id}/:
     get:
       operationId: v1_assessment_boqs_retrieve
+      summary: Get BOQ details
       parameters:
       - in: path
         name: id
@@ -457,7 +530,7 @@ paths:
         description: A unique integer value identifying this boq.
         required: true
       tags:
-      - v1
+      - Assessment
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -466,10 +539,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedBoqDetail'
+                $ref: '#/components/schemas/BoqDetail'
           description: ''
     put:
       operationId: v1_assessment_boqs_update
+      summary: Update BOQ
       parameters:
       - in: path
         name: id
@@ -478,7 +552,7 @@ paths:
         description: A unique integer value identifying this boq.
         required: true
       tags:
-      - v1
+      - Assessment
       requestBody:
         content:
           application/json:
@@ -498,10 +572,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedBoqDetail'
+                $ref: '#/components/schemas/BoqDetail'
           description: ''
     patch:
       operationId: v1_assessment_boqs_partial_update
+      summary: Partial update BOQ
       parameters:
       - in: path
         name: id
@@ -510,7 +585,7 @@ paths:
         description: A unique integer value identifying this boq.
         required: true
       tags:
-      - v1
+      - Assessment
       requestBody:
         content:
           application/json:
@@ -530,10 +605,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedBoqDetail'
+                $ref: '#/components/schemas/BoqDetail'
           description: ''
     delete:
       operationId: v1_assessment_boqs_destroy
+      summary: Delete BOQ
       parameters:
       - in: path
         name: id
@@ -542,16 +618,17 @@ paths:
         description: A unique integer value identifying this boq.
         required: true
       tags:
-      - v1
+      - Assessment
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '204':
+        '200':
           description: No response body
   /api/v1/assessment/boqs/{id}/approve/:
     patch:
       operationId: v1_assessment_boqs_approve_partial_update
+      summary: Approve BOQ
       parameters:
       - in: path
         name: id
@@ -560,18 +637,18 @@ paths:
         description: A unique integer value identifying this boq.
         required: true
       tags:
-      - v1
+      - Assessment
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedBoqDetail'
+              $ref: '#/components/schemas/PatchedBoqApproveRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedBoqDetail'
+              $ref: '#/components/schemas/PatchedBoqApproveRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedBoqDetail'
+              $ref: '#/components/schemas/PatchedBoqApproveRequest'
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -580,11 +657,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedBoqDetail'
+                $ref: '#/components/schemas/BoqDetail'
           description: ''
   /api/v1/assessment/boqs/{id}/reject/:
     patch:
       operationId: v1_assessment_boqs_reject_partial_update
+      summary: Reject BOQ
       parameters:
       - in: path
         name: id
@@ -593,18 +671,18 @@ paths:
         description: A unique integer value identifying this boq.
         required: true
       tags:
-      - v1
+      - Assessment
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedBoqDetail'
+              $ref: '#/components/schemas/PatchedBoqRejectRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedBoqDetail'
+              $ref: '#/components/schemas/PatchedBoqRejectRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedBoqDetail'
+              $ref: '#/components/schemas/PatchedBoqRejectRequest'
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -613,7 +691,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedBoqDetail'
+                $ref: '#/components/schemas/BoqDetail'
           description: ''
   /api/v1/assessment/finishes/:
     get:
@@ -1328,7 +1406,11 @@ paths:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+          description: ''
   /api/v1/auth/refresh/:
     post:
       operationId: v1_auth_refresh_create
@@ -1354,9 +1436,11 @@ paths:
       - {}
       responses:
         '200':
-          description: No response body
-        '401':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+          description: ''
   /api/v1/check-username/:
     get:
       operationId: v1_check_username_retrieve
@@ -1378,7 +1462,11 @@ paths:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsernameCheckResponse'
+          description: ''
   /api/v1/companies/:
     get:
       operationId: v1_companies_list
@@ -2077,6 +2165,7 @@ paths:
       description: |-
         ViewSet for managing Attendance.
         Supports check-in, check-out, listing history, and report.
+      summary: List attendance history
       parameters:
       - name: page
         required: false
@@ -2091,7 +2180,7 @@ paths:
         schema:
           type: integer
       tags:
-      - v1
+      - HRM-Attendance
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -2108,8 +2197,9 @@ paths:
       description: |-
         ViewSet for managing Attendance.
         Supports check-in, check-out, listing history, and report.
+      summary: Check-in for today (no payload required)
       tags:
-      - v1
+      - HRM-Attendance
       requestBody:
         content:
           application/json:
@@ -2126,11 +2216,11 @@ paths:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedAttendance'
+                $ref: '#/components/schemas/Attendance'
           description: ''
   /api/v1/hrm/attendance/check-out/:
     post:
@@ -2138,8 +2228,9 @@ paths:
       description: |-
         ViewSet for managing Attendance.
         Supports check-in, check-out, listing history, and report.
+      summary: Check-out for today (no payload required)
       tags:
-      - v1
+      - HRM-Attendance
       requestBody:
         content:
           application/json:
@@ -2160,7 +2251,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedAttendance'
+                $ref: '#/components/schemas/Attendance'
           description: ''
   /api/v1/hrm/attendance/report/:
     get:
@@ -2168,8 +2259,9 @@ paths:
       description: |-
         ViewSet for managing Attendance.
         Supports check-in, check-out, listing history, and report.
+      summary: Get attendance report summary
       tags:
-      - v1
+      - HRM-Attendance
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -2178,7 +2270,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedAttendance'
+                $ref: '#/components/schemas/AttendanceReportResponse'
           description: ''
   /api/v1/hrm/departments/:
     get:
@@ -2365,14 +2457,9 @@ paths:
   /api/v1/hrm/designations/:
     get:
       operationId: v1_hrm_designations_list
-      description: |-
-        API v1 CRUD viewset for Designation.
-
-        Features:
-        - List / retrieve / create / update / delete designations
-        - Authenticated access by default
-        - Basic search on name and slug
-        - Filter by department_id
+      description: Paginated list of designations with search on name/slug and filtering
+        by department.
+      summary: List designations
       parameters:
       - in: query
         name: department_id
@@ -2403,7 +2490,7 @@ paths:
         schema:
           type: string
       tags:
-      - v1
+      - HRM
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -2416,16 +2503,10 @@ paths:
           description: ''
     post:
       operationId: v1_hrm_designations_create
-      description: |-
-        API v1 CRUD viewset for Designation.
-
-        Features:
-        - List / retrieve / create / update / delete designations
-        - Authenticated access by default
-        - Basic search on name and slug
-        - Filter by department_id
+      description: Create a new designation.
+      summary: Create designation
       tags:
-      - v1
+      - HRM
       requestBody:
         content:
           application/json:
@@ -2451,14 +2532,8 @@ paths:
   /api/v1/hrm/designations/{id}/:
     get:
       operationId: v1_hrm_designations_retrieve
-      description: |-
-        API v1 CRUD viewset for Designation.
-
-        Features:
-        - List / retrieve / create / update / delete designations
-        - Authenticated access by default
-        - Basic search on name and slug
-        - Filter by department_id
+      description: Retrieve a single designation by ID.
+      summary: Get designation
       parameters:
       - in: path
         name: id
@@ -2467,7 +2542,7 @@ paths:
         description: A unique integer value identifying this designation.
         required: true
       tags:
-      - v1
+      - HRM
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -2480,14 +2555,8 @@ paths:
           description: ''
     put:
       operationId: v1_hrm_designations_update
-      description: |-
-        API v1 CRUD viewset for Designation.
-
-        Features:
-        - List / retrieve / create / update / delete designations
-        - Authenticated access by default
-        - Basic search on name and slug
-        - Filter by department_id
+      description: Full update of a designation.
+      summary: Update designation
       parameters:
       - in: path
         name: id
@@ -2496,7 +2565,7 @@ paths:
         description: A unique integer value identifying this designation.
         required: true
       tags:
-      - v1
+      - HRM
       requestBody:
         content:
           application/json:
@@ -2521,14 +2590,8 @@ paths:
           description: ''
     patch:
       operationId: v1_hrm_designations_partial_update
-      description: |-
-        API v1 CRUD viewset for Designation.
-
-        Features:
-        - List / retrieve / create / update / delete designations
-        - Authenticated access by default
-        - Basic search on name and slug
-        - Filter by department_id
+      description: Partial update of a designation.
+      summary: Partial update designation
       parameters:
       - in: path
         name: id
@@ -2537,7 +2600,7 @@ paths:
         description: A unique integer value identifying this designation.
         required: true
       tags:
-      - v1
+      - HRM
       requestBody:
         content:
           application/json:
@@ -2561,14 +2624,8 @@ paths:
           description: ''
     delete:
       operationId: v1_hrm_designations_destroy
-      description: |-
-        API v1 CRUD viewset for Designation.
-
-        Features:
-        - List / retrieve / create / update / delete designations
-        - Authenticated access by default
-        - Basic search on name and slug
-        - Filter by department_id
+      description: Delete a designation.
+      summary: Delete designation
       parameters:
       - in: path
         name: id
@@ -2577,7 +2634,7 @@ paths:
         description: A unique integer value identifying this designation.
         required: true
       tags:
-      - v1
+      - HRM
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -2594,6 +2651,7 @@ paths:
         - List / retrieve / create / update / delete employees
         - Authenticated access by default
         - Filtered by company
+      summary: List employees
       parameters:
       - name: ordering
         required: false
@@ -2620,7 +2678,7 @@ paths:
         schema:
           type: string
       tags:
-      - v1
+      - HRM-Employee
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -2640,8 +2698,9 @@ paths:
         - List / retrieve / create / update / delete employees
         - Authenticated access by default
         - Filtered by company
+      summary: Create employee
       tags:
-      - v1
+      - HRM-Employee
       requestBody:
         content:
           application/json:
@@ -2661,7 +2720,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedEmployee'
+                $ref: '#/components/schemas/Employee'
           description: ''
   /api/v1/hrm/employees-lightweight/:
     get:
@@ -2741,6 +2800,7 @@ paths:
         - List / retrieve / create / update / delete employees
         - Authenticated access by default
         - Filtered by company
+      summary: Get employee details
       parameters:
       - in: path
         name: id
@@ -2749,7 +2809,7 @@ paths:
         description: A unique integer value identifying this employee.
         required: true
       tags:
-      - v1
+      - HRM-Employee
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -2758,7 +2818,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedEmployee'
+                $ref: '#/components/schemas/Employee'
           description: ''
     put:
       operationId: v1_hrm_employees_update
@@ -2769,6 +2829,7 @@ paths:
         - List / retrieve / create / update / delete employees
         - Authenticated access by default
         - Filtered by company
+      summary: Update employee
       parameters:
       - in: path
         name: id
@@ -2777,7 +2838,7 @@ paths:
         description: A unique integer value identifying this employee.
         required: true
       tags:
-      - v1
+      - HRM-Employee
       requestBody:
         content:
           application/json:
@@ -2797,7 +2858,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedEmployee'
+                $ref: '#/components/schemas/Employee'
           description: ''
     patch:
       operationId: v1_hrm_employees_partial_update
@@ -2808,6 +2869,7 @@ paths:
         - List / retrieve / create / update / delete employees
         - Authenticated access by default
         - Filtered by company
+      summary: Partial update employee
       parameters:
       - in: path
         name: id
@@ -2816,7 +2878,7 @@ paths:
         description: A unique integer value identifying this employee.
         required: true
       tags:
-      - v1
+      - HRM-Employee
       requestBody:
         content:
           application/json:
@@ -2836,7 +2898,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedEmployee'
+                $ref: '#/components/schemas/Employee'
           description: ''
     delete:
       operationId: v1_hrm_employees_destroy
@@ -2847,6 +2909,7 @@ paths:
         - List / retrieve / create / update / delete employees
         - Authenticated access by default
         - Filtered by company
+      summary: Delete employee
       parameters:
       - in: path
         name: id
@@ -2855,16 +2918,17 @@ paths:
         description: A unique integer value identifying this employee.
         required: true
       tags:
-      - v1
+      - HRM-Employee
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '204':
+        '200':
           description: No response body
   /api/v1/inventory/brands/:
     get:
       operationId: v1_inventory_brands_list
+      summary: List master values
       parameters:
       - name: ordering
         required: false
@@ -2904,6 +2968,7 @@ paths:
           description: ''
     post:
       operationId: v1_inventory_brands_create
+      summary: Create master value
       tags:
       - v1
       requestBody:
@@ -2931,6 +2996,7 @@ paths:
   /api/v1/inventory/brands/{id}/:
     get:
       operationId: v1_inventory_brands_retrieve
+      summary: Get master value details
       parameters:
       - in: path
         name: id
@@ -2952,6 +3018,7 @@ paths:
           description: ''
     put:
       operationId: v1_inventory_brands_update
+      summary: Update master value
       parameters:
       - in: path
         name: id
@@ -2985,6 +3052,7 @@ paths:
           description: ''
     patch:
       operationId: v1_inventory_brands_partial_update
+      summary: Partial update master value
       parameters:
       - in: path
         name: id
@@ -3017,6 +3085,7 @@ paths:
           description: ''
     delete:
       operationId: v1_inventory_brands_destroy
+      summary: Delete master value
       parameters:
       - in: path
         name: id
@@ -3035,6 +3104,43 @@ paths:
   /api/v1/inventory/brands/dropdown/:
     get:
       operationId: v1_inventory_brands_dropdown_retrieve
+      summary: List master values for dropdowns
+      parameters:
+      - in: query
+        name: grade
+        schema:
+          type: string
+        description: Filter by associated product grade
+      - in: query
+        name: include_inactive
+        schema:
+          type: boolean
+        description: Set to 'true' to include inactive values
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Maximum number of results
+      - in: query
+        name: product_name
+        schema:
+          type: string
+        description: Filter by associated product name
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search by name or code
+      - in: query
+        name: size
+        schema:
+          type: string
+        description: Filter by associated product size
+      - in: query
+        name: thickness
+        schema:
+          type: string
+        description: Filter by associated product thickness
       tags:
       - v1
       security:
@@ -3050,6 +3156,7 @@ paths:
   /api/v1/inventory/categories/:
     get:
       operationId: v1_inventory_categories_list
+      summary: List master values
       parameters:
       - name: ordering
         required: false
@@ -3089,6 +3196,7 @@ paths:
           description: ''
     post:
       operationId: v1_inventory_categories_create
+      summary: Create master value
       tags:
       - v1
       requestBody:
@@ -3116,6 +3224,7 @@ paths:
   /api/v1/inventory/categories/{id}/:
     get:
       operationId: v1_inventory_categories_retrieve
+      summary: Get master value details
       parameters:
       - in: path
         name: id
@@ -3137,6 +3246,7 @@ paths:
           description: ''
     put:
       operationId: v1_inventory_categories_update
+      summary: Update master value
       parameters:
       - in: path
         name: id
@@ -3170,6 +3280,7 @@ paths:
           description: ''
     patch:
       operationId: v1_inventory_categories_partial_update
+      summary: Partial update master value
       parameters:
       - in: path
         name: id
@@ -3202,6 +3313,7 @@ paths:
           description: ''
     delete:
       operationId: v1_inventory_categories_destroy
+      summary: Delete master value
       parameters:
       - in: path
         name: id
@@ -3220,6 +3332,43 @@ paths:
   /api/v1/inventory/categories/dropdown/:
     get:
       operationId: v1_inventory_categories_dropdown_retrieve
+      summary: List master values for dropdowns
+      parameters:
+      - in: query
+        name: grade
+        schema:
+          type: string
+        description: Filter by associated product grade
+      - in: query
+        name: include_inactive
+        schema:
+          type: boolean
+        description: Set to 'true' to include inactive values
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Maximum number of results
+      - in: query
+        name: product_name
+        schema:
+          type: string
+        description: Filter by associated product name
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search by name or code
+      - in: query
+        name: size
+        schema:
+          type: string
+        description: Filter by associated product size
+      - in: query
+        name: thickness
+        schema:
+          type: string
+        description: Filter by associated product thickness
       tags:
       - v1
       security:
@@ -3235,6 +3384,7 @@ paths:
   /api/v1/inventory/finishes/:
     get:
       operationId: v1_inventory_finishes_list
+      summary: List master values
       parameters:
       - name: ordering
         required: false
@@ -3274,6 +3424,7 @@ paths:
           description: ''
     post:
       operationId: v1_inventory_finishes_create
+      summary: Create master value
       tags:
       - v1
       requestBody:
@@ -3301,6 +3452,7 @@ paths:
   /api/v1/inventory/finishes/{id}/:
     get:
       operationId: v1_inventory_finishes_retrieve
+      summary: Get master value details
       parameters:
       - in: path
         name: id
@@ -3322,6 +3474,7 @@ paths:
           description: ''
     put:
       operationId: v1_inventory_finishes_update
+      summary: Update master value
       parameters:
       - in: path
         name: id
@@ -3355,6 +3508,7 @@ paths:
           description: ''
     patch:
       operationId: v1_inventory_finishes_partial_update
+      summary: Partial update master value
       parameters:
       - in: path
         name: id
@@ -3387,6 +3541,7 @@ paths:
           description: ''
     delete:
       operationId: v1_inventory_finishes_destroy
+      summary: Delete master value
       parameters:
       - in: path
         name: id
@@ -3405,6 +3560,43 @@ paths:
   /api/v1/inventory/finishes/dropdown/:
     get:
       operationId: v1_inventory_finishes_dropdown_retrieve
+      summary: List master values for dropdowns
+      parameters:
+      - in: query
+        name: grade
+        schema:
+          type: string
+        description: Filter by associated product grade
+      - in: query
+        name: include_inactive
+        schema:
+          type: boolean
+        description: Set to 'true' to include inactive values
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Maximum number of results
+      - in: query
+        name: product_name
+        schema:
+          type: string
+        description: Filter by associated product name
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search by name or code
+      - in: query
+        name: size
+        schema:
+          type: string
+        description: Filter by associated product size
+      - in: query
+        name: thickness
+        schema:
+          type: string
+        description: Filter by associated product thickness
       tags:
       - v1
       security:
@@ -3420,6 +3612,7 @@ paths:
   /api/v1/inventory/grades/:
     get:
       operationId: v1_inventory_grades_list
+      summary: List master values
       parameters:
       - name: ordering
         required: false
@@ -3459,6 +3652,7 @@ paths:
           description: ''
     post:
       operationId: v1_inventory_grades_create
+      summary: Create master value
       tags:
       - v1
       requestBody:
@@ -3486,6 +3680,7 @@ paths:
   /api/v1/inventory/grades/{id}/:
     get:
       operationId: v1_inventory_grades_retrieve
+      summary: Get master value details
       parameters:
       - in: path
         name: id
@@ -3507,6 +3702,7 @@ paths:
           description: ''
     put:
       operationId: v1_inventory_grades_update
+      summary: Update master value
       parameters:
       - in: path
         name: id
@@ -3540,6 +3736,7 @@ paths:
           description: ''
     patch:
       operationId: v1_inventory_grades_partial_update
+      summary: Partial update master value
       parameters:
       - in: path
         name: id
@@ -3572,6 +3769,7 @@ paths:
           description: ''
     delete:
       operationId: v1_inventory_grades_destroy
+      summary: Delete master value
       parameters:
       - in: path
         name: id
@@ -3590,6 +3788,43 @@ paths:
   /api/v1/inventory/grades/dropdown/:
     get:
       operationId: v1_inventory_grades_dropdown_retrieve
+      summary: List master values for dropdowns
+      parameters:
+      - in: query
+        name: grade
+        schema:
+          type: string
+        description: Filter by associated product grade
+      - in: query
+        name: include_inactive
+        schema:
+          type: boolean
+        description: Set to 'true' to include inactive values
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Maximum number of results
+      - in: query
+        name: product_name
+        schema:
+          type: string
+        description: Filter by associated product name
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search by name or code
+      - in: query
+        name: size
+        schema:
+          type: string
+        description: Filter by associated product size
+      - in: query
+        name: thickness
+        schema:
+          type: string
+        description: Filter by associated product thickness
       tags:
       - v1
       security:
@@ -3605,6 +3840,7 @@ paths:
   /api/v1/inventory/materials/:
     get:
       operationId: v1_inventory_materials_list
+      summary: List master values
       parameters:
       - name: ordering
         required: false
@@ -3644,6 +3880,7 @@ paths:
           description: ''
     post:
       operationId: v1_inventory_materials_create
+      summary: Create master value
       tags:
       - v1
       requestBody:
@@ -3671,6 +3908,7 @@ paths:
   /api/v1/inventory/materials/{id}/:
     get:
       operationId: v1_inventory_materials_retrieve
+      summary: Get master value details
       parameters:
       - in: path
         name: id
@@ -3692,6 +3930,7 @@ paths:
           description: ''
     put:
       operationId: v1_inventory_materials_update
+      summary: Update master value
       parameters:
       - in: path
         name: id
@@ -3725,6 +3964,7 @@ paths:
           description: ''
     patch:
       operationId: v1_inventory_materials_partial_update
+      summary: Partial update master value
       parameters:
       - in: path
         name: id
@@ -3757,6 +3997,7 @@ paths:
           description: ''
     delete:
       operationId: v1_inventory_materials_destroy
+      summary: Delete master value
       parameters:
       - in: path
         name: id
@@ -3775,6 +4016,43 @@ paths:
   /api/v1/inventory/materials/dropdown/:
     get:
       operationId: v1_inventory_materials_dropdown_retrieve
+      summary: List master values for dropdowns
+      parameters:
+      - in: query
+        name: grade
+        schema:
+          type: string
+        description: Filter by associated product grade
+      - in: query
+        name: include_inactive
+        schema:
+          type: boolean
+        description: Set to 'true' to include inactive values
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Maximum number of results
+      - in: query
+        name: product_name
+        schema:
+          type: string
+        description: Filter by associated product name
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search by name or code
+      - in: query
+        name: size
+        schema:
+          type: string
+        description: Filter by associated product size
+      - in: query
+        name: thickness
+        schema:
+          type: string
+        description: Filter by associated product thickness
       tags:
       - v1
       security:
@@ -3790,6 +4068,7 @@ paths:
   /api/v1/inventory/products/:
     get:
       operationId: v1_inventory_products_list
+      summary: List products
       parameters:
       - in: query
         name: brand_id
@@ -3859,7 +4138,7 @@ paths:
           type: string
           format: uuid
       tags:
-      - v1
+      - Inventory-Product
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -3872,8 +4151,9 @@ paths:
           description: ''
     post:
       operationId: v1_inventory_products_create
+      summary: Create product
       tags:
-      - v1
+      - Inventory-Product
       requestBody:
         content:
           application/json:
@@ -3899,6 +4179,7 @@ paths:
   /api/v1/inventory/products/{id}/:
     get:
       operationId: v1_inventory_products_retrieve
+      summary: Get product details
       parameters:
       - in: path
         name: id
@@ -3907,7 +4188,7 @@ paths:
         description: A unique integer value identifying this product.
         required: true
       tags:
-      - v1
+      - Inventory-Product
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -3920,6 +4201,7 @@ paths:
           description: ''
     put:
       operationId: v1_inventory_products_update
+      summary: Update product
       parameters:
       - in: path
         name: id
@@ -3928,7 +4210,7 @@ paths:
         description: A unique integer value identifying this product.
         required: true
       tags:
-      - v1
+      - Inventory-Product
       requestBody:
         content:
           application/json:
@@ -3953,6 +4235,7 @@ paths:
           description: ''
     patch:
       operationId: v1_inventory_products_partial_update
+      summary: Partial update product
       parameters:
       - in: path
         name: id
@@ -3961,7 +4244,7 @@ paths:
         description: A unique integer value identifying this product.
         required: true
       tags:
-      - v1
+      - Inventory-Product
       requestBody:
         content:
           application/json:
@@ -3985,6 +4268,7 @@ paths:
           description: ''
     delete:
       operationId: v1_inventory_products_destroy
+      summary: Delete product
       parameters:
       - in: path
         name: id
@@ -3993,7 +4277,7 @@ paths:
         description: A unique integer value identifying this product.
         required: true
       tags:
-      - v1
+      - Inventory-Product
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4002,9 +4286,93 @@ paths:
           description: No response body
   /api/v1/inventory/products/dropdown/:
     get:
-      operationId: v1_inventory_products_dropdown_retrieve
+      operationId: v1_inventory_products_dropdown_list
+      summary: List products for dropdowns
+      parameters:
+      - in: query
+        name: brand_id
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: category_id
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: finish_id
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: grade_id
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: include_inactive
+        schema:
+          type: boolean
+        description: Set to 'true' to include inactive products
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Maximum number of results
+      - in: query
+        name: material_id
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search by name, slug, or SKU
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: size_id
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: slug
+        schema:
+          type: string
+      - in: query
+        name: thickness_id
+        schema:
+          type: string
+          format: uuid
       tags:
-      - v1
+      - Inventory-Product
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4013,11 +4381,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedProduct'
+                $ref: '#/components/schemas/PaginatedProductDropdownList'
           description: ''
   /api/v1/inventory/sizes/:
     get:
       operationId: v1_inventory_sizes_list
+      summary: List master values
       parameters:
       - name: ordering
         required: false
@@ -4057,6 +4426,7 @@ paths:
           description: ''
     post:
       operationId: v1_inventory_sizes_create
+      summary: Create master value
       tags:
       - v1
       requestBody:
@@ -4084,6 +4454,7 @@ paths:
   /api/v1/inventory/sizes/{id}/:
     get:
       operationId: v1_inventory_sizes_retrieve
+      summary: Get master value details
       parameters:
       - in: path
         name: id
@@ -4105,6 +4476,7 @@ paths:
           description: ''
     put:
       operationId: v1_inventory_sizes_update
+      summary: Update master value
       parameters:
       - in: path
         name: id
@@ -4138,6 +4510,7 @@ paths:
           description: ''
     patch:
       operationId: v1_inventory_sizes_partial_update
+      summary: Partial update master value
       parameters:
       - in: path
         name: id
@@ -4170,6 +4543,7 @@ paths:
           description: ''
     delete:
       operationId: v1_inventory_sizes_destroy
+      summary: Delete master value
       parameters:
       - in: path
         name: id
@@ -4188,6 +4562,43 @@ paths:
   /api/v1/inventory/sizes/dropdown/:
     get:
       operationId: v1_inventory_sizes_dropdown_retrieve
+      summary: List master values for dropdowns
+      parameters:
+      - in: query
+        name: grade
+        schema:
+          type: string
+        description: Filter by associated product grade
+      - in: query
+        name: include_inactive
+        schema:
+          type: boolean
+        description: Set to 'true' to include inactive values
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Maximum number of results
+      - in: query
+        name: product_name
+        schema:
+          type: string
+        description: Filter by associated product name
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search by name or code
+      - in: query
+        name: size
+        schema:
+          type: string
+        description: Filter by associated product size
+      - in: query
+        name: thickness
+        schema:
+          type: string
+        description: Filter by associated product thickness
       tags:
       - v1
       security:
@@ -4203,6 +4614,7 @@ paths:
   /api/v1/inventory/thickness/:
     get:
       operationId: v1_inventory_thickness_list
+      summary: List master values
       parameters:
       - name: ordering
         required: false
@@ -4242,6 +4654,7 @@ paths:
           description: ''
     post:
       operationId: v1_inventory_thickness_create
+      summary: Create master value
       tags:
       - v1
       requestBody:
@@ -4269,6 +4682,7 @@ paths:
   /api/v1/inventory/thickness/{id}/:
     get:
       operationId: v1_inventory_thickness_retrieve
+      summary: Get master value details
       parameters:
       - in: path
         name: id
@@ -4290,6 +4704,7 @@ paths:
           description: ''
     put:
       operationId: v1_inventory_thickness_update
+      summary: Update master value
       parameters:
       - in: path
         name: id
@@ -4323,6 +4738,7 @@ paths:
           description: ''
     patch:
       operationId: v1_inventory_thickness_partial_update
+      summary: Partial update master value
       parameters:
       - in: path
         name: id
@@ -4355,6 +4771,7 @@ paths:
           description: ''
     delete:
       operationId: v1_inventory_thickness_destroy
+      summary: Delete master value
       parameters:
       - in: path
         name: id
@@ -4373,6 +4790,43 @@ paths:
   /api/v1/inventory/thickness/dropdown/:
     get:
       operationId: v1_inventory_thickness_dropdown_retrieve
+      summary: List master values for dropdowns
+      parameters:
+      - in: query
+        name: grade
+        schema:
+          type: string
+        description: Filter by associated product grade
+      - in: query
+        name: include_inactive
+        schema:
+          type: boolean
+        description: Set to 'true' to include inactive values
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: Maximum number of results
+      - in: query
+        name: product_name
+        schema:
+          type: string
+        description: Filter by associated product name
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search by name or code
+      - in: query
+        name: size
+        schema:
+          type: string
+        description: Filter by associated product size
+      - in: query
+        name: thickness
+        schema:
+          type: string
+        description: Filter by associated product thickness
       tags:
       - v1
       security:
@@ -4387,8 +4841,9 @@ paths:
           description: ''
   /api/v1/navigation/company/{company_id}/disable-features/:
     post:
-      operationId: v1_navigation_company_disable_features_create
+      operationId: v1_navigation_features_disable
       description: Disable one or more features for a company by feature ID.
+      summary: Disable features
       parameters:
       - in: path
         name: company_id
@@ -4396,18 +4851,18 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FeatureWrite'
+              $ref: '#/components/schemas/DisableFeatureRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/FeatureWrite'
+              $ref: '#/components/schemas/DisableFeatureRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/FeatureWrite'
+              $ref: '#/components/schemas/DisableFeatureRequest'
         required: true
       security:
       - jwtAuth: []
@@ -4417,12 +4872,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/DisableFeatureResponse'
           description: ''
   /api/v1/navigation/company/{company_id}/enable-features/:
     post:
-      operationId: v1_navigation_company_enable_features_create
+      operationId: v1_navigation_features_enable
       description: Enable one or more features for a company by feature ID.
+      summary: Enable features
       parameters:
       - in: path
         name: company_id
@@ -4430,18 +4886,18 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FeatureWrite'
+              $ref: '#/components/schemas/EnableFeatureRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/FeatureWrite'
+              $ref: '#/components/schemas/EnableFeatureRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/FeatureWrite'
+              $ref: '#/components/schemas/EnableFeatureRequest'
         required: true
       security:
       - jwtAuth: []
@@ -4451,15 +4907,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/EnableFeatureResponse'
           description: ''
   /api/v1/navigation/company/{company_id}/features/:
     get:
-      operationId: v1_navigation_company_features_retrieve_2
+      operationId: v1_navigation_company_features_list
       description: |-
         List features (with modules and permissions) enabled for a company.
 
         Company is taken from the URL: GET /company/<company_id>/features/
+      summary: List features for specific company
       parameters:
       - in: path
         name: company_id
@@ -4467,7 +4924,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4476,17 +4933,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/CompanyFeatureListResponse'
           description: ''
   /api/v1/navigation/company/features/:
     get:
-      operationId: v1_navigation_company_features_retrieve
-      description: |-
-        List features (with modules and permissions) enabled for the current user's company.
-
-        Company is taken from the authenticated user's company (request.user.company_id).
+      operationId: v1_navigation_features_company_list
+      description: List features enabled for the current user's company, filtered
+        by RBAC permissions.
+      summary: List company features
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4495,15 +4951,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/FeatureListResponse'
           description: ''
   /api/v1/navigation/features/:
     get:
-      operationId: v1_navigation_features_retrieve
+      operationId: v1_navigation_features_full_list
       description: List all features (GET) or create a new Feature (POST). Superuser
         only.
+      summary: List all features (Superuser)
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4512,14 +4969,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/FeatureFullListResponse'
           description: ''
     post:
       operationId: v1_navigation_features_create
       description: List all features (GET) or create a new Feature (POST). Superuser
         only.
+      summary: Create feature
       tags:
-      - v1
+      - Navigation
       requestBody:
         content:
           application/json:
@@ -4536,17 +4994,18 @@ paths:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Feature'
           description: ''
   /api/v1/navigation/features/{id}/:
     get:
-      operationId: v1_navigation_features_retrieve_2
+      operationId: v1_navigation_features_retrieve
       description: Retrieve, update (PUT/PATCH), or delete a Feature by id. Superuser
         only.
+      summary: Get feature
       parameters:
       - in: path
         name: id
@@ -4554,7 +5013,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4563,12 +5022,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Feature'
           description: ''
     put:
       operationId: v1_navigation_features_update
       description: Retrieve, update (PUT/PATCH), or delete a Feature by id. Superuser
         only.
+      summary: Update feature
       parameters:
       - in: path
         name: id
@@ -4576,7 +5036,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       requestBody:
         content:
           application/json:
@@ -4597,12 +5057,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Feature'
           description: ''
     patch:
       operationId: v1_navigation_features_partial_update
       description: Retrieve, update (PUT/PATCH), or delete a Feature by id. Superuser
         only.
+      summary: Partial update feature
       parameters:
       - in: path
         name: id
@@ -4610,7 +5071,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       requestBody:
         content:
           application/json:
@@ -4630,12 +5091,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Feature'
           description: ''
     delete:
-      operationId: v1_navigation_features_destroy
+      operationId: v1_navigation_features_delete
       description: Retrieve, update (PUT/PATCH), or delete a Feature by id. Superuser
         only.
+      summary: Delete feature
       parameters:
       - in: path
         name: id
@@ -4643,21 +5105,22 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '204':
+        '200':
           description: No response body
   /api/v1/navigation/features/list/:
     get:
-      operationId: v1_navigation_features_list_retrieve
+      operationId: v1_navigation_features_readonly_list
       description: |-
         Read-only list of all features: id, feature_code, feature_name only.
         GET only. Authenticated users.
+      summary: List features (Read-only)
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4666,14 +5129,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/FeatureReadOnlyListResponse'
           description: ''
   /api/v1/navigation/modules/:
     get:
-      operationId: v1_navigation_modules_retrieve
+      operationId: v1_navigation_modules_list
       description: List all modules (GET) or create a module (POST). Superuser only.
+      summary: List all modules
+      parameters:
+      - in: query
+        name: feature_id
+        schema:
+          type: integer
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4682,13 +5151,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/ModuleFullListResponse'
           description: ''
     post:
       operationId: v1_navigation_modules_create
       description: List all modules (GET) or create a module (POST). Superuser only.
+      summary: Create module
       tags:
-      - v1
+      - Navigation
       requestBody:
         content:
           application/json:
@@ -4705,17 +5175,18 @@ paths:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Module'
           description: ''
   /api/v1/navigation/modules/{id}/:
     get:
-      operationId: v1_navigation_modules_retrieve_2
+      operationId: v1_navigation_modules_retrieve
       description: Retrieve, update (PUT/PATCH), or delete a Module by id. Superuser
         only.
+      summary: Get module
       parameters:
       - in: path
         name: id
@@ -4723,7 +5194,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4732,12 +5203,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Module'
           description: ''
     put:
       operationId: v1_navigation_modules_update
       description: Retrieve, update (PUT/PATCH), or delete a Module by id. Superuser
         only.
+      summary: Update module
       parameters:
       - in: path
         name: id
@@ -4745,7 +5217,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       requestBody:
         content:
           application/json:
@@ -4766,12 +5238,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Module'
           description: ''
     patch:
       operationId: v1_navigation_modules_partial_update
       description: Retrieve, update (PUT/PATCH), or delete a Module by id. Superuser
         only.
+      summary: Partial update module
       parameters:
       - in: path
         name: id
@@ -4779,7 +5252,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       requestBody:
         content:
           application/json:
@@ -4799,12 +5272,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Module'
           description: ''
     delete:
-      operationId: v1_navigation_modules_destroy
+      operationId: v1_navigation_modules_delete
       description: Retrieve, update (PUT/PATCH), or delete a Module by id. Superuser
         only.
+      summary: Delete module
       parameters:
       - in: path
         name: id
@@ -4812,21 +5286,22 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '204':
+        '200':
           description: No response body
   /api/v1/navigation/modules/list/:
     get:
-      operationId: v1_navigation_modules_list_retrieve
+      operationId: v1_navigation_modules_readonly_list
       description: |-
         Read-only list of all modules: id, module_code, module_name only.
         GET only. Authenticated users.
+      summary: List modules (Read-only)
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4835,14 +5310,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/ModuleReadOnlyListResponse'
           description: ''
   /api/v1/navigation/permissions/:
     get:
-      operationId: v1_navigation_permissions_retrieve
+      operationId: v1_navigation_permissions_list
       description: List all permissions (GET) or create a permission (POST).
+      summary: List all permissions
+      parameters:
+      - in: query
+        name: module_id
+        schema:
+          type: integer
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4851,13 +5332,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/PermissionListResponse'
           description: ''
     post:
       operationId: v1_navigation_permissions_create
       description: List all permissions (GET) or create a permission (POST).
+      summary: Create permission
       tags:
-      - v1
+      - Navigation
       requestBody:
         content:
           application/json:
@@ -4874,16 +5356,17 @@ paths:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Permission'
           description: ''
   /api/v1/navigation/permissions/{id}/:
     get:
-      operationId: v1_navigation_permissions_retrieve_2
+      operationId: v1_navigation_permissions_retrieve
       description: Retrieve, update (PUT/PATCH), or delete a Permission by id.
+      summary: Get permission
       parameters:
       - in: path
         name: id
@@ -4891,7 +5374,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -4900,11 +5383,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Permission'
           description: ''
     put:
       operationId: v1_navigation_permissions_update
       description: Retrieve, update (PUT/PATCH), or delete a Permission by id.
+      summary: Update permission
       parameters:
       - in: path
         name: id
@@ -4912,7 +5396,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       requestBody:
         content:
           application/json:
@@ -4933,11 +5417,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Permission'
           description: ''
     patch:
       operationId: v1_navigation_permissions_partial_update
       description: Retrieve, update (PUT/PATCH), or delete a Permission by id.
+      summary: Partial update permission
       parameters:
       - in: path
         name: id
@@ -4945,7 +5430,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       requestBody:
         content:
           application/json:
@@ -4965,11 +5450,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Permission'
           description: ''
     delete:
-      operationId: v1_navigation_permissions_destroy
+      operationId: v1_navigation_permissions_delete
       description: Retrieve, update (PUT/PATCH), or delete a Permission by id.
+      summary: Delete permission
       parameters:
       - in: path
         name: id
@@ -4977,12 +5463,12 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '204':
+        '200':
           description: No response body
   /api/v1/navigation/sidebar/:
     get:
@@ -4992,8 +5478,9 @@ paths:
 
         Uses RBAC to include only modules the user has permission to access.
         Superusers without a company get all features in the sidebar (no filtering).
+      summary: Get dynamic sidebar
       tags:
-      - v1
+      - Navigation
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -5002,7 +5489,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/SidebarResponse'
           description: ''
   /api/v1/production/batch-tracking/:
     get:
@@ -5347,6 +5834,7 @@ paths:
   /api/v1/production/cutting-optimization/:
     get:
       operationId: v1_production_cutting_optimization_list
+      summary: List cutting optimization jobs
       parameters:
       - name: ordering
         required: false
@@ -5373,7 +5861,7 @@ paths:
         schema:
           type: string
       tags:
-      - v1
+      - Production-Cutting
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -5382,12 +5870,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedCuttingOptimizationJobList'
+                $ref: '#/components/schemas/PaginatedCuttingOptimizationJobListList'
           description: ''
     post:
       operationId: v1_production_cutting_optimization_create
+      summary: Create cutting optimization job
       tags:
-      - v1
+      - Production-Cutting
       requestBody:
         content:
           multipart/form-data:
@@ -5410,6 +5899,7 @@ paths:
   /api/v1/production/cutting-optimization/{id}/:
     get:
       operationId: v1_production_cutting_optimization_retrieve
+      summary: Get cutting optimization job
       parameters:
       - in: path
         name: id
@@ -5418,7 +5908,7 @@ paths:
         description: A unique integer value identifying this Cutting Optimization.
         required: true
       tags:
-      - v1
+      - Production-Cutting
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -5431,6 +5921,7 @@ paths:
           description: ''
     put:
       operationId: v1_production_cutting_optimization_update
+      summary: Update cutting optimization job
       parameters:
       - in: path
         name: id
@@ -5439,7 +5930,7 @@ paths:
         description: A unique integer value identifying this Cutting Optimization.
         required: true
       tags:
-      - v1
+      - Production-Cutting
       requestBody:
         content:
           multipart/form-data:
@@ -5461,6 +5952,7 @@ paths:
           description: ''
     patch:
       operationId: v1_production_cutting_optimization_partial_update
+      summary: Partial update cutting optimization job
       parameters:
       - in: path
         name: id
@@ -5469,7 +5961,7 @@ paths:
         description: A unique integer value identifying this Cutting Optimization.
         required: true
       tags:
-      - v1
+      - Production-Cutting
       requestBody:
         content:
           multipart/form-data:
@@ -5490,6 +5982,7 @@ paths:
           description: ''
     delete:
       operationId: v1_production_cutting_optimization_destroy
+      summary: Delete cutting optimization job
       parameters:
       - in: path
         name: id
@@ -5498,7 +5991,7 @@ paths:
         description: A unique integer value identifying this Cutting Optimization.
         required: true
       tags:
-      - v1
+      - Production-Cutting
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -5508,6 +6001,9 @@ paths:
   /api/v1/production/cutting-optimization/{id}/retry/:
     post:
       operationId: v1_production_cutting_optimization_retry_create
+      description: Optionally reupload a CAD file (.dxf/.dwg) to retry the optimization
+        process.
+      summary: Retry cutting optimization job
       parameters:
       - in: path
         name: id
@@ -5516,16 +6012,15 @@ paths:
         description: A unique integer value identifying this Cutting Optimization.
         required: true
       tags:
-      - v1
+      - Production-Cutting
       requestBody:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CuttingOptimizationJob'
+              $ref: '#/components/schemas/CuttingRetryRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CuttingOptimizationJob'
-        required: true
+              $ref: '#/components/schemas/CuttingRetryRequest'
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -5534,7 +6029,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedCuttingOptimizationJob'
+                $ref: '#/components/schemas/CuttingOptimizationJob'
           description: ''
   /api/v1/production/labor-tracking/:
     get:
@@ -6898,10 +7393,20 @@ paths:
           description: No response body
   /api/v1/role-hierarchies/:
     get:
-      operationId: v1_role_hierarchies_retrieve
+      operationId: v1_rbac_role_hierarchy_list
       description: List role hierarchy links (GET) or create one (POST).
+      summary: List role hierarchies
+      parameters:
+      - in: query
+        name: child_role_id
+        schema:
+          type: integer
+      - in: query
+        name: parent_role_id
+        schema:
+          type: integer
       tags:
-      - v1
+      - RBAC
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -6910,13 +7415,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/RoleHierarchyListResponse'
           description: ''
     post:
-      operationId: v1_role_hierarchies_create
+      operationId: v1_rbac_role_hierarchy_create
       description: List role hierarchy links (GET) or create one (POST).
+      summary: Create role hierarchy
       tags:
-      - v1
+      - RBAC
       requestBody:
         content:
           application/json:
@@ -6933,16 +7439,17 @@ paths:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/RoleHierarchy'
           description: ''
   /api/v1/role-hierarchies/{id}/:
     get:
-      operationId: v1_role_hierarchies_retrieve_2
+      operationId: v1_rbac_role_hierarchy_retrieve
       description: Retrieve or delete a RoleHierarchy by id.
+      summary: Get role hierarchy
       parameters:
       - in: path
         name: id
@@ -6950,7 +7457,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - RBAC
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -6959,11 +7466,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/RoleHierarchy'
           description: ''
     delete:
-      operationId: v1_role_hierarchies_destroy
+      operationId: v1_rbac_role_hierarchy_delete
       description: Retrieve or delete a RoleHierarchy by id.
+      summary: Delete role hierarchy
       parameters:
       - in: path
         name: id
@@ -6971,19 +7479,29 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - RBAC
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '204':
+        '200':
           description: No response body
   /api/v1/role-permissions/:
     get:
-      operationId: v1_role_permissions_retrieve
+      operationId: v1_rbac_role_permissions_list
       description: List role-permission links (GET) or create one (POST).
+      summary: List role permissions
+      parameters:
+      - in: query
+        name: permission_id
+        schema:
+          type: integer
+      - in: query
+        name: role_id
+        schema:
+          type: integer
       tags:
-      - v1
+      - RBAC
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -6992,13 +7510,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/RolePermissionListResponse'
           description: ''
     post:
-      operationId: v1_role_permissions_create
+      operationId: v1_rbac_role_permissions_create
       description: List role-permission links (GET) or create one (POST).
+      summary: Create role permission
       tags:
-      - v1
+      - RBAC
       requestBody:
         content:
           application/json:
@@ -7015,17 +7534,18 @@ paths:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/RolePermission'
           description: ''
   /api/v1/role-permissions/{id}/:
     get:
-      operationId: v1_role_permissions_retrieve_2
+      operationId: v1_rbac_role_permissions_retrieve
       description: Retrieve or delete a RolePermission by id (no PUT/PATCH for join
         table).
+      summary: Get role permission
       parameters:
       - in: path
         name: id
@@ -7033,7 +7553,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - RBAC
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -7042,12 +7562,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/RolePermission'
           description: ''
     delete:
-      operationId: v1_role_permissions_destroy
+      operationId: v1_rbac_role_permissions_delete
       description: Retrieve or delete a RolePermission by id (no PUT/PATCH for join
         table).
+      summary: Delete role permission
       parameters:
       - in: path
         name: id
@@ -7055,19 +7576,26 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - RBAC
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '204':
+        '200':
           description: No response body
   /api/v1/roles/:
     get:
-      operationId: v1_roles_retrieve
+      operationId: v1_rbac_roles_list
       description: List roles (GET) or create a role (POST).
+      summary: List roles
+      parameters:
+      - in: query
+        name: company_id
+        schema:
+          type: integer
+        description: Filter roles by company ID.
       tags:
-      - v1
+      - RBAC
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -7076,13 +7604,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
           description: ''
     post:
-      operationId: v1_roles_create
+      operationId: v1_rbac_roles_create
       description: List roles (GET) or create a role (POST).
+      summary: Create role
       tags:
-      - v1
+      - RBAC
       requestBody:
         content:
           application/json:
@@ -7099,16 +7630,17 @@ paths:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/RoleDetail'
           description: ''
   /api/v1/roles/{id}/:
     get:
-      operationId: v1_roles_retrieve_2
+      operationId: v1_rbac_roles_retrieve
       description: Retrieve, update (PUT/PATCH), or delete a Role by id.
+      summary: Get role
       parameters:
       - in: path
         name: id
@@ -7116,7 +7648,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - RBAC
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -7125,11 +7657,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/RoleDetail'
           description: ''
     put:
-      operationId: v1_roles_update
+      operationId: v1_rbac_roles_update
       description: Retrieve, update (PUT/PATCH), or delete a Role by id.
+      summary: Update role
       parameters:
       - in: path
         name: id
@@ -7137,7 +7670,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - RBAC
       requestBody:
         content:
           application/json:
@@ -7158,11 +7691,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Role'
           description: ''
     patch:
-      operationId: v1_roles_partial_update
+      operationId: v1_rbac_roles_partial_update
       description: Retrieve, update (PUT/PATCH), or delete a Role by id.
+      summary: Partial update role
       parameters:
       - in: path
         name: id
@@ -7170,7 +7704,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - RBAC
       requestBody:
         content:
           application/json:
@@ -7190,11 +7724,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/Role'
           description: ''
     delete:
-      operationId: v1_roles_destroy
+      operationId: v1_rbac_roles_delete
       description: Retrieve, update (PUT/PATCH), or delete a Role by id.
+      summary: Delete role
       parameters:
       - in: path
         name: id
@@ -7202,12 +7737,12 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - RBAC
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '204':
+        '200':
           description: No response body
   /api/v1/settings/global-terms/:
     get:
@@ -7410,13 +7945,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GlobalTermsDetail'
+              $ref: '#/components/schemas/GlobalTermsApproveRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/GlobalTermsDetail'
+              $ref: '#/components/schemas/GlobalTermsApproveRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/GlobalTermsDetail'
+              $ref: '#/components/schemas/GlobalTermsApproveRequest'
         required: true
       security:
       - jwtAuth: []
@@ -7426,7 +7961,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedGlobalTermsDetail'
+                $ref: '#/components/schemas/GlobalTermsDetail'
           description: ''
     patch:
       operationId: v1_settings_global_terms_approve_partial_update
@@ -7446,13 +7981,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedGlobalTermsDetail'
+              $ref: '#/components/schemas/PatchedGlobalTermsApproveRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedGlobalTermsDetail'
+              $ref: '#/components/schemas/PatchedGlobalTermsApproveRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedGlobalTermsDetail'
+              $ref: '#/components/schemas/PatchedGlobalTermsApproveRequest'
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -7461,14 +7996,24 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedGlobalTermsDetail'
+                $ref: '#/components/schemas/GlobalTermsDetail'
           description: ''
   /api/v1/user-roles/:
     get:
-      operationId: v1_user_roles_retrieve
+      operationId: v1_rbac_user_roles_list
       description: List user-role assignments (GET) or create one (POST).
+      summary: List user roles
+      parameters:
+      - in: query
+        name: role_id
+        schema:
+          type: integer
+      - in: query
+        name: user_id
+        schema:
+          type: integer
       tags:
-      - v1
+      - RBAC
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -7477,13 +8022,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserRole'
           description: ''
     post:
-      operationId: v1_user_roles_create
+      operationId: v1_rbac_user_roles_create
       description: List user-role assignments (GET) or create one (POST).
+      summary: Create user role
       tags:
-      - v1
+      - RBAC
       requestBody:
         content:
           application/json:
@@ -7500,16 +8048,17 @@ paths:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '200':
+        '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/UserRole'
           description: ''
   /api/v1/user-roles/{id}/:
     get:
-      operationId: v1_user_roles_retrieve_2
+      operationId: v1_rbac_user_roles_retrieve
       description: Retrieve or delete a UserRole by id.
+      summary: Get user role
       parameters:
       - in: path
         name: id
@@ -7517,7 +8066,7 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - RBAC
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -7526,11 +8075,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WrappedMetaclass'
+                $ref: '#/components/schemas/UserRoleDetails'
           description: ''
     delete:
-      operationId: v1_user_roles_destroy
+      operationId: v1_rbac_user_roles_delete
       description: Retrieve or delete a UserRole by id.
+      summary: Delete user role
       parameters:
       - in: path
         name: id
@@ -7538,12 +8088,12 @@ paths:
           type: integer
         required: true
       tags:
-      - v1
+      - RBAC
       security:
       - jwtAuth: []
       - cookieAuth: []
       responses:
-        '204':
+        '200':
           description: No response body
   /api/v1/users/:
     get:
@@ -7817,6 +8367,25 @@ components:
       - employee_name
       - id
       - status
+    AttendanceReportResponse:
+      type: object
+      properties:
+        total_days:
+          type: integer
+        present_days:
+          type: integer
+      required:
+      - present_days
+      - total_days
+    AvailableEndpointsResponse:
+      type: object
+      properties:
+        endpoints:
+          type: array
+          items:
+            type: string
+      required:
+      - endpoints
     BOMExplosion:
       type: object
       properties:
@@ -8181,6 +8750,18 @@ components:
       - created_at
       - id
       - name
+    CompanyFeatureListResponse:
+      type: object
+      properties:
+        company_id:
+          type: integer
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+      required:
+      - company_id
+      - features
     ContractTypeEnum:
       enum:
       - MOHRE_FIXED_TERM
@@ -8277,7 +8858,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/CuttingOptimizationJobStatusEnum'
+          - $ref: '#/components/schemas/Status316Enum'
           readOnly: true
         stock_sheets: {}
         extracted_parts:
@@ -8320,18 +8901,60 @@ components:
       - slug
       - status
       - updated_at
-    CuttingOptimizationJobStatusEnum:
-      enum:
-      - pending
-      - processing
-      - completed
-      - failed
-      type: string
-      description: |-
-        * `pending` - Pending
-        * `processing` - Processing
-        * `completed` - Completed
-        * `failed` - Failed
+    CuttingOptimizationJobList:
+      type: object
+      description: 'Lightweight serializer for list view: fewer fields, error_message
+        only when present.'
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        slug:
+          type: string
+          maxLength: 220
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+        cad_file:
+          type: string
+          format: uri
+          nullable: true
+        cutlist_pdf_file:
+          type: string
+          format: uri
+          nullable: true
+        cutlist_xlsx_file:
+          type: string
+          format: uri
+          nullable: true
+        status:
+          $ref: '#/components/schemas/Status316Enum'
+        error_message:
+          type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - updated_at
+    CuttingRetryRequest:
+      type: object
+      properties:
+        cad_file:
+          type: string
+          format: uri
     Department:
       type: object
       properties:
@@ -8451,6 +9074,24 @@ components:
       - id
       - name
       - slug
+    DisableFeatureRequest:
+      type: object
+      properties:
+        features:
+          type: array
+          items:
+            type: integer
+      required:
+      - features
+    DisableFeatureResponse:
+      type: object
+      properties:
+        disabled_features:
+          type: array
+          items:
+            type: integer
+      required:
+      - disabled_features
     Employee:
       type: object
       properties:
@@ -8806,6 +9447,24 @@ components:
         * `FLEXIBLE` - Flexible Working
         * `REMOTE` - Remote Work
         * `JOB_SHARE` - Job Sharing
+    EnableFeatureRequest:
+      type: object
+      properties:
+        features:
+          type: array
+          items:
+            type: integer
+      required:
+      - features
+    EnableFeatureResponse:
+      type: object
+      properties:
+        enabled_features:
+          type: array
+          items:
+            type: integer
+      required:
+      - enabled_features
     EnquiryDetail:
       type: object
       properties:
@@ -8905,6 +9564,91 @@ components:
       - client
       - id
       - project_name
+    Feature:
+      type: object
+      description: Serializer for Feature with nested modules (and their permissions).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        feature_code:
+          type: string
+          description: Stable identifier used in code/configuration.
+          maxLength: 100
+        feature_name:
+          type: string
+          description: Human-readable name shown in the UI.
+          maxLength: 150
+        icon:
+          type: string
+          nullable: true
+          description: Optional icon name for this feature.
+          maxLength: 100
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Controls display order in navigation (lower appears first).
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Module'
+          readOnly: true
+      required:
+      - feature_code
+      - feature_name
+      - id
+      - modules
+    FeatureFullListResponse:
+      type: object
+      properties:
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+      required:
+      - features
+    FeatureListResponse:
+      type: object
+      properties:
+        company_id:
+          type: integer
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+      required:
+      - company_id
+      - features
+    FeatureReadOnly:
+      type: object
+      description: 'Read-only serializer for Feature: id, feature_code, feature_name
+        only.'
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        feature_code:
+          type: string
+          readOnly: true
+          description: Stable identifier used in code/configuration.
+        feature_name:
+          type: string
+          readOnly: true
+          description: Human-readable name shown in the UI.
+      required:
+      - feature_code
+      - feature_name
+      - id
+    FeatureReadOnlyListResponse:
+      type: object
+      properties:
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureReadOnly'
+      required:
+      - features
     FeatureWrite:
       type: object
       description: Serializer for creating and updating Feature (no nested modules).
@@ -8981,6 +9725,13 @@ components:
         * `Male` - Male
         * `Female` - Female
         * `Other` - Other
+    GlobalTermsApproveRequest:
+      type: object
+      properties:
+        is_approved:
+          type: boolean
+      required:
+      - is_approved
     GlobalTermsDetail:
       type: object
       properties:
@@ -9222,6 +9973,16 @@ components:
       required:
       - password
       - username
+    LoginResponse:
+      type: object
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
     MachineIntegration:
       type: object
       properties:
@@ -9314,6 +10075,89 @@ components:
         * `PUT` - PUT
         * `PATCH` - PATCH
         * `DELETE` - DELETE
+    Module:
+      type: object
+      description: Serializer for Module with nested permissions.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        feature_name:
+          type: string
+          description: Human-readable name shown in the UI.
+          readOnly: true
+        module_code:
+          type: string
+          description: Stable identifier used in code/configuration.
+          maxLength: 120
+        module_name:
+          type: string
+          description: Human-readable name shown in the UI.
+          maxLength: 150
+        route:
+          type: string
+          nullable: true
+          description: Frontend route path for this module, if applicable.
+          maxLength: 200
+        icon:
+          type: string
+          nullable: true
+          description: Optional icon name for this module.
+          maxLength: 100
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Controls display order within a feature.
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+          readOnly: true
+      required:
+      - feature_name
+      - id
+      - module_code
+      - module_name
+      - permissions
+    ModuleFullListResponse:
+      type: object
+      properties:
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Module'
+      required:
+      - modules
+    ModuleReadOnly:
+      type: object
+      description: 'Read-only serializer for Module: id, module_code, module_name
+        only.'
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        module_code:
+          type: string
+          readOnly: true
+          description: Stable identifier used in code/configuration.
+        module_name:
+          type: string
+          readOnly: true
+          description: Human-readable name shown in the UI.
+      required:
+      - id
+      - module_code
+      - module_name
+    ModuleReadOnlyListResponse:
+      type: object
+      properties:
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModuleReadOnly'
+      required:
+      - modules
     ModuleWrite:
       type: object
       description: Serializer for creating and updating Module (no nested permissions).
@@ -9516,6 +10360,56 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/BatchTracking'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
+          type: integer
+          example: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
+    PaginatedBoqItemDetailList:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/BoqItemDetail'
             pagination:
               type: object
               properties:
@@ -9850,7 +10744,7 @@ components:
       - data
       - status_code
       - timestamp
-    PaginatedCuttingOptimizationJobList:
+    PaginatedCuttingOptimizationJobListList:
       type: object
       properties:
         success:
@@ -9865,7 +10759,7 @@ components:
             items:
               type: array
               items:
-                $ref: '#/components/schemas/CuttingOptimizationJob'
+                $ref: '#/components/schemas/CuttingOptimizationJobList'
             pagination:
               type: object
               properties:
@@ -10466,6 +11360,56 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Material'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
+          type: integer
+          example: 200
+        timestamp:
+          type: string
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
+    PaginatedProductDropdownList:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProductDropdown'
             pagination:
               type: object
               properties:
@@ -11275,6 +12219,11 @@ components:
         production_order:
           type: integer
           nullable: true
+    PatchedBoqApproveRequest:
+      type: object
+      properties:
+        value:
+          type: boolean
     PatchedBoqDetail:
       type: object
       properties:
@@ -11325,6 +12274,11 @@ components:
           items:
             $ref: '#/components/schemas/BoqItemDetail'
           description: Exactly one item allowed in this array for single object update.
+    PatchedBoqRejectRequest:
+      type: object
+      properties:
+        value:
+          type: boolean
     PatchedBrand:
       type: object
       properties:
@@ -11456,7 +12410,7 @@ components:
           readOnly: true
         status:
           allOf:
-          - $ref: '#/components/schemas/CuttingOptimizationJobStatusEnum'
+          - $ref: '#/components/schemas/Status316Enum'
           readOnly: true
         stock_sheets: {}
         extracted_parts:
@@ -11944,6 +12898,11 @@ components:
           type: string
           format: date-time
           readOnly: true
+    PatchedGlobalTermsApproveRequest:
+      type: object
+      properties:
+        is_approved:
+          type: boolean
     PatchedGlobalTermsDetail:
       type: object
       properties:
@@ -12728,6 +13687,39 @@ components:
           pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
         production_order:
           type: integer
+    Permission:
+      type: object
+      description: Serializer for navigation Permission (used by RBAC).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        module_name:
+          type: string
+          description: Human-readable name shown in the UI.
+          readOnly: true
+        permission_code:
+          type: string
+          description: Stable permission code used in RBAC checks.
+          maxLength: 150
+        permission_name:
+          type: string
+          description: Human-readable permission label.
+          maxLength: 150
+      required:
+      - id
+      - module_name
+      - permission_code
+      - permission_name
+    PermissionListResponse:
+      type: object
+      properties:
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+      required:
+      - permissions
     PermissionWrite:
       type: object
       description: Serializer for creating and updating Permission.
@@ -12868,6 +13860,18 @@ components:
       - slug
       - thickness_name
       - updated_at
+    ProductDropdown:
+      type: object
+      properties:
+        value:
+          type: integer
+          readOnly: true
+        label:
+          type: string
+          readOnly: true
+      required:
+      - label
+      - value
     ProductList:
       type: object
       properties:
@@ -13276,6 +14280,13 @@ components:
       - created_at
       - id
       - project_name
+    RefreshTokenResponse:
+      type: object
+      properties:
+        access:
+          type: string
+      required:
+      - access
     RejectionReworkManagement:
       type: object
       properties:
@@ -13324,6 +14335,91 @@ components:
       - name
       - slug
       - updated_at
+    Role:
+      type: object
+      description: Serializer for Role (read, with nested role_permissions).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        role_name:
+          type: string
+          maxLength: 150
+        role_code:
+          type: string
+          maxLength: 150
+        description:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - role_code
+      - role_name
+    RoleDetail:
+      type: object
+      description: Serializer for Role detail with nested role_permission ids.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        role_name:
+          type: string
+          maxLength: 150
+        role_code:
+          type: string
+          maxLength: 150
+        description:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        permissions:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - permissions
+      - role_code
+      - role_name
+    RoleHierarchy:
+      type: object
+      description: Serializer for RoleHierarchy (parent–child role).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        parent_role:
+          type: integer
+        child_role:
+          type: integer
+      required:
+      - child_role
+      - id
+      - parent_role
+    RoleHierarchyListResponse:
+      type: object
+      properties:
+        role_hierarchies:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleHierarchy'
+      required:
+      - role_hierarchies
     RoleHierarchyWrite:
       type: object
       description: Serializer for creating RoleHierarchy.
@@ -13335,6 +14431,30 @@ components:
       required:
       - child_role
       - parent_role
+    RolePermission:
+      type: object
+      description: Serializer for RolePermission (role–permission link).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        role:
+          type: integer
+        permission:
+          type: integer
+      required:
+      - id
+      - permission
+      - role
+    RolePermissionListResponse:
+      type: object
+      properties:
+        role_permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RolePermission'
+      required:
+      - role_permissions
     RolePermissionWrite:
       type: object
       description: Serializer for creating RolePermission.
@@ -13419,6 +14539,54 @@ components:
       - production_order
       - slug
       - updated_at
+    SidebarFeature:
+      type: object
+      description: Minimal feature payload for sidebar with nested modules.
+      properties:
+        feature_code:
+          type: string
+        feature_name:
+          type: string
+        icon:
+          type: string
+          nullable: true
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/SidebarModule'
+      required:
+      - feature_code
+      - feature_name
+      - icon
+      - modules
+    SidebarModule:
+      type: object
+      description: Minimal module payload for sidebar (e.g. from sidebar_builder).
+      properties:
+        module_code:
+          type: string
+        module_name:
+          type: string
+        route:
+          type: string
+          nullable: true
+        icon:
+          type: string
+          nullable: true
+      required:
+      - icon
+      - module_code
+      - module_name
+      - route
+    SidebarResponse:
+      type: object
+      properties:
+        sidebar:
+          type: array
+          items:
+            $ref: '#/components/schemas/SidebarFeature'
+      required:
+      - sidebar
     Size:
       type: object
       properties:
@@ -13456,6 +14624,18 @@ components:
       - slug
       - updated_at
       - value
+    Status316Enum:
+      enum:
+      - pending
+      - processing
+      - completed
+      - failed
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `processing` - Processing
+        * `completed` - Completed
+        * `failed` - Failed
     SubcontractingManagement:
       type: object
       properties:
@@ -13700,6 +14880,52 @@ components:
       - id
       - role_details
       - username
+    UserRole:
+      type: object
+      description: 'Serializer for UserRole list/create: user full name and role_name.'
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_full_name:
+          type: string
+          readOnly: true
+        role_name:
+          type: string
+          readOnly: true
+        assigned_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - assigned_at
+      - id
+      - role_name
+      - user_full_name
+    UserRoleDetails:
+      type: object
+      description: 'Serializer for UserRole detail: full user details and role details.'
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        assigned_at:
+          type: string
+          format: date-time
+          readOnly: true
+        user_details:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+        role_details:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+      required:
+      - assigned_at
+      - id
+      - role_details
+      - user_details
     UserRoleWrite:
       type: object
       description: Serializer for creating UserRole.
@@ -13711,6 +14937,21 @@ components:
       required:
       - role
       - user
+    UsernameCheckResponse:
+      type: object
+      properties:
+        available:
+          type: boolean
+        message:
+          type: string
+        suggestions:
+          type: array
+          items:
+            type: string
+      required:
+      - available
+      - message
+      - suggestions
     WIPTracking:
       type: object
       properties:
@@ -13793,26 +15034,6 @@ components:
       required:
       - data
       - timestamp
-    WrappedAttendance:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/Attendance'
-        success:
-          type: boolean
-          default: true
-        message:
-          type: string
-          default: Data retrieved successfully.
-        status_code:
-          type: integer
-          default: 200
-        timestamp:
-          type: string
-          format: date-time
-      required:
-      - data
-      - timestamp
     WrappedBOMExplosion:
       type: object
       properties:
@@ -13838,46 +15059,6 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/BatchTracking'
-        success:
-          type: boolean
-          default: true
-        message:
-          type: string
-          default: Data retrieved successfully.
-        status_code:
-          type: integer
-          default: 200
-        timestamp:
-          type: string
-          format: date-time
-      required:
-      - data
-      - timestamp
-    WrappedBoqDetail:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/BoqDetail'
-        success:
-          type: boolean
-          default: true
-        message:
-          type: string
-          default: Data retrieved successfully.
-        status_code:
-          type: integer
-          default: 200
-        timestamp:
-          type: string
-          format: date-time
-      required:
-      - data
-      - timestamp
-    WrappedBoqItemDetail:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/BoqItemDetail'
         success:
           type: boolean
           default: true
@@ -14038,26 +15219,6 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/Designation'
-        success:
-          type: boolean
-          default: true
-        message:
-          type: string
-          default: Data retrieved successfully.
-        status_code:
-          type: integer
-          default: 200
-        timestamp:
-          type: string
-          format: date-time
-      required:
-      - data
-      - timestamp
-    WrappedEmployee:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/Employee'
         success:
           type: boolean
           default: true
@@ -14252,23 +15413,6 @@ components:
           format: date-time
       required:
       - data
-      - timestamp
-    WrappedMetaclass:
-      type: object
-      properties:
-        success:
-          type: boolean
-          default: true
-        message:
-          type: string
-          default: Data retrieved successfully.
-        status_code:
-          type: integer
-          default: 200
-        timestamp:
-          type: string
-          format: date-time
-      required:
       - timestamp
     WrappedProduct:
       type: object

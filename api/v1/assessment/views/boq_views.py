@@ -1,13 +1,12 @@
 from django.db import transaction
-from rest_framework import filters
-from rest_framework import status
+from rest_framework import filters, status, serializers
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 
 from apps.assessment.models import Boq, BoqItem
 from core.utils.responses import APIResponse
 
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import extend_schema, extend_schema_view, inline_serializer, OpenApiParameter
 from ..serializers import (
     BoqDetailSerializer,
     BoqItemCreateRequestSerializer,
@@ -19,6 +18,26 @@ from ..serializers import (
 from .shared import BaseAssessmentViewSet
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["Assessment"], summary="List BOQs", responses={200: BoqListSerializer(many=True)}),
+    retrieve=extend_schema(tags=["Assessment"], summary="Get BOQ details", responses={200: BoqDetailSerializer}),
+    create=extend_schema(tags=["Assessment"], summary="Create BOQ", responses={201: BoqDetailSerializer}),
+    update=extend_schema(tags=["Assessment"], summary="Update BOQ", responses={200: BoqDetailSerializer}),
+    partial_update=extend_schema(tags=["Assessment"], summary="Partial update BOQ", responses={200: BoqDetailSerializer}),
+    destroy=extend_schema(tags=["Assessment"], summary="Delete BOQ", responses={200: None}),
+    approve=extend_schema(
+        tags=["Assessment"],
+        summary="Approve BOQ",
+        request=inline_serializer(name="BoqApproveRequest", fields={"value": serializers.BooleanField()}),
+        responses={200: BoqDetailSerializer}
+    ),
+    reject=extend_schema(
+        tags=["Assessment"],
+        summary="Reject BOQ",
+        request=inline_serializer(name="BoqRejectRequest", fields={"value": serializers.BooleanField()}),
+        responses={200: BoqDetailSerializer}
+    ),
+)
 class BoqViewSet(BaseAssessmentViewSet):
     queryset = Boq.objects.select_related("enquiry")
     serializer_class = BoqDetailSerializer
@@ -71,23 +90,38 @@ class BoqViewSet(BaseAssessmentViewSet):
 
 
 @extend_schema_view(
+    list=extend_schema(tags=["Assessment"], summary="List BOQ items", responses={200: BoqItemListSerializer(many=True)}),
+    retrieve=extend_schema(tags=["Assessment"], summary="Get BOQ item details", responses={200: BoqItemDetailSerializer}),
+    destroy=extend_schema(tags=["Assessment"], summary="Delete BOQ item", responses={200: None}),
+    by_boq=extend_schema(
+        tags=["Assessment"],
+        summary="List BOQ items by BOQ ID",
+        parameters=[
+            OpenApiParameter("boq_id", int, OpenApiParameter.QUERY, required=True),
+            OpenApiParameter("is_template", bool, OpenApiParameter.QUERY),
+        ],
+        responses={200: BoqItemDetailSerializer(many=True)}
+    ),
     create=extend_schema(
         tags=["Assessment"],
         summary="Batch create BOQ items",
         description="Create multiple BOQ items by providing a parent BOQ ID/Number and a list of items.",
         request=BoqItemCreateRequestSerializer,
+        responses={201: BoqItemDetailSerializer(many=True)}
     ),
     update=extend_schema(
         tags=["Assessment"],
         summary="Update BOQ item",
         description="Update a single BOQ item. Supports both direct payload format or wrapped {'boq': id, 'items': [...]} format.",
         request=BoqItemUpdateRequestSerializer,
+        responses={200: BoqItemDetailSerializer}
     ),
     partial_update=extend_schema(
         tags=["Assessment"],
         summary="Partial update BOQ item",
         description="Partially update a single BOQ item. Supports both direct payload format or wrapped {'boq': id, 'items': [...]} format.",
         request=BoqItemUpdateRequestSerializer,
+        responses={200: BoqItemDetailSerializer}
     ),
 )
 class BoqItemViewSet(BaseAssessmentViewSet):

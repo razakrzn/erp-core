@@ -1,12 +1,12 @@
 """
 Auth API views: login and refresh token.
 """
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, inline_serializer
 
 from core.utils.responses import APIResponse
 
@@ -27,7 +27,16 @@ class LoginView(APIView):
         summary="Login",
         description="Authenticate with username and password. Returns JWT access and refresh tokens plus user data.",
         request=LoginSerializer,
-        responses={200: None},
+        responses={
+            200: inline_serializer(
+                name="LoginResponse",
+                fields={
+                    "access": serializers.CharField(),
+                    "refresh": serializers.CharField(),
+                    "user": UserSerializer
+                }
+            )
+        },
     )
     def post(self, request):
         serializer = LoginSerializer(data=request.data, context={"request": request})
@@ -63,7 +72,12 @@ class RefreshTokenView(APIView):
         summary="Refresh token",
         description="Exchange a valid refresh token for a new access token.",
         request=TokenRefreshSerializer,
-        responses={200: None, 401: None},
+        responses={
+            200: inline_serializer(
+                name="RefreshTokenResponse",
+                fields={"access": serializers.CharField()}
+            )
+        },
     )
     def post(self, request):
         serializer = TokenRefreshSerializer(data=request.data)

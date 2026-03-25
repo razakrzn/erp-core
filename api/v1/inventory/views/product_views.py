@@ -2,6 +2,7 @@ from django_filters import rest_framework as django_filters
 from django.db.models import Q
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 
 from apps.inventory.models import Product
 from core.utils.responses import APIResponse
@@ -35,6 +36,24 @@ class ProductFilter(django_filters.FilterSet):
         ]
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["Inventory-Product"], summary="List products", responses={200: ProductListSerializer(many=True)}),
+    retrieve=extend_schema(tags=["Inventory-Product"], summary="Get product details"),
+    create=extend_schema(tags=["Inventory-Product"], summary="Create product"),
+    update=extend_schema(tags=["Inventory-Product"], summary="Update product"),
+    partial_update=extend_schema(tags=["Inventory-Product"], summary="Partial update product"),
+    destroy=extend_schema(tags=["Inventory-Product"], summary="Delete product"),
+    dropdown=extend_schema(
+        tags=["Inventory-Product"],
+        summary="List products for dropdowns",
+        parameters=[
+            OpenApiParameter("q", str, OpenApiParameter.QUERY, description="Search by name, slug, or SKU"),
+            OpenApiParameter("limit", int, OpenApiParameter.QUERY, description="Maximum number of results"),
+            OpenApiParameter("include_inactive", bool, OpenApiParameter.QUERY, description="Set to 'true' to include inactive products"),
+        ],
+        responses={200: ProductDropdownSerializer(many=True)}
+    ),
+)
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.select_related(
         'category', 'brand', 'material', 'size', 'thickness', 'grade', 'finish'
