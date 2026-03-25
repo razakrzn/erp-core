@@ -1,12 +1,11 @@
 """
 Auth API views: login and refresh token.
 """
-from rest_framework import status, serializers
+from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
-from core.utils.schema_docs_shims import extend_schema, inline_serializer
 
 from core.utils.responses import APIResponse
 
@@ -22,30 +21,6 @@ class LoginView(APIView):
     """
     permission_classes = [AllowAny]
 
-    @extend_schema(
-        tags=["Auth"],
-        summary="Login",
-        description="Authenticate with username and password. Returns JWT access and refresh tokens plus user data.",
-        request=LoginSerializer,
-        responses={
-            200: inline_serializer(
-                name="LoginResponse",
-                fields={
-                    "success": serializers.BooleanField(default=True),
-                    "message": serializers.CharField(default="Login successful."),
-                    "data": inline_serializer(
-                        name="LoginData",
-                        fields={
-                            "access": serializers.CharField(),
-                            "refresh": serializers.CharField(),
-                            "user": UserSerializer
-                        }
-                    ),
-                    "status_code": serializers.IntegerField(default=200),
-                }
-            )
-        },
-    )
     def post(self, request):
         serializer = LoginSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
@@ -75,26 +50,6 @@ class RefreshTokenView(APIView):
     """
     permission_classes = [AllowAny]
 
-    @extend_schema(
-        tags=["Auth"],
-        summary="Refresh token",
-        description="Exchange a valid refresh token for a new access token.",
-        request=TokenRefreshSerializer,
-        responses={
-            200: inline_serializer(
-                name="RefreshTokenResponse",
-                fields={
-                    "success": serializers.BooleanField(default=True),
-                    "message": serializers.CharField(default="Token refreshed successfully."),
-                    "data": inline_serializer(
-                        name="RefreshTokenData",
-                        fields={"access": serializers.CharField()}
-                    ),
-                    "status_code": serializers.IntegerField(default=200),
-                }
-            )
-        },
-    )
     def post(self, request):
         serializer = TokenRefreshSerializer(data=request.data)
         if not serializer.is_valid():

@@ -1,5 +1,4 @@
-from rest_framework import viewsets, status, serializers
-from core.utils.schema_docs_shims import extend_schema, extend_schema_view, inline_serializer
+from rest_framework import viewsets, status
 from core.utils.responses import APIResponse
 from apps.access_control.models import APIAccessRule
 from .serializers import APIAccessRuleSerializer
@@ -7,19 +6,6 @@ from rest_framework.decorators import action
 from .utils import get_all_url_patterns
 
 
-@extend_schema_view(
-    list=extend_schema(tags=["Access Control"], summary="List API access rules"),
-    retrieve=extend_schema(tags=["Access Control"], summary="Get API access rule"),
-    create=extend_schema(tags=["Access Control"], summary="Create API access rule"),
-    update=extend_schema(tags=["Access Control"], summary="Update API access rule"),
-    partial_update=extend_schema(tags=["Access Control"], summary="Partial update API access rule"),
-    destroy=extend_schema(tags=["Access Control"], summary="Delete API access rule"),
-    available_endpoints=extend_schema(
-        tags=["Access Control"],
-        summary="List all available API endpoints",
-        responses={200: inline_serializer(name="AvailableEndpointsResponse", fields={"endpoints": serializers.ListField(child=serializers.CharField())})}
-    ),
-)
 class APIAccessRuleViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows API Access Rules to be viewed or edited.

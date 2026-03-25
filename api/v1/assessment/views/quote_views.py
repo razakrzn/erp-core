@@ -6,7 +6,6 @@ from rest_framework.exceptions import ValidationError
 from apps.assessment.models import Finish, Quote, QuoteItem, Term
 from core.utils.responses import APIResponse
 
-from core.utils.schema_docs_shims import extend_schema, extend_schema_view
 from ..serializers import (
     FinishSerializer,
     QuoteDetailSerializer,
@@ -32,26 +31,6 @@ class QuoteViewSet(BaseAssessmentViewSet):
         return QuoteDetailSerializer
 
 
-@extend_schema_view(
-    create=extend_schema(
-        tags=["Assessment"],
-        summary="Batch create Quote items",
-        description="Create multiple Quote items by providing a parent Quote ID/Number and a list of items.",
-        request=QuoteItemCreateRequestSerializer,
-    ),
-    update=extend_schema(
-        tags=["Assessment"],
-        summary="Update Quote item",
-        description="Update a single Quote item. Supports both direct payload format or wrapped {'quote': id, 'items': [...]} format.",
-        request=QuoteItemUpdateRequestSerializer,
-    ),
-    partial_update=extend_schema(
-        tags=["Assessment"],
-        summary="Partial update Quote item",
-        description="Partially update a single Quote item. Supports both direct payload format or wrapped {'quote': id, 'items': [...]} format.",
-        request=QuoteItemUpdateRequestSerializer,
-    ),
-)
 class QuoteItemViewSet(BaseAssessmentViewSet):
     queryset = QuoteItem.objects.select_related("quote", "boq_item").prefetch_related("finishes")
     serializer_class = QuoteItemSerializer

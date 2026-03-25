@@ -5,12 +5,6 @@ from typing import Any
 from rest_framework import serializers, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
-from core.utils.schema_docs_shims import (
-    OpenApiParameter,
-    extend_schema,
-    extend_schema_view,
-    inline_serializer,
-)
 
 from core.permissions.rbac_permission import IsSuperuser
 from rest_framework.response import Response
@@ -35,23 +29,6 @@ from apps.navigation.services.sidebar_builder import build_sidebar
 from apps.rbac.services.permission_engine import user_has_permission
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["Navigation"],
-        summary="List company features",
-        operation_id="v1_navigation_features_company_list",
-        description="List features enabled for the current user's company, filtered by RBAC permissions.",
-        responses={
-            200: inline_serializer(
-                name="FeatureListResponse",
-                fields={
-                    "company_id": serializers.IntegerField(),
-                    "features": FeatureSerializer(many=True)
-                }
-            )
-        }
-    )
-)
 class FeatureListAPIView(APIView):
     """
     List features (with modules and permissions) enabled for the current user's company.
@@ -139,22 +116,6 @@ class FeatureListAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["Navigation"],
-        summary="List features for specific company",
-        operation_id="v1_navigation_company_features_list",
-        responses={
-            200: inline_serializer(
-                name="CompanyFeatureListResponse",
-                fields={
-                    "company_id": serializers.IntegerField(),
-                    "features": FeatureSerializer(many=True)
-                }
-            )
-        }
-    )
-)
 class CompanyFeatureListAPIView(APIView):
     """
     List features (with modules and permissions) enabled for a company.
@@ -233,19 +194,6 @@ class CompanyFeatureListAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["Navigation"],
-        summary="Get dynamic sidebar",
-        operation_id="v1_navigation_sidebar_retrieve",
-        responses={
-            200: inline_serializer(
-                name="SidebarResponse",
-                fields={"sidebar": SidebarFeatureSerializer(many=True)}
-            )
-        }
-    )
-)
 class SidebarAPIView(APIView):
     """
     Return the dynamic sidebar for the current user and their company.
@@ -274,23 +222,6 @@ class SidebarAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    post=extend_schema(
-        tags=["Navigation"],
-        summary="Enable features",
-        operation_id="v1_navigation_features_enable",
-        request=inline_serializer(
-            name="EnableFeatureRequest",
-            fields={"features": serializers.ListField(child=serializers.IntegerField())}
-        ),
-        responses={
-            200: inline_serializer(
-                name="EnableFeatureResponse",
-                fields={"enabled_features": serializers.ListField(child=serializers.IntegerField())}
-            )
-        }
-    )
-)
 class EnableFeatureAPIView(APIView):
     """
     Enable one or more features for a company by feature ID.
@@ -346,23 +277,6 @@ class EnableFeatureAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    post=extend_schema(
-        tags=["Navigation"],
-        summary="Disable features",
-        operation_id="v1_navigation_features_disable",
-        request=inline_serializer(
-            name="DisableFeatureRequest",
-            fields={"features": serializers.ListField(child=serializers.IntegerField())}
-        ),
-        responses={
-            200: inline_serializer(
-                name="DisableFeatureResponse",
-                fields={"disabled_features": serializers.ListField(child=serializers.IntegerField())}
-            )
-        }
-    )
-)
 class DisableFeatureAPIView(APIView):
     """
     Disable one or more features for a company by feature ID.
@@ -418,19 +332,6 @@ class DisableFeatureAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["Navigation"],
-        summary="List features (Read-only)",
-        operation_id="v1_navigation_features_readonly_list",
-        responses={
-            200: inline_serializer(
-                name="FeatureReadOnlyListResponse",
-                fields={"features": FeatureReadOnlySerializer(many=True)}
-            )
-        }
-    )
-)
 class FeatureReadOnlyListAPIView(APIView):
     """
     Read-only list of all features: id, feature_code, feature_name only.
@@ -453,26 +354,6 @@ class FeatureReadOnlyListAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["Navigation"],
-        summary="List all features (Superuser)",
-        operation_id="v1_navigation_features_full_list",
-        responses={
-            200: inline_serializer(
-                name="FeatureFullListResponse",
-                fields={"features": FeatureSerializer(many=True)}
-            )
-        }
-    ),
-    post=extend_schema(
-        tags=["Navigation"],
-        summary="Create feature",
-        operation_id="v1_navigation_features_create",
-        request=FeatureWriteSerializer,
-        responses={201: FeatureSerializer}
-    ),
-)
 class FeatureCreateAPIView(APIView):
     """
     List all features (GET) or create a new Feature (POST). Superuser only.
@@ -511,34 +392,6 @@ class FeatureCreateAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["Navigation"],
-        summary="Get feature",
-        operation_id="v1_navigation_features_retrieve",
-        responses={200: FeatureSerializer}
-    ),
-    put=extend_schema(
-        tags=["Navigation"],
-        summary="Update feature",
-        operation_id="v1_navigation_features_update",
-        request=FeatureWriteSerializer,
-        responses={200: FeatureSerializer}
-    ),
-    patch=extend_schema(
-        tags=["Navigation"],
-        summary="Partial update feature",
-        operation_id="v1_navigation_features_partial_update",
-        request=FeatureWriteSerializer,
-        responses={200: FeatureSerializer}
-    ),
-    delete=extend_schema(
-        tags=["Navigation"],
-        summary="Delete feature",
-        operation_id="v1_navigation_features_delete",
-        responses={200: None}
-    ),
-)
 class FeatureDetailAPIView(APIView):
     """
     Retrieve, update (PUT/PATCH), or delete a Feature by id. Superuser only.
@@ -623,19 +476,6 @@ class FeatureDetailAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["Navigation"],
-        summary="List modules (Read-only)",
-        operation_id="v1_navigation_modules_readonly_list",
-        responses={
-            200: inline_serializer(
-                name="ModuleReadOnlyListResponse",
-                fields={"modules": ModuleReadOnlySerializer(many=True)}
-            )
-        }
-    )
-)
 class ModuleReadOnlyListAPIView(APIView):
     """
     Read-only list of all modules: id, module_code, module_name only.
@@ -655,27 +495,6 @@ class ModuleReadOnlyListAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["Navigation"],
-        summary="List all modules",
-        operation_id="v1_navigation_modules_list",
-        parameters=[OpenApiParameter("feature_id", int, OpenApiParameter.QUERY)],
-        responses={
-            200: inline_serializer(
-                name="ModuleFullListResponse",
-                fields={"modules": ModuleSerializer(many=True)}
-            )
-        }
-    ),
-    post=extend_schema(
-        tags=["Navigation"],
-        summary="Create module",
-        operation_id="v1_navigation_modules_create",
-        request=ModuleWriteSerializer,
-        responses={201: ModuleSerializer}
-    ),
-)
 class ModuleListCreateAPIView(APIView):
     """
     List all modules (GET) or create a module (POST). Superuser only.
@@ -713,34 +532,6 @@ class ModuleListCreateAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["Navigation"],
-        summary="Get module",
-        operation_id="v1_navigation_modules_retrieve",
-        responses={200: ModuleSerializer}
-    ),
-    put=extend_schema(
-        tags=["Navigation"],
-        summary="Update module",
-        operation_id="v1_navigation_modules_update",
-        request=ModuleWriteSerializer,
-        responses={200: ModuleSerializer}
-    ),
-    patch=extend_schema(
-        tags=["Navigation"],
-        summary="Partial update module",
-        operation_id="v1_navigation_modules_partial_update",
-        request=ModuleWriteSerializer,
-        responses={200: ModuleSerializer}
-    ),
-    delete=extend_schema(
-        tags=["Navigation"],
-        summary="Delete module",
-        operation_id="v1_navigation_modules_delete",
-        responses={200: None}
-    ),
-)
 class ModuleDetailAPIView(APIView):
     """
     Retrieve, update (PUT/PATCH), or delete a Module by id. Superuser only.
@@ -825,27 +616,6 @@ class ModuleDetailAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["Navigation"],
-        summary="List all permissions",
-        operation_id="v1_navigation_permissions_list",
-        parameters=[OpenApiParameter("module_id", int, OpenApiParameter.QUERY)],
-        responses={
-            200: inline_serializer(
-                name="PermissionListResponse",
-                fields={"permissions": PermissionSerializer(many=True)}
-            )
-        }
-    ),
-    post=extend_schema(
-        tags=["Navigation"],
-        summary="Create permission",
-        operation_id="v1_navigation_permissions_create",
-        request=PermissionWriteSerializer,
-        responses={201: PermissionSerializer}
-    ),
-)
 class PermissionListCreateAPIView(APIView):
     """
     List all permissions (GET) or create a permission (POST).
@@ -883,34 +653,6 @@ class PermissionListCreateAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["Navigation"],
-        summary="Get permission",
-        operation_id="v1_navigation_permissions_retrieve",
-        responses={200: PermissionSerializer}
-    ),
-    put=extend_schema(
-        tags=["Navigation"],
-        summary="Update permission",
-        operation_id="v1_navigation_permissions_update",
-        request=PermissionWriteSerializer,
-        responses={200: PermissionSerializer}
-    ),
-    patch=extend_schema(
-        tags=["Navigation"],
-        summary="Partial update permission",
-        operation_id="v1_navigation_permissions_partial_update",
-        request=PermissionWriteSerializer,
-        responses={200: PermissionSerializer}
-    ),
-    delete=extend_schema(
-        tags=["Navigation"],
-        summary="Delete permission",
-        operation_id="v1_navigation_permissions_delete",
-        responses={200: None}
-    ),
-)
 class PermissionDetailAPIView(APIView):
     """
     Retrieve, update (PUT/PATCH), or delete a Permission by id.

@@ -1,13 +1,7 @@
 from django.contrib.auth import get_user_model
-from rest_framework import viewsets, filters, status, serializers
+from rest_framework import viewsets, filters, status
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
-from core.utils.schema_docs_shims import (
-    OpenApiParameter,
-    extend_schema,
-    extend_schema_view,
-    inline_serializer,
-)
 
 from core.utils.responses import APIResponse
 
@@ -17,14 +11,6 @@ from .serializers import UserSerializer
 User = get_user_model()
 
 
-@extend_schema_view(
-    list=extend_schema(tags=["Accounts"], summary="List users", description="Paginated list with search and ordering."),
-    retrieve=extend_schema(tags=["Accounts"], summary="Get user", description="Retrieve a user by ID."),
-    create=extend_schema(tags=["Accounts"], summary="Create user", description="Create a new user."),
-    update=extend_schema(tags=["Accounts"], summary="Update user", description="Full update of a user."),
-    partial_update=extend_schema(tags=["Accounts"], summary="Partial update user", description="Partial update of a user."),
-    destroy=extend_schema(tags=["Accounts"], summary="Delete user", description="Delete a user."),
-)
 class UserViewSet(viewsets.ModelViewSet):
     """
     API v1 CRUD viewset for User.
@@ -161,22 +147,6 @@ class CheckUsernameAPIView(APIView):
                     break
         return suggestions
 
-    @extend_schema(
-        tags=["Accounts"],
-        summary="Check username availability",
-        description="Check if a username is available (case-insensitive). Returns suggestions if taken. No auth required.",
-        parameters=[OpenApiParameter("username", str, OpenApiParameter.QUERY, required=True, description="Username to check")],
-        responses={
-            200: inline_serializer(
-                name="UsernameCheckResponse",
-                fields={
-                    "available": serializers.BooleanField(),
-                    "message": serializers.CharField(),
-                    "suggestions": serializers.ListField(child=serializers.CharField())
-                }
-            )
-        },
-    )
     def get(self, request):
         username = request.query_params.get("username", "").strip()
 

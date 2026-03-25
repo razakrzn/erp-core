@@ -1,5 +1,4 @@
 from rest_framework import filters, status, viewsets
-from core.utils.schema_docs_shims import extend_schema, extend_schema_view
 
 from apps.hrm.models.employee import Employee
 from core.utils.responses import APIResponse
@@ -23,14 +22,6 @@ class CompanyScopedEmployeeQuerysetMixin:
         return Employee.objects.none()
 
 
-@extend_schema_view(
-    list=extend_schema(tags=["HRM-Employee"], summary="List employees", responses={200: EmployeeListSerializer(many=True)}),
-    retrieve=extend_schema(tags=["HRM-Employee"], summary="Get employee details", responses={200: EmployeeSerializer}),
-    create=extend_schema(tags=["HRM-Employee"], summary="Create employee", request=EmployeeSerializer, responses={201: EmployeeSerializer}),
-    update=extend_schema(tags=["HRM-Employee"], summary="Update employee", request=EmployeeSerializer, responses={200: EmployeeSerializer}),
-    partial_update=extend_schema(tags=["HRM-Employee"], summary="Partial update employee", request=EmployeeSerializer, responses={200: EmployeeSerializer}),
-    destroy=extend_schema(tags=["HRM-Employee"], summary="Delete employee", responses={200: None}),
-)
 class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, viewsets.ModelViewSet):
     """
     API v1 CRUD viewset for Employee.

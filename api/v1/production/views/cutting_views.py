@@ -1,7 +1,6 @@
-from rest_framework import filters, status, viewsets, serializers
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
-from core.utils.schema_docs_shims import extend_schema, extend_schema_view, inline_serializer
 
 from apps.production.models import CuttingOptimizationJob
 from apps.production.tasks import process_cutting_optimization_job_sync
@@ -10,24 +9,6 @@ from core.utils.responses import APIResponse
 from ..serializers import CuttingOptimizationJobListSerializer, CuttingOptimizationJobSerializer
 
 
-@extend_schema_view(
-    list=extend_schema(tags=["Production-Cutting"], summary="List cutting optimization jobs", responses={200: CuttingOptimizationJobListSerializer(many=True)}),
-    retrieve=extend_schema(tags=["Production-Cutting"], summary="Get cutting optimization job"),
-    create=extend_schema(tags=["Production-Cutting"], summary="Create cutting optimization job"),
-    update=extend_schema(tags=["Production-Cutting"], summary="Update cutting optimization job"),
-    partial_update=extend_schema(tags=["Production-Cutting"], summary="Partial update cutting optimization job"),
-    destroy=extend_schema(tags=["Production-Cutting"], summary="Delete cutting optimization job"),
-    retry=extend_schema(
-        tags=["Production-Cutting"],
-        summary="Retry cutting optimization job",
-        description="Optionally reupload a CAD file (.dxf/.dwg) to retry the optimization process.",
-        request=inline_serializer(
-            name="CuttingRetryRequest",
-            fields={"cad_file": serializers.FileField(required=False)}
-        ),
-        responses={200: CuttingOptimizationJobSerializer}
-    ),
-)
 class CuttingOptimizationJobViewSet(viewsets.ModelViewSet):
     queryset = CuttingOptimizationJob.objects.all()
     serializer_class = CuttingOptimizationJobSerializer

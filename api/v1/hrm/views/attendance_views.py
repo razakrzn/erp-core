@@ -1,7 +1,6 @@
 from django.utils import timezone
-from rest_framework import status, viewsets, serializers
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from core.utils.schema_docs_shims import extend_schema, extend_schema_view, inline_serializer
 
 from apps.hrm.models.attendance import Attendance
 from core.utils.responses import APIResponse
@@ -9,24 +8,6 @@ from core.utils.responses import APIResponse
 from ..serializers.attendance_serializers import AttendanceSerializer
 
 
-@extend_schema_view(
-    list=extend_schema(tags=["HRM-Attendance"], summary="List attendance history"),
-    check_in=extend_schema(tags=["HRM-Attendance"], summary="Check-in for today (no payload required)", responses={201: AttendanceSerializer}),
-    check_out=extend_schema(tags=["HRM-Attendance"], summary="Check-out for today (no payload required)", responses={200: AttendanceSerializer}),
-    report=extend_schema(
-        tags=["HRM-Attendance"],
-        summary="Get attendance report summary",
-        responses={
-            200: inline_serializer(
-                name="AttendanceReportResponse",
-                fields={
-                    "total_days": serializers.IntegerField(),
-                    "present_days": serializers.IntegerField()
-                }
-            )
-        }
-    ),
-)
 class AttendanceViewSet(viewsets.GenericViewSet):
     """
     ViewSet for managing Attendance.

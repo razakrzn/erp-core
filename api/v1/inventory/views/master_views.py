@@ -1,7 +1,6 @@
 from django.db.models import Q
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
-from core.utils.schema_docs_shims import OpenApiParameter, extend_schema, extend_schema_view
 
 from apps.inventory.models import Brand, Category, Finish, Grade, Material, Product, Size, Thickness
 from core.utils.responses import APIResponse
@@ -19,26 +18,6 @@ from ..serializers import (
 )
 
 
-@extend_schema_view(
-    list=extend_schema(summary="List master values"),
-    retrieve=extend_schema(summary="Get master value details"),
-    create=extend_schema(summary="Create master value"),
-    update=extend_schema(summary="Update master value"),
-    partial_update=extend_schema(summary="Partial update master value"),
-    destroy=extend_schema(summary="Delete master value"),
-    dropdown=extend_schema(
-        summary="List master values for dropdowns",
-        parameters=[
-            OpenApiParameter("q", str, OpenApiParameter.QUERY, description="Search by name or code"),
-            OpenApiParameter("limit", int, OpenApiParameter.QUERY, description="Maximum number of results"),
-            OpenApiParameter("include_inactive", bool, OpenApiParameter.QUERY, description="Set to 'true' to include inactive values"),
-            OpenApiParameter("product_name", str, OpenApiParameter.QUERY, description="Filter by associated product name"),
-            OpenApiParameter("grade", str, OpenApiParameter.QUERY, description="Filter by associated product grade"),
-            OpenApiParameter("thickness", str, OpenApiParameter.QUERY, description="Filter by associated product thickness"),
-            OpenApiParameter("size", str, OpenApiParameter.QUERY, description="Filter by associated product size"),
-        ],
-    ),
-)
 class BaseInventoryMasterViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     ordering = ['-created_at']

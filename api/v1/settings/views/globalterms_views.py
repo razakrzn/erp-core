@@ -1,7 +1,6 @@
 from django.utils import timezone
-from rest_framework import filters, status, serializers
+from rest_framework import filters, status
 from rest_framework.decorators import action
-from core.utils.schema_docs_shims import extend_schema, extend_schema_view, inline_serializer
 
 from apps.settings.models import GlobalTerms
 from core.utils.responses import APIResponse
@@ -13,51 +12,6 @@ from ..serializers import (
 from .shared import BaseSettingsViewSet
 
 
-@extend_schema_view(
-    list=extend_schema(
-        tags=["Settings"],
-        summary="List global terms",
-        description="Paginated list of global terms.",
-    ),
-    retrieve=extend_schema(
-        tags=["Settings"],
-        summary="Get global term",
-        description="Retrieve a global term by ID.",
-    ),
-    create=extend_schema(
-        tags=["Settings"],
-        summary="Create global term",
-        description="Create a new global term.",
-        request=GlobalTermsDetailSerializer,
-    ),
-    update=extend_schema(
-        tags=["Settings"],
-        summary="Update global term",
-        description="Full update of a global term.",
-        request=GlobalTermsDetailSerializer,
-    ),
-    partial_update=extend_schema(
-        tags=["Settings"],
-        summary="Partial update global term",
-        description="Partial update of a global term.",
-        request=GlobalTermsDetailSerializer,
-    ),
-    destroy=extend_schema(
-        tags=["Settings"],
-        summary="Delete global term",
-        description="Delete a global term.",
-    ),
-    approve=extend_schema(
-        tags=["Settings"],
-        summary="Approve/Unapprove global term",
-        description="Approve or unapprove a global term using is_approved integer/boolean flag in request body.",
-        request=inline_serializer(
-            name="GlobalTermsApproveRequest",
-            fields={"is_approved": serializers.BooleanField()}
-        ),
-        responses={200: GlobalTermsDetailSerializer}
-    ),
-)
 class GlobalTermsViewSet(BaseSettingsViewSet):
     queryset = GlobalTerms.objects.all()
     search_fields = ["title", "category", "content"]

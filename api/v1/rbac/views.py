@@ -11,12 +11,6 @@ from rest_framework import serializers, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from core.utils.schema_docs_shims import (
-    OpenApiParameter,
-    extend_schema,
-    extend_schema_view,
-    inline_serializer,
-)
 
 from core.utils.responses import APIResponse
 
@@ -50,24 +44,6 @@ def _get_company_id(request: Request, kwargs: dict) -> int | None:
 # ----- Role -----
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["RBAC"],
-        summary="List roles",
-        operation_id="v1_rbac_roles_list",
-        parameters=[
-            OpenApiParameter("company_id", int, OpenApiParameter.QUERY, description="Filter roles by company ID.")
-        ],
-        responses={200: RoleSerializer(many=True)}
-    ),
-    post=extend_schema(
-        tags=["RBAC"],
-        summary="Create role",
-        operation_id="v1_rbac_roles_create",
-        request=RoleWriteSerializer,
-        responses={201: RoleDetailSerializer}
-    ),
-)
 class RoleListCreateAPIView(APIView):
     """List roles (GET) or create a role (POST)."""
     serializer_class = RoleWriteSerializer
@@ -135,34 +111,6 @@ class RoleListCreateAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["RBAC"],
-        summary="Get role",
-        operation_id="v1_rbac_roles_retrieve",
-        responses={200: RoleDetailSerializer}
-    ),
-    put=extend_schema(
-        tags=["RBAC"],
-        summary="Update role",
-        operation_id="v1_rbac_roles_update",
-        request=RoleWriteSerializer,
-        responses={200: RoleSerializer}
-    ),
-    patch=extend_schema(
-        tags=["RBAC"],
-        summary="Partial update role",
-        operation_id="v1_rbac_roles_partial_update",
-        request=RoleWriteSerializer,
-        responses={200: RoleSerializer}
-    ),
-    delete=extend_schema(
-        tags=["RBAC"],
-        summary="Delete role",
-        operation_id="v1_rbac_roles_delete",
-        responses={200: None}
-    ),
-)
 class RoleDetailAPIView(APIView):
     """Retrieve, update (PUT/PATCH), or delete a Role by id."""
     serializer_class = RoleWriteSerializer
@@ -244,30 +192,6 @@ class RoleDetailAPIView(APIView):
 # ----- RolePermission -----
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["RBAC"],
-        summary="List role permissions",
-        operation_id="v1_rbac_role_permissions_list",
-        parameters=[
-            OpenApiParameter("role_id", int, OpenApiParameter.QUERY),
-            OpenApiParameter("permission_id", int, OpenApiParameter.QUERY)
-        ],
-        responses={
-            200: inline_serializer(
-                name="RolePermissionListResponse",
-                fields={"role_permissions": RolePermissionSerializer(many=True)}
-            )
-        }
-    ),
-    post=extend_schema(
-        tags=["RBAC"],
-        summary="Create role permission",
-        operation_id="v1_rbac_role_permissions_create",
-        request=RolePermissionWriteSerializer,
-        responses={201: RolePermissionSerializer}
-    ),
-)
 class RolePermissionListCreateAPIView(APIView):
     """List role-permission links (GET) or create one (POST)."""
     serializer_class = RolePermissionWriteSerializer
@@ -303,20 +227,6 @@ class RolePermissionListCreateAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["RBAC"],
-        summary="Get role permission",
-        operation_id="v1_rbac_role_permissions_retrieve",
-        responses={200: RolePermissionSerializer}
-    ),
-    delete=extend_schema(
-        tags=["RBAC"],
-        summary="Delete role permission",
-        operation_id="v1_rbac_role_permissions_delete",
-        responses={200: None}
-    ),
-)
 class RolePermissionDetailAPIView(APIView):
     """Retrieve or delete a RolePermission by id (no PUT/PATCH for join table)."""
     serializer_class = RolePermissionSerializer
@@ -352,25 +262,6 @@ class RolePermissionDetailAPIView(APIView):
 # ----- UserRole -----
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["RBAC"],
-        summary="List user roles",
-        operation_id="v1_rbac_user_roles_list",
-        parameters=[
-            OpenApiParameter("user_id", int, OpenApiParameter.QUERY),
-            OpenApiParameter("role_id", int, OpenApiParameter.QUERY)
-        ],
-        responses={200: UserRoleSerializer(many=True)}
-    ),
-    post=extend_schema(
-        tags=["RBAC"],
-        summary="Create user role",
-        operation_id="v1_rbac_user_roles_create",
-        request=UserRoleWriteSerializer,
-        responses={201: UserRoleSerializer}
-    ),
-)
 class UserRoleListCreateAPIView(APIView):
     """List user-role assignments (GET) or create one (POST)."""
     serializer_class = UserRoleWriteSerializer
@@ -406,20 +297,6 @@ class UserRoleListCreateAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["RBAC"],
-        summary="Get user role",
-        operation_id="v1_rbac_user_roles_retrieve",
-        responses={200: UserRoleDetailsSerializer}
-    ),
-    delete=extend_schema(
-        tags=["RBAC"],
-        summary="Delete user role",
-        operation_id="v1_rbac_user_roles_delete",
-        responses={200: None}
-    ),
-)
 class UserRoleDetailAPIView(APIView):
     """Retrieve or delete a UserRole by id."""
     serializer_class = UserRoleDetailsSerializer
@@ -455,30 +332,6 @@ class UserRoleDetailAPIView(APIView):
 # ----- RoleHierarchy -----
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["RBAC"],
-        summary="List role hierarchies",
-        operation_id="v1_rbac_role_hierarchy_list",
-        parameters=[
-            OpenApiParameter("parent_role_id", int, OpenApiParameter.QUERY),
-            OpenApiParameter("child_role_id", int, OpenApiParameter.QUERY)
-        ],
-        responses={
-            200: inline_serializer(
-                name="RoleHierarchyListResponse",
-                fields={"role_hierarchies": RoleHierarchySerializer(many=True)}
-            )
-        }
-    ),
-    post=extend_schema(
-        tags=["RBAC"],
-        summary="Create role hierarchy",
-        operation_id="v1_rbac_role_hierarchy_create",
-        request=RoleHierarchyWriteSerializer,
-        responses={201: RoleHierarchySerializer}
-    ),
-)
 class RoleHierarchyListCreateAPIView(APIView):
     """List role hierarchy links (GET) or create one (POST)."""
     serializer_class = RoleHierarchyWriteSerializer
@@ -514,20 +367,6 @@ class RoleHierarchyListCreateAPIView(APIView):
         )
 
 
-@extend_schema_view(
-    get=extend_schema(
-        tags=["RBAC"],
-        summary="Get role hierarchy",
-        operation_id="v1_rbac_role_hierarchy_retrieve",
-        responses={200: RoleHierarchySerializer}
-    ),
-    delete=extend_schema(
-        tags=["RBAC"],
-        summary="Delete role hierarchy",
-        operation_id="v1_rbac_role_hierarchy_delete",
-        responses={200: None}
-    ),
-)
 class RoleHierarchyDetailAPIView(APIView):
     """Retrieve or delete a RoleHierarchy by id."""
     serializer_class = RoleHierarchySerializer
