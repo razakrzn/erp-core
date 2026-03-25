@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     "apps.inventory",
     "apps.production",
     "apps.assessment.apps.AssessmentConfig",
+    "apps.settings.apps.SettingsConfig",
 ]
 
 REST_FRAMEWORK = {

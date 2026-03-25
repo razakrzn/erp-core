@@ -31,6 +31,7 @@ urlpatterns = [
     path("assessment/", include("api.v1.assessment.urls")),
     path("inventory/", include("api.v1.inventory.urls")),
     path("production/", include("api.v1.production.urls")),
+    path("settings/", include("api.v1.settings.urls")),
     path("", include("api.v1.rbac.urls")),
     *router.urls,
 ]
