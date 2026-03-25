@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Push the generated Postman collection JSON to your Postman workspace via the Postman API.
-# Use after postman-sync.sh (or whenever postman/collections-generated/*.collection.json exists).
+# Use after postman-sync.sh (or whenever postman/collection.json exists).
 #
 # Required env:
 #   POSTMAN_API_KEY  - Postman API key (X-API-Key). Generate at: Postman → Settings → API Keys.
@@ -9,11 +9,11 @@
 #   POSTMAN_COLLECTION_UID  - UID of the collection to replace (from collection info in Postman, or API).
 #
 # For create (new collection in workspace):
-#   POSTMAN_WORKSPACE_ID   - Workspace ID (from .postman/resources.yaml or workspace URL in Postman).
+#   POSTMAN_WORKSPACE_ID   - Workspace ID (from postman/ or workspace URL in Postman).
 #
 # Optional:
 #   POSTMAN_API_BASE_URL   - Default https://api.getpostman.com (use https://api.eu.getpostman.com for EU).
-#   POSTMAN_COLLECTION_JSON - Path to collection JSON; default: postman/collections-generated/ERP Core API (Generated).collection.json
+#   POSTMAN_COLLECTION_JSON - Path to collection JSON; default: postman/collection.json
 #
 # Usage:
 #   POSTMAN_API_KEY=xxx POSTMAN_COLLECTION_UID=yyy bash scripts/postman-push.sh
@@ -24,7 +24,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-COLLECTION_JSON="${POSTMAN_COLLECTION_JSON:-postman/collections-generated/ERP Core API (Generated).collection.json}"
+COLLECTION_JSON="${POSTMAN_COLLECTION_JSON:-postman/collection.json}"
 API_BASE="${POSTMAN_API_BASE_URL:-https://api.getpostman.com}"
 API_KEY="${POSTMAN_API_KEY:-}"
 

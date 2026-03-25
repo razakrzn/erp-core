@@ -3,9 +3,9 @@ set -euo pipefail
 
 # Sync OpenAPI -> Postman artifacts (spec-first)
 # - (Optional) Generates OpenAPI spec via drf-spectacular management command
-# - Writes to postman/specs/openapi.yaml
+# - Writes to postman/openapi.yaml
 # - Generates a deterministic Postman Collection JSON artifact (local-only by default):
-#     postman/collections-generated/ERP Core API (Generated).collection.json
+#     postman/collection.json
 #
 # Strategy:
 # 1) Generate OpenAPI (unless --no-openapi is passed)
@@ -16,11 +16,11 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-SPEC_DIR="postman/specs"
+SPEC_DIR="postman"
 OPENAPI_FILE="$SPEC_DIR/openapi.yaml"
 
-GENERATED_DIR="postman/collections-generated"
-PM_COLLECTION_JSON="$GENERATED_DIR/ERP Core API (Generated).collection.json"
+GENERATED_DIR="postman"
+PM_COLLECTION_JSON="$GENERATED_DIR/collection.json"
 
 mkdir -p "$SPEC_DIR" "$GENERATED_DIR"
 
@@ -31,8 +31,8 @@ usage() {
 Usage: scripts/postman-sync.sh [--no-openapi]
 
 Regenerates:
-  - postman/specs/openapi.yaml (unless --no-openapi)
-  - postman/collections-generated/ERP Core API (Generated).collection.json (if openapi-to-postmanv2 or Postman CLI is available)
+  - postman/openapi.yaml (unless --no-openapi)
+  - postman/collection.json (if openapi-to-postmanv2 or Postman CLI is available)
 
 Options:
   --no-openapi  Skip drf-spectacular generation and use the existing openapi.yaml

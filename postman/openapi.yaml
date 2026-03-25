@@ -187,6 +187,1103 @@ paths:
               schema:
                 $ref: '#/components/schemas/APIAccessRule'
           description: ''
+  /api/v1/assessment/boq-items/:
+    get:
+      operationId: v1_assessment_boq_items_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBoqItemListList'
+          description: ''
+    post:
+      operationId: v1_assessment_boq_items_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoqItemDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BoqItemDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BoqItemDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoqItemDetail'
+          description: ''
+  /api/v1/assessment/boq-items/{id}/:
+    get:
+      operationId: v1_assessment_boq_items_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this boq item.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoqItemDetail'
+          description: ''
+    put:
+      operationId: v1_assessment_boq_items_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this boq item.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoqItemDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BoqItemDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BoqItemDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoqItemDetail'
+          description: ''
+    patch:
+      operationId: v1_assessment_boq_items_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this boq item.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBoqItemDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBoqItemDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBoqItemDetail'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoqItemDetail'
+          description: ''
+    delete:
+      operationId: v1_assessment_boq_items_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this boq item.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/assessment/boq-items/by-boq/:
+    get:
+      operationId: v1_assessment_boq_items_by_boq_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoqItemDetail'
+          description: ''
+  /api/v1/assessment/boqs/:
+    get:
+      operationId: v1_assessment_boqs_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBoqListList'
+          description: ''
+    post:
+      operationId: v1_assessment_boqs_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoqDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BoqDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BoqDetail'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoqDetail'
+          description: ''
+  /api/v1/assessment/boqs/{id}/:
+    get:
+      operationId: v1_assessment_boqs_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this boq.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoqDetail'
+          description: ''
+    put:
+      operationId: v1_assessment_boqs_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this boq.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoqDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BoqDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BoqDetail'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoqDetail'
+          description: ''
+    patch:
+      operationId: v1_assessment_boqs_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this boq.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBoqDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBoqDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBoqDetail'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoqDetail'
+          description: ''
+    delete:
+      operationId: v1_assessment_boqs_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this boq.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/assessment/boqs/{id}/approve/:
+    patch:
+      operationId: v1_assessment_boqs_approve_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this boq.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBoqDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBoqDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBoqDetail'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoqDetail'
+          description: ''
+  /api/v1/assessment/boqs/{id}/reject/:
+    patch:
+      operationId: v1_assessment_boqs_reject_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this boq.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBoqDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBoqDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBoqDetail'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoqDetail'
+          description: ''
+  /api/v1/assessment/finishes/:
+    get:
+      operationId: v1_assessment_finishes_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFinishList'
+          description: ''
+    post:
+      operationId: v1_assessment_finishes_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Finish'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Finish'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Finish'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finish'
+          description: ''
+  /api/v1/assessment/finishes/{id}/:
+    get:
+      operationId: v1_assessment_finishes_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this finish.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finish'
+          description: ''
+    put:
+      operationId: v1_assessment_finishes_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this finish.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Finish'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Finish'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Finish'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finish'
+          description: ''
+    patch:
+      operationId: v1_assessment_finishes_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this finish.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedFinish'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedFinish'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedFinish'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finish'
+          description: ''
+    delete:
+      operationId: v1_assessment_finishes_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this finish.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/assessment/quote-items/:
+    get:
+      operationId: v1_assessment_quote_items_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedQuoteItemList'
+          description: ''
+    post:
+      operationId: v1_assessment_quote_items_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuoteItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuoteItem'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteItem'
+          description: ''
+  /api/v1/assessment/quote-items/{id}/:
+    get:
+      operationId: v1_assessment_quote_items_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quote item.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteItem'
+          description: ''
+    put:
+      operationId: v1_assessment_quote_items_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quote item.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuoteItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuoteItem'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteItem'
+          description: ''
+    patch:
+      operationId: v1_assessment_quote_items_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quote item.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedQuoteItem'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedQuoteItem'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedQuoteItem'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteItem'
+          description: ''
+    delete:
+      operationId: v1_assessment_quote_items_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quote item.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/assessment/quotes/:
+    get:
+      operationId: v1_assessment_quotes_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedQuoteListList'
+          description: ''
+    post:
+      operationId: v1_assessment_quotes_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuoteDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuoteDetail'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteDetail'
+          description: ''
+  /api/v1/assessment/quotes/{id}/:
+    get:
+      operationId: v1_assessment_quotes_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quote.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteDetail'
+          description: ''
+    put:
+      operationId: v1_assessment_quotes_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quote.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuoteDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuoteDetail'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteDetail'
+          description: ''
+    patch:
+      operationId: v1_assessment_quotes_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quote.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedQuoteDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedQuoteDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedQuoteDetail'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteDetail'
+          description: ''
+    delete:
+      operationId: v1_assessment_quotes_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quote.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/assessment/terms/:
+    get:
+      operationId: v1_assessment_terms_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTermList'
+          description: ''
+    post:
+      operationId: v1_assessment_terms_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Term'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Term'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Term'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Term'
+          description: ''
+  /api/v1/assessment/terms/{id}/:
+    get:
+      operationId: v1_assessment_terms_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this term.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Term'
+          description: ''
+    put:
+      operationId: v1_assessment_terms_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this term.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Term'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Term'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Term'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Term'
+          description: ''
+    patch:
+      operationId: v1_assessment_terms_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this term.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTerm'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTerm'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTerm'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Term'
+          description: ''
+    delete:
+      operationId: v1_assessment_terms_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this term.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/v1/auth/login/:
     post:
       operationId: v1_auth_login_create
@@ -440,6 +1537,516 @@ paths:
         required: true
       tags:
       - Company
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/crm/customers/:
+    get:
+      operationId: v1_crm_customers_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCustomerList'
+          description: ''
+    post:
+      operationId: v1_crm_customers_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Customer'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Customer'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+  /api/v1/crm/customers/{id}/:
+    get:
+      operationId: v1_crm_customers_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this customer.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+    put:
+      operationId: v1_crm_customers_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this customer.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Customer'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Customer'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+    patch:
+      operationId: v1_crm_customers_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this customer.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomer'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomer'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomer'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+    delete:
+      operationId: v1_crm_customers_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this customer.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/crm/enquiries/:
+    get:
+      operationId: v1_crm_enquiries_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEnquiryListList'
+          description: ''
+    post:
+      operationId: v1_crm_enquiries_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnquiryDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EnquiryDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EnquiryDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnquiryDetail'
+          description: ''
+  /api/v1/crm/enquiries/{id}/:
+    get:
+      operationId: v1_crm_enquiries_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this enquiry.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnquiryDetail'
+          description: ''
+    put:
+      operationId: v1_crm_enquiries_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this enquiry.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnquiryDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EnquiryDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EnquiryDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnquiryDetail'
+          description: ''
+    patch:
+      operationId: v1_crm_enquiries_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this enquiry.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEnquiryDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEnquiryDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEnquiryDetail'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnquiryDetail'
+          description: ''
+    delete:
+      operationId: v1_crm_enquiries_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this enquiry.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/crm/leads/:
+    get:
+      operationId: v1_crm_leads_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLeadManagementListList'
+          description: ''
+    post:
+      operationId: v1_crm_leads_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadManagementDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeadManagementDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeadManagementDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadManagementDetail'
+          description: ''
+  /api/v1/crm/leads/{id}/:
+    get:
+      operationId: v1_crm_leads_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lead management.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadManagementDetail'
+          description: ''
+    put:
+      operationId: v1_crm_leads_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lead management.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadManagementDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeadManagementDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeadManagementDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadManagementDetail'
+          description: ''
+    patch:
+      operationId: v1_crm_leads_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lead management.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadManagementDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadManagementDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadManagementDetail'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadManagementDetail'
+          description: ''
+    delete:
+      operationId: v1_crm_leads_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lead management.
+        required: true
+      tags:
+      - v1
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -5584,6 +7191,176 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/settings/global-terms/:
+    get:
+      operationId: v1_settings_global_terms_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGlobalTermsList'
+          description: ''
+    post:
+      operationId: v1_settings_global_terms_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GlobalTerms'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GlobalTerms'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GlobalTerms'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalTerms'
+          description: ''
+  /api/v1/settings/global-terms/{id}/:
+    get:
+      operationId: v1_settings_global_terms_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this global terms.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalTerms'
+          description: ''
+    put:
+      operationId: v1_settings_global_terms_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this global terms.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GlobalTerms'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GlobalTerms'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GlobalTerms'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalTerms'
+          description: ''
+    patch:
+      operationId: v1_settings_global_terms_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this global terms.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedGlobalTerms'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedGlobalTerms'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedGlobalTerms'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalTerms'
+          description: ''
+    delete:
+      operationId: v1_settings_global_terms_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this global terms.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/v1/user-roles/:
     get:
       operationId: v1_user_roles_retrieve
@@ -6037,6 +7814,152 @@ components:
     BlankEnum:
       enum:
       - ''
+    BoqDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        enquiry_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+        boq_number:
+          type: string
+          readOnly: true
+        is_approved:
+          type: boolean
+        is_rejected:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: integer
+          readOnly: true
+          nullable: true
+        updated_by:
+          type: integer
+          readOnly: true
+          nullable: true
+        enquiry:
+          type: string
+          readOnly: true
+        boq_items:
+          type: string
+          readOnly: true
+      required:
+      - boq_items
+      - boq_number
+      - created_at
+      - created_by
+      - enquiry
+      - id
+      - updated_at
+      - updated_by
+    BoqItemDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        boq_id:
+          type: integer
+          writeOnly: true
+        item_code:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        unit:
+          type: string
+          maxLength: 50
+        is_template:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - item_code
+      - name
+      - unit
+      - updated_at
+    BoqItemList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        boq_number:
+          type: string
+          readOnly: true
+        project_name:
+          type: string
+          readOnly: true
+        item_code:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - boq_number
+      - created_at
+      - id
+      - item_code
+      - name
+      - project_name
+    BoqList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        boq_number:
+          type: string
+          maxLength: 100
+        project_name:
+          type: string
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - project_name
+      - status
     Brand:
       type: object
       properties:
@@ -6160,6 +8083,48 @@ components:
         * `PROBATION` - Probationary Contract
         * `CONSULTANCY` - Consultancy / Service Contract
         * `INTERNSHIP` - Internship / Training Contract
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        customer_name:
+          type: string
+          maxLength: 150
+        email_address:
+          type: string
+          format: email
+          maxLength: 254
+        company_name:
+          type: string
+          maxLength: 150
+        phone_number:
+          type: string
+          maxLength: 30
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          readOnly: true
+        updated_by:
+          type: string
+          readOnly: true
+      required:
+      - created_at
+      - created_by
+      - customer_name
+      - email_address
+      - id
+      - phone_number
+      - updated_at
+      - updated_by
     CuttingOptimizationJob:
       type: object
       properties:
@@ -6713,6 +8678,105 @@ components:
         * `FLEXIBLE` - Flexible Working
         * `REMOTE` - Remote Work
         * `JOB_SHARE` - Job Sharing
+    EnquiryDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        enquiry_code:
+          type: string
+          readOnly: true
+        project_name:
+          type: string
+          maxLength: 200
+        status:
+          type: string
+          maxLength: 50
+        email_address:
+          type: string
+          format: email
+          maxLength: 254
+        company_name:
+          type: string
+          maxLength: 200
+        phone_number:
+          type: string
+          maxLength: 30
+        existing_client:
+          type: integer
+          writeOnly: true
+          nullable: true
+        existing_client_id:
+          type: string
+          readOnly: true
+        new_client_name:
+          type: string
+          writeOnly: true
+          maxLength: 200
+        client:
+          type: string
+          readOnly: true
+        project_description:
+          type: string
+        location:
+          type: string
+          maxLength: 200
+        attachment:
+          type: string
+          format: uri
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          readOnly: true
+        updated_by:
+          type: string
+          readOnly: true
+      required:
+      - client
+      - created_at
+      - created_by
+      - enquiry_code
+      - existing_client_id
+      - id
+      - project_name
+      - updated_at
+      - updated_by
+    EnquiryList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        enquiry_code:
+          type: string
+          maxLength: 50
+        project_name:
+          type: string
+          maxLength: 200
+        status:
+          type: string
+          maxLength: 50
+        company_name:
+          type: string
+          maxLength: 200
+        client:
+          type: string
+          readOnly: true
+        location:
+          type: string
+          maxLength: 200
+      required:
+      - client
+      - id
+      - project_name
     Feature:
       type: object
       description: Serializer for Feature with nested modules (and their permissions).
@@ -6799,18 +8863,25 @@ components:
         id:
           type: integer
           readOnly: true
-        name:
+        quote_item:
+          type: integer
+        finish_name:
           type: string
-          maxLength: 120
-        code:
+          maxLength: 200
+        finish_type:
           type: string
-          readOnly: true
-        slug:
+          maxLength: 150
+        material:
           type: string
-          readOnly: true
-          pattern: ^[-a-zA-Z0-9_]+$
-        is_active:
-          type: boolean
+          maxLength: 200
+        finish_height:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        finish_width:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
         created_at:
           type: string
           format: date-time
@@ -6820,11 +8891,12 @@ components:
           format: date-time
           readOnly: true
       required:
-      - code
       - created_at
+      - finish_name
+      - finish_type
       - id
-      - name
-      - slug
+      - material
+      - quote_item
       - updated_at
     GenderEnum:
       enum:
@@ -6836,6 +8908,53 @@ components:
         * `Male` - Male
         * `Female` - Female
         * `Other` - Other
+    GlobalTerms:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        category:
+          type: string
+          maxLength: 150
+        content:
+          type: string
+        is_default:
+          type: boolean
+        is_approved:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          readOnly: true
+        approved_by:
+          type: string
+          readOnly: true
+        approved_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - approved_at
+      - approved_by
+      - category
+      - content
+      - created_at
+      - created_by
+      - id
+      - title
+      - updated_at
     Grade:
       type: object
       properties:
@@ -6915,6 +9034,86 @@ components:
       - slug
       - updated_at
       - worker_name
+    LeadManagementDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        requirment:
+          type: string
+        contact_name:
+          type: string
+          maxLength: 150
+        company:
+          type: string
+          maxLength: 150
+        email_address:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 30
+        lead_source:
+          type: string
+          maxLength: 150
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          readOnly: true
+        updated_by:
+          type: string
+          readOnly: true
+      required:
+      - company
+      - contact_name
+      - created_at
+      - created_by
+      - email_address
+      - id
+      - lead_source
+      - phone
+      - updated_at
+      - updated_by
+    LeadManagementList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        requirment:
+          type: string
+        contact_name:
+          type: string
+          maxLength: 150
+        company:
+          type: string
+          maxLength: 150
+        email_address:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 30
+        lead_source:
+          type: string
+          maxLength: 150
+      required:
+      - company
+      - contact_name
+      - email_address
+      - id
+      - lead_source
+      - phone
     Login:
       type: object
       description: Validates username and password for login.
@@ -7213,6 +9412,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BatchTracking'
+    PaginatedBoqItemListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoqItemList'
+    PaginatedBoqListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoqList'
     PaginatedBrandList:
       type: object
       required:
@@ -7282,6 +9527,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Company'
+    PaginatedCustomerList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
     PaginatedCuttingOptimizationJobList:
       type: object
       required:
@@ -7397,6 +9665,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EmployeeList'
+    PaginatedEnquiryListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnquiryList'
     PaginatedFinishList:
       type: object
       required:
@@ -7420,6 +9711,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Finish'
+    PaginatedGlobalTermsList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/GlobalTerms'
     PaginatedGradeList:
       type: object
       required:
@@ -7466,6 +9780,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LaborTracking'
+    PaginatedLeadManagementListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeadManagementList'
     PaginatedMachineIntegrationList:
       type: object
       required:
@@ -7581,6 +9918,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProductionPlanning'
+    PaginatedQuoteItemList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteItem'
+    PaginatedQuoteListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteList'
     PaginatedRejectionReworkManagementList:
       type: object
       required:
@@ -7673,6 +10056,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SubcontractingManagement'
+    PaginatedTermList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Term'
     PaginatedThicknessList:
       type: object
       required:
@@ -7867,6 +10273,79 @@ components:
         production_order:
           type: integer
           nullable: true
+    PatchedBoqDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        enquiry_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+        boq_number:
+          type: string
+          readOnly: true
+        is_approved:
+          type: boolean
+        is_rejected:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: integer
+          readOnly: true
+          nullable: true
+        updated_by:
+          type: integer
+          readOnly: true
+          nullable: true
+        enquiry:
+          type: string
+          readOnly: true
+        boq_items:
+          type: string
+          readOnly: true
+    PatchedBoqItemDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        boq_id:
+          type: integer
+          writeOnly: true
+        item_code:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        unit:
+          type: string
+          maxLength: 50
+        is_template:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
     PatchedBrand:
       type: object
       properties:
@@ -7940,6 +10419,39 @@ components:
         created_at:
           type: string
           format: date-time
+          readOnly: true
+    PatchedCustomer:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        customer_name:
+          type: string
+          maxLength: 150
+        email_address:
+          type: string
+          format: email
+          maxLength: 254
+        company_name:
+          type: string
+          maxLength: 150
+        phone_number:
+          type: string
+          maxLength: 30
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          readOnly: true
+        updated_by:
+          type: string
           readOnly: true
     PatchedCuttingOptimizationJob:
       type: object
@@ -8337,6 +10849,67 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PreviousEmployment'
+    PatchedEnquiryDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        enquiry_code:
+          type: string
+          readOnly: true
+        project_name:
+          type: string
+          maxLength: 200
+        status:
+          type: string
+          maxLength: 50
+        email_address:
+          type: string
+          format: email
+          maxLength: 254
+        company_name:
+          type: string
+          maxLength: 200
+        phone_number:
+          type: string
+          maxLength: 30
+        existing_client:
+          type: integer
+          writeOnly: true
+          nullable: true
+        existing_client_id:
+          type: string
+          readOnly: true
+        new_client_name:
+          type: string
+          writeOnly: true
+          maxLength: 200
+        client:
+          type: string
+          readOnly: true
+        project_description:
+          type: string
+        location:
+          type: string
+          maxLength: 200
+        attachment:
+          type: string
+          format: uri
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          readOnly: true
+        updated_by:
+          type: string
+          readOnly: true
     PatchedFeatureWrite:
       type: object
       description: Serializer for creating and updating Feature (no nested modules).
@@ -8365,17 +10938,50 @@ components:
         id:
           type: integer
           readOnly: true
-        name:
+        quote_item:
+          type: integer
+        finish_name:
           type: string
-          maxLength: 120
-        code:
+          maxLength: 200
+        finish_type:
           type: string
+          maxLength: 150
+        material:
+          type: string
+          maxLength: 200
+        finish_height:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        finish_width:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        created_at:
+          type: string
+          format: date-time
           readOnly: true
-        slug:
+        updated_at:
           type: string
+          format: date-time
           readOnly: true
-          pattern: ^[-a-zA-Z0-9_]+$
-        is_active:
+    PatchedGlobalTerms:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        category:
+          type: string
+          maxLength: 150
+        content:
+          type: string
+        is_default:
+          type: boolean
+        is_approved:
           type: boolean
         created_at:
           type: string
@@ -8385,6 +10991,17 @@ components:
           type: string
           format: date-time
           readOnly: true
+        created_by:
+          type: string
+          readOnly: true
+        approved_by:
+          type: string
+          readOnly: true
+        approved_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
     PatchedGrade:
       type: object
       properties:
@@ -8450,6 +11067,44 @@ components:
         production_order:
           type: integer
           nullable: true
+    PatchedLeadManagementDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        requirment:
+          type: string
+        contact_name:
+          type: string
+          maxLength: 150
+        company:
+          type: string
+          maxLength: 150
+        email_address:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 30
+        lead_source:
+          type: string
+          maxLength: 150
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          readOnly: true
+        updated_by:
+          type: string
+          readOnly: true
     PatchedMachineIntegration:
       type: object
       properties:
@@ -8710,6 +11365,131 @@ components:
         shift_schedule: {}
         capacity_notes:
           type: string
+    PatchedQuoteDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        boq_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+        quote_number:
+          type: string
+          readOnly: true
+          nullable: true
+        boq:
+          type: string
+          readOnly: true
+        enquiry:
+          type: string
+          readOnly: true
+        quote_items:
+          type: string
+          readOnly: true
+        status:
+          type: string
+          maxLength: 50
+        total_items:
+          type: integer
+          readOnly: true
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        is_approved:
+          type: boolean
+        is_rejected:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: integer
+          readOnly: true
+          nullable: true
+        updated_by:
+          type: integer
+          readOnly: true
+          nullable: true
+    PatchedQuoteItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        quote:
+          type: integer
+        quote_id:
+          type: integer
+          writeOnly: true
+        boq_item:
+          type: integer
+          nullable: true
+        boq_item_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+        image:
+          type: string
+          format: uri
+          nullable: true
+        name:
+          type: string
+          maxLength: 200
+        width:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        height:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        depth:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        accessories:
+          type: string
+        category:
+          type: string
+          maxLength: 100
+        quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        unit_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        finishes:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteItemFinishInput'
+          writeOnly: true
+        finish:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
     PatchedRejectionReworkManagement:
       type: object
       properties:
@@ -8882,6 +11662,32 @@ components:
         production_order:
           type: integer
           nullable: true
+    PatchedTerm:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        quote:
+          type: integer
+        title:
+          type: string
+          maxLength: 200
+        content:
+          type: string
+        category:
+          type: string
+          maxLength: 100
+        is_default:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
     PatchedThickness:
       type: object
       properties:
@@ -9338,6 +12144,217 @@ components:
       - name
       - slug
       - updated_at
+    QuoteDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        boq_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+        quote_number:
+          type: string
+          readOnly: true
+          nullable: true
+        boq:
+          type: string
+          readOnly: true
+        enquiry:
+          type: string
+          readOnly: true
+        quote_items:
+          type: string
+          readOnly: true
+        status:
+          type: string
+          maxLength: 50
+        total_items:
+          type: integer
+          readOnly: true
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        is_approved:
+          type: boolean
+        is_rejected:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: integer
+          readOnly: true
+          nullable: true
+        updated_by:
+          type: integer
+          readOnly: true
+          nullable: true
+      required:
+      - boq
+      - created_at
+      - created_by
+      - enquiry
+      - id
+      - quote_items
+      - quote_number
+      - total_amount
+      - total_items
+      - updated_at
+      - updated_by
+    QuoteItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        quote:
+          type: integer
+        quote_id:
+          type: integer
+          writeOnly: true
+        boq_item:
+          type: integer
+          nullable: true
+        boq_item_id:
+          type: integer
+          writeOnly: true
+          nullable: true
+        image:
+          type: string
+          format: uri
+          nullable: true
+        name:
+          type: string
+          maxLength: 200
+        width:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        height:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        depth:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        accessories:
+          type: string
+        category:
+          type: string
+          maxLength: 100
+        quantity:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        unit_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        finishes:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteItemFinishInput'
+          writeOnly: true
+        finish:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - amount
+      - created_at
+      - finish
+      - id
+      - name
+      - quote
+      - updated_at
+    QuoteItemFinishInput:
+      type: object
+      properties:
+        finish_name:
+          type: string
+          maxLength: 200
+        finish_type:
+          type: string
+          maxLength: 150
+        material:
+          type: string
+          maxLength: 200
+        finish_height:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+          default: '0.000'
+        finish_width:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+          default: '0.000'
+        quote_item:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - finish_name
+      - finish_type
+      - material
+    QuoteList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        quote_number:
+          type: string
+          nullable: true
+          maxLength: 100
+        boq_number:
+          type: string
+          readOnly: true
+        project_name:
+          type: string
+          readOnly: true
+        client:
+          type: string
+          readOnly: true
+        status:
+          type: string
+          maxLength: 50
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - boq_number
+      - client
+      - created_at
+      - id
+      - project_name
     RejectionReworkManagement:
       type: object
       properties:
@@ -9633,6 +12650,39 @@ components:
       - updated_at
       - vendor_name
       - vendor_work_order
+    Term:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        quote:
+          type: integer
+        title:
+          type: string
+          maxLength: 200
+        content:
+          type: string
+        category:
+          type: string
+          maxLength: 100
+        is_default:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - content
+      - created_at
+      - id
+      - quote
+      - title
+      - updated_at
     Thickness:
       type: object
       properties:
