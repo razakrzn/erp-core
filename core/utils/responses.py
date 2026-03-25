@@ -3,6 +3,32 @@ from rest_framework.response import Response
 from django.utils import timezone
 from rest_framework import status
 
+
+def _iter_error_messages(value):
+    if isinstance(value, dict):
+        for nested_field, nested_value in value.items():
+            for nested_message in _iter_error_messages(nested_value):
+                yield f"{nested_field} {nested_message}".strip()
+        return
+    if isinstance(value, (list, tuple)):
+        for item in value:
+            for nested_message in _iter_error_messages(item):
+                yield nested_message
+        return
+    yield str(value)
+
+
+def _build_validation_message(error_data):
+    if isinstance(error_data, dict):
+        parts = []
+        for field, field_errors in error_data.items():
+            for field_message in _iter_error_messages(field_errors):
+                parts.append(f"{field} {field_message}".strip())
+        if parts:
+            return " ".join(parts)
+    return "Validation error"
+
+
 class APIResponse:
     """
     A utility class to standardize API responses.
@@ -19,10 +45,12 @@ class APIResponse:
 
     @staticmethod
     def error(errors=None, message="An error occurred", status_code=status.HTTP_400_BAD_REQUEST):
+        final_message = message
+        if status_code == status.HTTP_400_BAD_REQUEST and errors:
+            final_message = _build_validation_message(errors)
         return Response({
             "success": False,
-            "message": message,
-            "errors": errors,
+            "message": final_message,
             "status_code": status_code,
             "timestamp": timezone.now().isoformat(),
         }, status=status_code)
@@ -42,7 +70,7 @@ def custom_exception_handler(exc, context):
         elif response.status_code == status.HTTP_401_UNAUTHORIZED:
             message = "Authentication credentials were not provided or are invalid"
         elif response.status_code == status.HTTP_400_BAD_REQUEST:
-            message = "Validation error"
+            message = _build_validation_message(response.data)
         elif isinstance(exc, PermissionDenied):
             message = "You do not have permission to perform this action"
 
@@ -58,7 +86,6 @@ def custom_exception_handler(exc, context):
             "status_code": response.status_code,
             "message": message,
             "timestamp": timezone.now().isoformat(),
-            "errors": response.data  # This contains the field-specific errors
         }
 
     return response

@@ -8,6 +8,7 @@ class LeadManagementListSerializer(serializers.ModelSerializer):
         model = LeadManagement
         fields = [
             "id",
+            "requirment",
             "contact_name",
             "company",
             "email_address",
@@ -24,6 +25,7 @@ class LeadManagementDetailSerializer(serializers.ModelSerializer):
         model = LeadManagement
         fields = [
             "id",
+            "requirment",
             "contact_name",
             "company",
             "email_address",

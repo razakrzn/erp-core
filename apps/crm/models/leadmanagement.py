@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class LeadManagement(models.Model):
+    requirment = models.TextField(_("requirment"), blank=True, default="")
     contact_name = models.CharField(_("contact name"), max_length=150)
     company = models.CharField(_("company"), max_length=150)
     email_address = models.EmailField(_("email address"))

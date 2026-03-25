@@ -9,7 +9,7 @@ from .shared import BaseCRMViewSet
 class LeadManagementViewSet(BaseCRMViewSet):
     queryset = LeadManagement.objects.all()
     serializer_class = LeadManagementDetailSerializer
-    search_fields = ["contact_name", "company", "email_address", "phone", "lead_source"]
+    search_fields = ["requirment", "contact_name", "company", "email_address", "phone", "lead_source"]
     ordering_fields = ["contact_name", "company", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
 

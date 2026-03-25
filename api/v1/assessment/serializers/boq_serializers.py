@@ -132,13 +132,12 @@ class BoqItemDetailSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False,
     )
-    boq = serializers.SerializerMethodField()
 
     class Meta:
         model = BoqItem
         fields = [
             "id",
-            "boq",
+          
             "boq_id",
             "item_code",
             "name",
@@ -151,19 +150,6 @@ class BoqItemDetailSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["item_code", "created_at", "updated_at", "boq"]
 
-    def get_boq(self, obj):
-        if not obj.boq:
-            return None
-        project_name = ""
-        if obj.boq.enquiry:
-            project_name = obj.boq.enquiry.project_name
-        return {
-            "id": obj.boq.id,
-            "boq_number": obj.boq.boq_number,
-            "project_name": project_name,
-            "is_approved": obj.boq.is_approved,
-            "is_rejected": obj.boq.is_rejected,
-        }
 
     def to_internal_value(self, data):
         if isinstance(data, dict):
