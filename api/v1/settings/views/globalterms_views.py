@@ -9,7 +9,6 @@ from core.utils.responses import APIResponse
 from ..serializers import (
     GlobalTermsDetailSerializer,
     GlobalTermsListSerializer,
-    GlobalTermsListResponseSerializer,
     GlobalTermsResponseSerializer,
 )
 from .shared import BaseSettingsViewSet
@@ -20,7 +19,6 @@ from .shared import BaseSettingsViewSet
         tags=["Settings"],
         summary="List global terms",
         description="Paginated list of global terms.",
-        responses={200: GlobalTermsListResponseSerializer},
     ),
     retrieve=extend_schema(
         tags=["Settings"],

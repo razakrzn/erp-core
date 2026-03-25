@@ -7231,7 +7231,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedGlobalTermsListResponseList'
+                $ref: '#/components/schemas/PaginatedGlobalTermsListList'
           description: ''
     post:
       operationId: v1_settings_global_terms_create
@@ -9061,28 +9061,6 @@ components:
       - created_by
       - id
       - title
-    GlobalTermsListResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          default: true
-        message:
-          type: string
-          default: Success
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/GlobalTermsList'
-        status_code:
-          type: integer
-          default: 200
-        timestamp:
-          type: string
-          format: date-time
-      required:
-      - data
-      - timestamp
     GlobalTermsResponse:
       type: object
       properties:
@@ -9470,832 +9448,1804 @@ components:
       - null
     PaginatedAPIAccessRuleList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/APIAccessRule'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/APIAccessRule'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedAttendanceList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Attendance'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Attendance'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedBOMExplosionList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/BOMExplosion'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/BOMExplosion'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedBatchTrackingList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/BatchTracking'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/BatchTracking'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedBoqItemListList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/BoqItemList'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/BoqItemList'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedBoqListList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/BoqList'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/BoqList'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedBrandList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Brand'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Brand'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedCategoryList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Category'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Category'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedCompanyList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Company'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Company'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedCustomerList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Customer'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Customer'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedCuttingOptimizationJobList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/CuttingOptimizationJob'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/CuttingOptimizationJob'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedDepartmentList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Department'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Department'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedDesignationList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Designation'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Designation'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedEmployeeLightweightList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/EmployeeLightweight'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/EmployeeLightweight'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedEmployeeListList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/EmployeeList'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/EmployeeList'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedEnquiryListList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/EnquiryList'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/EnquiryList'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedFinishList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Finish'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Finish'
-    PaginatedGlobalTermsListResponseList:
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
+    PaginatedGlobalTermsListList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/GlobalTermsList'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/GlobalTermsListResponse'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedGradeList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Grade'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Grade'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedLaborTrackingList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/LaborTracking'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/LaborTracking'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedLeadManagementListList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/LeadManagementList'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/LeadManagementList'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedMachineIntegrationList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/MachineIntegration'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/MachineIntegration'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedMaterialList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Material'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Material'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedProductListList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProductList'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProductList'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedProductionOrderList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProductionOrder'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProductionOrder'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedProductionPlanningList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ProductionPlanning'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProductionPlanning'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedQuoteItemList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/QuoteItem'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/QuoteItem'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedQuoteListList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/QuoteList'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/QuoteList'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedRejectionReworkManagementList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/RejectionReworkManagement'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/RejectionReworkManagement'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedShopFloorControlList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ShopFloorControl'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ShopFloorControl'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedSizeList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Size'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Size'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedSubcontractingManagementList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/SubcontractingManagement'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/SubcontractingManagement'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedTermList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Term'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Term'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedThicknessList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Thickness'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Thickness'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedUserList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/User'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PaginatedWIPTrackingList:
       type: object
-      required:
-      - count
-      - results
       properties:
-        count:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Data retrieved successfully
+        data:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/WIPTracking'
+            pagination:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  example: 100
+                total_pages:
+                  type: integer
+                  example: 10
+                current_page:
+                  type: integer
+                  example: 1
+                next:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=4
+                previous:
+                  type: string
+                  nullable: true
+                  format: uri
+                  example: http://api.example.org/accounts/?page=2
+        status_code:
           type: integer
-          example: 123
-        next:
+          example: 200
+        timestamp:
           type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/WIPTracking'
+          format: date-time
+      required:
+      - success
+      - message
+      - data
+      - status_code
+      - timestamp
     PatchedAPIAccessRule:
       type: object
       properties:
