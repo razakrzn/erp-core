@@ -65,6 +65,18 @@ if [[ ! -s "$BODY_FILE" ]]; then
   die "Generated request body is empty: $BODY_FILE"
 fi
 
+if [[ -z "${POSTMAN_COLLECTION_UID:-}" && -n "${POSTMAN_WORKSPACE_ID:-}" ]]; then
+  COLL_NAME=$(jq -r '.info.name' "$COLLECTION_JSON")
+  info "POSTMAN_COLLECTION_UID not provided. Searching workspace $POSTMAN_WORKSPACE_ID for '$COLL_NAME'..."
+  WS_DATA=$(curl -s -H "X-API-Key: $API_KEY" "$API_BASE/workspaces/$POSTMAN_WORKSPACE_ID")
+  FOUND_UID=$(echo "$WS_DATA" | jq -r --arg n "$COLL_NAME" '.workspace.collections[]? | select(.name == $n) | .uid' | head -n1)
+  
+  if [[ -n "$FOUND_UID" ]]; then
+    info "Found existing collection '$COLL_NAME' with UID: $FOUND_UID. Will update it instead of creating duplicates."
+    POSTMAN_COLLECTION_UID="$FOUND_UID"
+  fi
+fi
+
 if [[ -n "${POSTMAN_COLLECTION_UID:-}" ]]; then
   # Update existing collection
   info "Updating collection (UID: $POSTMAN_COLLECTION_UID)..."
