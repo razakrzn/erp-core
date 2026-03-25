@@ -1,3 +1,3 @@
-from .globalterms_serializers import GlobalTermsSerializer
+from .globalterms_serializers import GlobalTermsDetailSerializer, GlobalTermsListSerializer
 
-__all__ = ["GlobalTermsSerializer"]
+__all__ = ["GlobalTermsDetailSerializer", "GlobalTermsListSerializer"]
