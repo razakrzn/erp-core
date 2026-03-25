@@ -302,3 +302,13 @@ class TermSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["created_at", "updated_at"]
+
+
+class QuoteItemCreateRequestSerializer(serializers.Serializer):
+    quote = serializers.IntegerField(required=True, help_text="The ID or number of the parent Quote.")
+    items = QuoteItemSerializer(many=True, required=True)
+
+
+class QuoteItemUpdateRequestSerializer(serializers.Serializer):
+    quote = serializers.IntegerField(required=False, help_text="The ID or number of the parent Quote.")
+    items = QuoteItemSerializer(many=True, required=True, min_length=1, max_length=1, help_text="Exactly one item allowed in this array for single object update.")

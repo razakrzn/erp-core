@@ -174,3 +174,11 @@ class BoqItemDetailSerializer(serializers.ModelSerializer):
                 {"boq_id": "This field is required. Use boq_id, boq, or boq_number."}
             )
         return attrs
+class BoqItemCreateRequestSerializer(serializers.Serializer):
+    boq = serializers.IntegerField(required=True, help_text="The ID or number of the parent BOQ.")
+    items = BoqItemDetailSerializer(many=True, required=True)
+
+
+class BoqItemUpdateRequestSerializer(serializers.Serializer):
+    boq = serializers.IntegerField(required=False, help_text="The ID or number of the parent BOQ.")
+    items = BoqItemDetailSerializer(many=True, required=True, min_length=1, max_length=1, help_text="Exactly one item allowed in this array for single object update.")

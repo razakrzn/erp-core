@@ -229,19 +229,22 @@ paths:
           description: ''
     post:
       operationId: v1_assessment_boq_items_create
+      description: Create multiple BOQ items by providing a parent BOQ ID/Number and
+        a list of items.
+      summary: Batch create BOQ items
       tags:
-      - v1
+      - Assessment
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BoqItemDetail'
+              $ref: '#/components/schemas/BoqItemCreateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/BoqItemDetail'
+              $ref: '#/components/schemas/BoqItemCreateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/BoqItemDetail'
+              $ref: '#/components/schemas/BoqItemCreateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -277,6 +280,9 @@ paths:
           description: ''
     put:
       operationId: v1_assessment_boq_items_update
+      description: 'Update a single BOQ item. Supports both direct payload format
+        or wrapped {''boq'': id, ''items'': [...]} format.'
+      summary: Update BOQ item
       parameters:
       - in: path
         name: id
@@ -285,18 +291,18 @@ paths:
         description: A unique integer value identifying this boq item.
         required: true
       tags:
-      - v1
+      - Assessment
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BoqItemDetail'
+              $ref: '#/components/schemas/BoqItemUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/BoqItemDetail'
+              $ref: '#/components/schemas/BoqItemUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/BoqItemDetail'
+              $ref: '#/components/schemas/BoqItemUpdateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -310,6 +316,9 @@ paths:
           description: ''
     patch:
       operationId: v1_assessment_boq_items_partial_update
+      description: 'Partially update a single BOQ item. Supports both direct payload
+        format or wrapped {''boq'': id, ''items'': [...]} format.'
+      summary: Partial update BOQ item
       parameters:
       - in: path
         name: id
@@ -318,18 +327,18 @@ paths:
         description: A unique integer value identifying this boq item.
         required: true
       tags:
-      - v1
+      - Assessment
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedBoqItemDetail'
+              $ref: '#/components/schemas/PatchedBoqItemUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedBoqItemDetail'
+              $ref: '#/components/schemas/PatchedBoqItemUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedBoqItemDetail'
+              $ref: '#/components/schemas/PatchedBoqItemUpdateRequest'
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -818,19 +827,22 @@ paths:
           description: ''
     post:
       operationId: v1_assessment_quote_items_create
+      description: Create multiple Quote items by providing a parent Quote ID/Number
+        and a list of items.
+      summary: Batch create Quote items
       tags:
-      - v1
+      - Assessment
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuoteItem'
+              $ref: '#/components/schemas/QuoteItemCreateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/QuoteItem'
+              $ref: '#/components/schemas/QuoteItemCreateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/QuoteItem'
+              $ref: '#/components/schemas/QuoteItemCreateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -866,6 +878,9 @@ paths:
           description: ''
     put:
       operationId: v1_assessment_quote_items_update
+      description: 'Update a single Quote item. Supports both direct payload format
+        or wrapped {''quote'': id, ''items'': [...]} format.'
+      summary: Update Quote item
       parameters:
       - in: path
         name: id
@@ -874,18 +889,18 @@ paths:
         description: A unique integer value identifying this quote item.
         required: true
       tags:
-      - v1
+      - Assessment
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuoteItem'
+              $ref: '#/components/schemas/QuoteItemUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/QuoteItem'
+              $ref: '#/components/schemas/QuoteItemUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/QuoteItem'
+              $ref: '#/components/schemas/QuoteItemUpdateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -899,6 +914,9 @@ paths:
           description: ''
     patch:
       operationId: v1_assessment_quote_items_partial_update
+      description: 'Partially update a single Quote item. Supports both direct payload
+        format or wrapped {''quote'': id, ''items'': [...]} format.'
+      summary: Partial update Quote item
       parameters:
       - in: path
         name: id
@@ -907,18 +925,18 @@ paths:
         description: A unique integer value identifying this quote item.
         required: true
       tags:
-      - v1
+      - Assessment
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedQuoteItem'
+              $ref: '#/components/schemas/PatchedQuoteItemUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedQuoteItem'
+              $ref: '#/components/schemas/PatchedQuoteItemUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedQuoteItem'
+              $ref: '#/components/schemas/PatchedQuoteItemUpdateRequest'
       security:
       - jwtAuth: []
       - cookieAuth: []
@@ -7946,6 +7964,19 @@ components:
       - id
       - updated_at
       - updated_by
+    BoqItemCreateRequest:
+      type: object
+      properties:
+        boq:
+          type: integer
+          description: The ID or number of the parent BOQ.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoqItemDetail'
+      required:
+      - boq
+      - items
     BoqItemDetail:
       type: object
       properties:
@@ -8020,6 +8051,19 @@ components:
       - item_code
       - name
       - project_name
+    BoqItemUpdateRequest:
+      type: object
+      properties:
+        boq:
+          type: integer
+          description: The ID or number of the parent BOQ.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoqItemDetail'
+          description: Exactly one item allowed in this array for single object update.
+      required:
+      - items
     BoqList:
       type: object
       properties:
@@ -11270,40 +11314,17 @@ components:
         boq_items:
           type: string
           readOnly: true
-    PatchedBoqItemDetail:
+    PatchedBoqItemUpdateRequest:
       type: object
       properties:
-        id:
+        boq:
           type: integer
-          readOnly: true
-        boq_id:
-          type: integer
-          writeOnly: true
-        item_code:
-          type: string
-          readOnly: true
-        name:
-          type: string
-          maxLength: 200
-        description:
-          type: string
-        quantity:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
-        unit:
-          type: string
-          maxLength: 50
-        is_template:
-          type: boolean
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
+          description: The ID or number of the parent BOQ.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoqItemDetail'
+          description: Exactly one item allowed in this array for single object update.
     PatchedBrand:
       type: object
       properties:
@@ -12377,77 +12398,17 @@ components:
           type: integer
           readOnly: true
           nullable: true
-    PatchedQuoteItem:
+    PatchedQuoteItemUpdateRequest:
       type: object
       properties:
-        id:
-          type: integer
-          readOnly: true
         quote:
           type: integer
-        quote_id:
-          type: integer
-          writeOnly: true
-        boq_item:
-          type: integer
-          nullable: true
-        boq_item_id:
-          type: integer
-          writeOnly: true
-          nullable: true
-        image:
-          type: string
-          format: uri
-          nullable: true
-        name:
-          type: string
-          maxLength: 200
-        width:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
-        height:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
-        depth:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
-        accessories:
-          type: string
-        category:
-          type: string
-          maxLength: 100
-        quantity:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
-        unit_price:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
-        amount:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
-          readOnly: true
-        finishes:
+          description: The ID or number of the parent Quote.
+        items:
           type: array
           items:
-            $ref: '#/components/schemas/QuoteItemFinishInput'
-          writeOnly: true
-        finish:
-          type: string
-          readOnly: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
+            $ref: '#/components/schemas/QuoteItem'
+          description: Exactly one item allowed in this array for single object update.
     PatchedRejectionReworkManagement:
       type: object
       properties:
@@ -13223,6 +13184,19 @@ components:
       - name
       - quote
       - updated_at
+    QuoteItemCreateRequest:
+      type: object
+      properties:
+        quote:
+          type: integer
+          description: The ID or number of the parent Quote.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteItem'
+      required:
+      - items
+      - quote
     QuoteItemFinishInput:
       type: object
       properties:
@@ -13257,6 +13231,19 @@ components:
       - finish_name
       - finish_type
       - material
+    QuoteItemUpdateRequest:
+      type: object
+      properties:
+        quote:
+          type: integer
+          description: The ID or number of the parent Quote.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteItem'
+          description: Exactly one item allowed in this array for single object update.
+      required:
+      - items
     QuoteList:
       type: object
       properties:

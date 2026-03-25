@@ -7,10 +7,13 @@ from rest_framework.exceptions import ValidationError
 from apps.assessment.models import Boq, BoqItem
 from core.utils.responses import APIResponse
 
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from ..serializers import (
     BoqDetailSerializer,
+    BoqItemCreateRequestSerializer,
     BoqItemDetailSerializer,
     BoqItemListSerializer,
+    BoqItemUpdateRequestSerializer,
     BoqListSerializer,
 )
 from .shared import BaseAssessmentViewSet
@@ -67,6 +70,26 @@ class BoqViewSet(BaseAssessmentViewSet):
         )
 
 
+@extend_schema_view(
+    create=extend_schema(
+        tags=["Assessment"],
+        summary="Batch create BOQ items",
+        description="Create multiple BOQ items by providing a parent BOQ ID/Number and a list of items.",
+        request=BoqItemCreateRequestSerializer,
+    ),
+    update=extend_schema(
+        tags=["Assessment"],
+        summary="Update BOQ item",
+        description="Update a single BOQ item. Supports both direct payload format or wrapped {'boq': id, 'items': [...]} format.",
+        request=BoqItemUpdateRequestSerializer,
+    ),
+    partial_update=extend_schema(
+        tags=["Assessment"],
+        summary="Partial update BOQ item",
+        description="Partially update a single BOQ item. Supports both direct payload format or wrapped {'boq': id, 'items': [...]} format.",
+        request=BoqItemUpdateRequestSerializer,
+    ),
+)
 class BoqItemViewSet(BaseAssessmentViewSet):
     queryset = BoqItem.objects.select_related("boq")
     serializer_class = BoqItemDetailSerializer
