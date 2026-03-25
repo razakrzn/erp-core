@@ -70,17 +70,17 @@ jobs:
         run: bash scripts/postman-sync.sh
 
       - name: Verify generated collection exists
-        run: test -s "postman/collections-generated/ERP Core API (Generated).collection.json"
+        run: test -s "postman/collection.json"
 
       - name: Upload generated collection artifact
         uses: actions/upload-artifact@v4
         with:
           name: postman-generated-collection
-          path: postman/collections-generated/ERP Core API (Generated).collection.json
+          path: postman/collection.json
           if-no-files-found: warn
 
       - name: Push collection to Postman workspace
         if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.POSTMAN_API_KEY != '' && (env.POSTMAN_COLLECTION_UID != '' || env.POSTMAN_WORKSPACE_ID != '')
         env:
-          POSTMAN_COLLECTION_JSON: postman/collections-generated/ERP Core API (Generated).collection.json
+          POSTMAN_COLLECTION_JSON: postman/collection.json
         run: bash scripts/postman-push.sh
