@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status, serializers
-from drf_spectacular.utils import extend_schema, extend_schema_view, inline_serializer
+from core.utils.schema_docs_shims import extend_schema, extend_schema_view, inline_serializer
 from core.utils.responses import APIResponse
 from apps.access_control.models import APIAccessRule
 from .serializers import APIAccessRuleSerializer

@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from apps.assessment.models import Boq, BoqItem
 from core.utils.responses import APIResponse
 
-from drf_spectacular.utils import extend_schema, extend_schema_view, inline_serializer, OpenApiParameter
+from core.utils.schema_docs_shims import OpenApiParameter, extend_schema, extend_schema_view, inline_serializer
 from ..serializers import (
     BoqDetailSerializer,
     BoqItemCreateRequestSerializer,

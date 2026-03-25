@@ -5,7 +5,12 @@ from typing import Any
 from rest_framework import serializers, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, inline_serializer
+from core.utils.schema_docs_shims import (
+    OpenApiParameter,
+    extend_schema,
+    extend_schema_view,
+    inline_serializer,
+)
 
 from core.permissions.rbac_permission import IsSuperuser
 from rest_framework.response import Response

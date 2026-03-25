@@ -1,7 +1,7 @@
 from django.db.models import Q
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
+from core.utils.schema_docs_shims import OpenApiParameter, extend_schema, extend_schema_view
 
 from apps.inventory.models import Brand, Category, Finish, Grade, Material, Product, Size, Thickness
 from core.utils.responses import APIResponse

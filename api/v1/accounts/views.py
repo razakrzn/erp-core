@@ -2,7 +2,12 @@ from django.contrib.auth import get_user_model
 from rest_framework import viewsets, filters, status, serializers
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
-from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter, inline_serializer
+from core.utils.schema_docs_shims import (
+    OpenApiParameter,
+    extend_schema,
+    extend_schema_view,
+    inline_serializer,
+)
 
 from core.utils.responses import APIResponse
 

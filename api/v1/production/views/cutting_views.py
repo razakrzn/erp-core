@@ -1,7 +1,7 @@
 from rest_framework import filters, status, viewsets, serializers
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
-from drf_spectacular.utils import extend_schema, extend_schema_view, inline_serializer
+from core.utils.schema_docs_shims import extend_schema, extend_schema_view, inline_serializer
 
 from apps.production.models import CuttingOptimizationJob
 from apps.production.tasks import process_cutting_optimization_job_sync

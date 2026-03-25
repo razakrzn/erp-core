@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from apps.assessment.models import Finish, Quote, QuoteItem, Term
 from core.utils.responses import APIResponse
 
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from core.utils.schema_docs_shims import extend_schema, extend_schema_view
 from ..serializers import (
     FinishSerializer,
     QuoteDetailSerializer,

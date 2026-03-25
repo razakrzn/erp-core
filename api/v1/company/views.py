@@ -1,6 +1,6 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.permissions import IsAuthenticated
-from drf_spectacular.utils import extend_schema_view, extend_schema
+from core.utils.schema_docs_shims import extend_schema, extend_schema_view
 
 from apps.company.models import Company
 from core.utils.responses import APIResponse

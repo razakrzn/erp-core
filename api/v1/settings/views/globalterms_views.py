@@ -1,7 +1,7 @@
 from django.utils import timezone
 from rest_framework import filters, status, serializers
 from rest_framework.decorators import action
-from drf_spectacular.utils import extend_schema_view, extend_schema, inline_serializer
+from core.utils.schema_docs_shims import extend_schema, extend_schema_view, inline_serializer
 
 from apps.settings.models import GlobalTerms
 from core.utils.responses import APIResponse

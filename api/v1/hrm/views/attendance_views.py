@@ -1,7 +1,7 @@
 from django.utils import timezone
 from rest_framework import status, viewsets, serializers
 from rest_framework.decorators import action
-from drf_spectacular.utils import extend_schema, extend_schema_view, inline_serializer
+from core.utils.schema_docs_shims import extend_schema, extend_schema_view, inline_serializer
 
 from apps.hrm.models.attendance import Attendance
 from core.utils.responses import APIResponse

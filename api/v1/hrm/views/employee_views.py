@@ -1,5 +1,5 @@
 from rest_framework import filters, status, viewsets
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from core.utils.schema_docs_shims import extend_schema, extend_schema_view
 
 from apps.hrm.models.employee import Employee
 from core.utils.responses import APIResponse

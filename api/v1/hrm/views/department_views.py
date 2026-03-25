@@ -1,6 +1,6 @@
 from django_filters import rest_framework as django_filters
 from rest_framework import filters, status, viewsets
-from drf_spectacular.utils import extend_schema_view, extend_schema
+from core.utils.schema_docs_shims import extend_schema, extend_schema_view
 
 from apps.hrm.models.department import Department
 from apps.hrm.models.designation import Designation

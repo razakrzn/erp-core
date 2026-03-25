@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
-from drf_spectacular.utils import extend_schema, inline_serializer
+from core.utils.schema_docs_shims import extend_schema, inline_serializer
 
 from core.utils.responses import APIResponse
 
