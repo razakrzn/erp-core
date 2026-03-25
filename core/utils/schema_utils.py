@@ -9,6 +9,7 @@ class IndustrialAutoSchema(AutoSchema):
     """
     def get_response_serializers(self):
         response_serializers = super().get_response_serializers()
+        print(f"[DEBUG] View: {self.view.__class__.__name__}, Serializers: {response_serializers}")
         
         # Paginated responses are handled via IndustrialPagination.get_paginated_response_schema,
         # so we skip wrapping them here to avoid double-nesting.

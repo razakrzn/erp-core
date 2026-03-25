@@ -9973,7 +9973,7 @@ components:
       required:
       - password
       - username
-    LoginResponse:
+    LoginData:
       type: object
       properties:
         access:
@@ -9983,6 +9983,22 @@ components:
       required:
       - access
       - refresh
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Login successful.
+        data:
+          $ref: '#/components/schemas/LoginData'
+        status_code:
+          type: integer
+          default: 200
+      required:
+      - data
     MachineIntegration:
       type: object
       properties:
@@ -14280,13 +14296,29 @@ components:
       - created_at
       - id
       - project_name
-    RefreshTokenResponse:
+    RefreshTokenData:
       type: object
       properties:
         access:
           type: string
       required:
       - access
+    RefreshTokenResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: true
+        message:
+          type: string
+          default: Token refreshed successfully.
+        data:
+          $ref: '#/components/schemas/RefreshTokenData'
+        status_code:
+          type: integer
+          default: 200
+      required:
+      - data
     RejectionReworkManagement:
       type: object
       properties:

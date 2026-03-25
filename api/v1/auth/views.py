@@ -31,9 +31,17 @@ class LoginView(APIView):
             200: inline_serializer(
                 name="LoginResponse",
                 fields={
-                    "access": serializers.CharField(),
-                    "refresh": serializers.CharField(),
-                    "user": UserSerializer
+                    "success": serializers.BooleanField(default=True),
+                    "message": serializers.CharField(default="Login successful."),
+                    "data": inline_serializer(
+                        name="LoginData",
+                        fields={
+                            "access": serializers.CharField(),
+                            "refresh": serializers.CharField(),
+                            "user": UserSerializer
+                        }
+                    ),
+                    "status_code": serializers.IntegerField(default=200),
                 }
             )
         },
@@ -75,7 +83,15 @@ class RefreshTokenView(APIView):
         responses={
             200: inline_serializer(
                 name="RefreshTokenResponse",
-                fields={"access": serializers.CharField()}
+                fields={
+                    "success": serializers.BooleanField(default=True),
+                    "message": serializers.CharField(default="Token refreshed successfully."),
+                    "data": inline_serializer(
+                        name="RefreshTokenData",
+                        fields={"access": serializers.CharField()}
+                    ),
+                    "status_code": serializers.IntegerField(default=200),
+                }
             )
         },
     )
