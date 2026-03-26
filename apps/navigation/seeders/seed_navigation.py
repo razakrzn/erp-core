@@ -12,10 +12,7 @@ ERP_STRUCTURE = [
         "modules": [
             {"code": "leads", "name": "Lead Management", "route": "/sales/leads", "icon": "users", "order": 1},
             {"code": "customers", "name": "Customer Database", "route": "/sales/customers", "icon": "user", "order": 2},
-            {"code": "visits", "name": "Visit Management", "route": "/sales/visits", "icon": "calendar", "order": 3},
-            {"code": "requirements", "name": "Requirement Gathering", "route": "/sales/requirements", "icon": "file-text", "order": 4},
-            {"code": "competitors", "name": "Competitor Tracking", "route": "/sales/competitors", "icon": "target", "order": 5},
-            {"code": "feedback", "name": "Customer Feedback", "route": "/sales/feedback", "icon": "message-circle", "order": 6},
+            {"code": "enquiry", "name": "Enquiry", "route": "/sales/enquiry", "icon": "user", "order": 3},
         ],
     },
     {
@@ -24,16 +21,10 @@ ERP_STRUCTURE = [
         "icon": "clipboard-text",
         "order": 2,
         "modules": [
-            {"code": "cost_calculator", "name": "Cost Calculator", "route": "/estimation/cost-calculator", "icon": "calculator", "order": 1},
-            {"code": "rate_cards", "name": "Rate Card Management", "route": "/estimation/rate-cards", "icon": "credit-card", "order": 2},
-            {"code": "estimate", "name": "Material Estimate", "route": "/estimation/estimate/", "icon": "dollar-sign", "order": 3},
-            {"code": "labor_estimation", "name": "Labor Estimation", "route": "/estimation/labor-estimation", "icon": "users", "order": 4},
-            {"code": "quotations", "name": "Quotation Generator", "route": "/estimation/quotations", "icon": "file-text", "order": 5},
-            {"code": "quatation_template", "name": "Quatation Templates", "route": "/estimation/template/", "icon": "template", "order": 6},
-            {"code": "quote_approval", "name": "Quotation Approval Workflow", "route": "/estimation/quote-approval", "icon": "checklist", "order": 7},
-            {"code": "discounts", "name": "Discount Management", "route": "/estimation/discounts", "icon": "percent", "order": 8},
-            {"code": "quote_comparison", "name": "Version Comparison", "route": "/estimation/quote-comparison", "icon": "copy", "order": 9},
-            {"code": "quote_to_order", "name": "Quote-to-Order Conversion", "route": "/estimation/quote-to-order", "icon": "arrow-right", "order": 10},
+            {"code": "boq", "name": "BOQ", "route": "/estimation/boq/", "icon": "list", "order": 1},
+            {"code": "quotations", "name": "Quotations", "route": "/estimation/quotations", "icon": "file-pencil", "order": 2},
+            {"code": "quatation_template", "name": "Templates Items", "route": "/estimation/template/", "icon": "template", "order": 3},
+            {"code": "quote_to_order", "name": "Quote-to-Order Conversion", "route": "/estimation/quote-to-order", "icon": "arrow-right", "order": 4},
         ],
     },
     {
@@ -42,14 +33,12 @@ ERP_STRUCTURE = [
         "icon": "folder",
         "order": 3,
         "modules": [
-            {"code": "project_creation", "name": "Project Creation", "route": "/project/project-creation/", "icon": "folder", "order": 1},
-            {"code": "workflow_stages", "name": "Workflow Stage Management", "route": "/project/workflow-stages", "icon": "git-merge", "order": 2},
+            {"code": "all_projects", "name": "All Projects", "route": "/project/project-creation/", "icon": "folder", "order": 1},
+            {"code": "project_overview", "name": "Project Overview", "route": "/project/project-overview", "icon": "chart-bar", "order": 2},
             {"code": "tasks", "name": "Task Management", "route": "/project/tasks", "icon": "check-square", "order": 3},
             {"code": "gantt", "name": "Gantt Chart/Timeline", "route": "/project/gantt", "icon": "bar-chart-2", "order": 4},
             {"code": "documents", "name": "Document Management", "route": "/project/documents", "icon": "file", "order": 5},
-            {"code": "meetings", "name": "Meeting Minutes", "route": "/project/meetings", "icon": "message-square", "order": 6},
-            {"code": "rework_auth", "name": "Rework Authorization", "route": "/project/rework-auth", "icon": "edit", "order": 7},
-            {"code": "change_orders", "name": "Change Order Management", "route": "/project/change-orders", "icon": "edit", "order": 8},
+            {"code": "rework_auth", "name": "Rework Authorization", "route": "/project/rework-auth", "icon": "edit", "order": 6},
         ],
     },
     {
@@ -58,14 +47,8 @@ ERP_STRUCTURE = [
         "icon": "layout",
         "order": 4,
         "modules": [
-            {"code": "concept_design", "name": "Concept Design", "route": "/design/concept", "icon": "layout", "order": 1},
-            {"code": "cad_integration", "name": "CAD Integration", "route": "/design/cad", "icon": "monitor", "order": 2},
-            {"code": "visualization", "name": "2D/3D Visualization", "route": "/design/visualization", "icon": "eye", "order": 3},
-            {"code": "bom_generator", "name": "Bill of Materials Generator", "route": "/design/bom", "icon": "package", "order": 4},
-            {"code": "technical_drawings", "name": "Technical Drawing Management", "route": "/design/drawings", "icon": "image", "order": 5},
-            {"code": "site_measurement", "name": "Site Measurement Tool", "route": "/design/site-measurement", "icon": "ruler", "order": 6},
-            {"code": "material_spec", "name": "Material Specification", "route": "/design/material-spec", "icon": "layers", "order": 7},
-            {"code": "design_library", "name": "Design Library", "route": "/design/library", "icon": "book", "order": 8},
+            {"code": "site_measurement", "name": "Site Measurement Tool", "route": "/design/site-measurement", "icon": "ruler", "order": 1},
+            {"code": "material_spec", "name": "Material Specification", "route": "/design/material-spec", "icon": "layers", "order": 2},
         ],
     },
     {
@@ -95,17 +78,13 @@ ERP_STRUCTURE = [
         "icon": "cpu",
         "order": 6,
         "modules": [
-            {"code": "production_planning", "name": "Production Planning", "route": "/production/planning", "icon": "calendar", "order": 1},
-            {"code": "cutting_optimization", "name": "Cutting Optimization", "route": "/production/cutting", "icon": "scissors", "order": 2},
-            {"code": "production_orders", "name": "Production Order (Job Card)", "route": "/production/orders", "icon": "clipboard", "order": 3},
-            {"code": "bom_explosion", "name": "BOM Explosion", "route": "/production/bom-explosion", "icon": "share-2", "order": 4},
-            {"code": "work_stages", "name": "Work Stages", "route": "/production/work-stages", "icon": "activity", "order": 5},
-            {"code": "labor_tracking", "name": "Labor Tracking", "route": "/production/labor-tracking", "icon": "user-check", "order": 6},
-            {"code": "subcontracting", "name": "Subcontracting Management", "route": "/production/subcontracting", "icon": "external-link", "order": 7},
-            {"code": "batch_tracking", "name": "Batch Tracking", "route": "/production/batch-tracking", "icon": "hash", "order": 8},
-            {"code": "production_task", "name": "Tasks", "route": "/production/tasks", "icon": "check-square", "order": 9},
-            {"code": "production_checklist", "name": "Checklist Production", "route": "/production/checklist/", "icon": "list-check", "order": 10},
-            {"code": "rework", "name": "Rejection & Rework Management", "route": "/production/rework", "icon": "rotate-cw", "order": 11},
+            {"code": "cutting_optimization", "name": "Cutting Optimization", "route": "/production/cutting", "icon": "scissors", "order": 1},
+            {"code": "production_orders", "name": "Production Order (Job Card)", "route": "/production/orders", "icon": "clipboard", "order": 2},
+            {"code": "work_stages", "name": "Work Stages", "route": "/production/work-stages", "icon": "activity", "order": 3},
+            {"code": "labor_tracking", "name": "Labor Tracking", "route": "/production/labor-tracking", "icon": "user-check", "order": 4},
+            {"code": "production_task", "name": "Tasks", "route": "/production/tasks", "icon": "check-square", "order": 5},
+            {"code": "production_checklist", "name": "Checklist Production", "route": "/production/checklist/", "icon": "list-check", "order": 6},
+            {"code": "rework", "name": "Rejection & Rework Management", "route": "/production/rework", "icon": "rotate-cw", "order": 7},
         ],
     },
     {
@@ -158,11 +137,8 @@ ERP_STRUCTURE = [
             {"code": "designation", "name": "Designation", "route": "/hr/designation/", "icon": "buildings", "order": 3},
             {"code": "employees", "name": "Employee Database", "route": "/hr/employees", "icon": "users", "order": 4},
             {"code": "attendance", "name": "Attendance Tracking", "route": "/hr/attendance", "icon": "clock", "order": 5},
-            {"code": "skill_matrix", "name": "Skill Matrix", "route": "/hr/skill-matrix", "icon": "grid", "order": 6},
-            {"code": "payroll", "name": "Payroll Processing", "route": "/hr/payroll", "icon": "dollar-sign", "order": 7},
-            {"code": "timesheets", "name": "Timesheet Management", "route": "/hr/timesheets", "icon": "calendar", "order": 8},
-            {"code": "contractors", "name": "Contractor Management", "route": "/hr/contractors", "icon": "user-plus", "order": 9},
-            {"code": "performance", "name": "Performance Management", "route": "/hr/performance", "icon": "star", "order": 10},
+            {"code": "payroll", "name": "Payroll Processing", "route": "/hr/payroll", "icon": "dollar-sign", "order": 6},
+            {"code": "performance", "name": "Performance Management", "route": "/hr/performance", "icon": "star", "order": 7},
         ],
     },
     {
@@ -178,28 +154,10 @@ ERP_STRUCTURE = [
         ],
     },
     {
-        "feature_code": "finance",
-        "feature_name": "Accounting",
-        "icon": "dollar-sign",
-        "order": 12,
-        "modules": [
-            {"code": "accounts_receivable", "name": "Accounts Receivable", "route": "/finance/ar", "icon": "dollar-sign", "order": 1},
-            {"code": "accounts_payable", "name": "Accounts Payable", "route": "/finance/ap", "icon": "credit-card", "order": 2},
-            {"code": "budgeting", "name": "Budgeting", "route": "/finance/budgeting", "icon": "pie-chart", "order": 3},
-            {"code": "cost_tracking", "name": "Cost Tracking", "route": "/finance/cost-tracking", "icon": "trending-up", "order": 4},
-            {"code": "expenses", "name": "Expense Management", "route": "/finance/expenses", "icon": "file-text", "order": 5},
-            {"code": "bank_integration", "name": "Bank Integration", "route": "/finance/bank-integration", "icon": "database", "order": 6},
-            {"code": "tax", "name": "Tax Management", "route": "/finance/tax", "icon": "percent", "order": 7},
-            {"code": "financial_reports", "name": "Financial Reports", "route": "/finance/reports", "icon": "bar-chart", "order": 8},
-            {"code": "payment_collection", "name": "Payment Collection", "route": "/finance/payment-collection", "icon": "wallet", "order": 9},
-            {"code": "retention", "name": "Retention Money Tracking", "route": "/finance/retention", "icon": "lock", "order": 10},
-        ],
-    },
-    {
         "feature_code": "analytics",
         "feature_name": "Analytics",
         "icon": "bar-chart-2",
-        "order": 13,
+        "order": 12,
         "modules": [
             {"code": "executive_dashboard", "name": "Executive Dashboard", "route": "/analytics/executive-dashboard", "icon": "monitor", "order": 1},
             {"code": "project_analytics", "name": "Project Analytics", "route": "/analytics/project-analytics", "icon": "folder", "order": 2},
@@ -210,9 +168,9 @@ ERP_STRUCTURE = [
     },
     {
         "feature_code": "core",
-        "feature_name": "Administration",
+        "feature_name": "Core & Administration",
         "icon": "settings",
-        "order": 14,
+        "order": 13,
         "modules": [
             {"code": "user_management", "name": "User Management", "route": "/core/user-management", "icon": "users", "order": 1},
             {"code": "company_profile", "name": "Company Profile", "route": "/core/company-profile", "icon": "building", "order": 2},
@@ -225,6 +183,7 @@ ERP_STRUCTURE = [
         ],
     },
 ]
+
 
 
 def run():

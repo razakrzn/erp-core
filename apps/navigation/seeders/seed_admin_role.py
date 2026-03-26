@@ -27,13 +27,13 @@ ADMIN_ROLE_NAME = "Admin"
 def _get_permission_codes_for_company(company_id: int) -> list[str]:
     """
     Return all permission codes from modules of features enabled for the company,
-    excluding the special \"superuser\" feature.
+    excluding the special \"core\" feature.
     """
     enabled_feature_ids = CompanyFeature.objects.filter(
         company_id=company_id,
         is_enabled=True,
     ).exclude(
-        feature__feature_code__iexact="superuser",
+        feature__feature_code__iexact="core",
     ).values_list("feature_id", flat=True)
 
     return list(
