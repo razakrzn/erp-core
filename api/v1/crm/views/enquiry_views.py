@@ -19,6 +19,7 @@ class EnquiryViewSet(BaseCRMViewSet):
     ]
     ordering_fields = ["enquiry_code", "project_name", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    permission_prefix = "crm.enquiries"
 
     def get_serializer_class(self):
         if self.action == "list":

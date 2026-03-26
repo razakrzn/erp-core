@@ -7,6 +7,8 @@ class BoqListSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source="enquiry.project_name", read_only=True)
     status = serializers.CharField(source="enquiry.status", read_only=True)
 
+    is_boq_items_empty = serializers.SerializerMethodField()
+
     class Meta:
         model = Boq
         fields = [
@@ -15,19 +17,26 @@ class BoqListSerializer(serializers.ModelSerializer):
             "project_name",
             "status",
             "created_at",
+            "is_approved",
+            "is_rejected",
+            "is_boq_items_empty",
         ]
+
+    def get_is_boq_items_empty(self, obj):
+        return not obj.items.exists()
 
 
 class BoqDetailSerializer(serializers.ModelSerializer):
     enquiry_id = serializers.PrimaryKeyRelatedField(
         source="enquiry",
         queryset=Boq._meta.get_field("enquiry").remote_field.model.objects.all(),
-        write_only=True,
+        write_only=True,    
         required=False,
         allow_null=True,
     )
     enquiry = serializers.SerializerMethodField()
     boq_items = serializers.SerializerMethodField()
+    is_boq_items_empty = serializers.SerializerMethodField()
 
     class Meta:
         model = Boq
@@ -43,6 +52,7 @@ class BoqDetailSerializer(serializers.ModelSerializer):
             "updated_by",
             "enquiry",
             "boq_items",
+            "is_boq_items_empty",
         ]
         read_only_fields = ["boq_number", "created_at", "updated_at", "created_by", "updated_by", "enquiry"]
 
@@ -100,6 +110,9 @@ class BoqDetailSerializer(serializers.ModelSerializer):
             }
             for item in obj.items.all().order_by("-created_at")
         ]
+
+    def get_is_boq_items_empty(self, obj):
+        return not obj.items.exists()
 
 
 class BoqItemListSerializer(serializers.ModelSerializer):

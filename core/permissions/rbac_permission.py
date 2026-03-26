@@ -34,10 +34,35 @@ class RBACPermission(BasePermission):
 
     def has_permission(self, request: "Request", view: Any) -> bool:
         permission_code = get_required_permission(request)
-
-        # If no specific permission is configured for this endpoint, allow access.
+        
+        # If no explicit rule in database, try to deduce it from the view's permission_prefix
         if not permission_code:
-            return True
+            prefix = getattr(view, "permission_prefix", None)
+            if prefix:
+                # Map DRF actions/HTTP methods to permission suffixes
+                action = getattr(view, "action", None)
+                method = request.method.upper()
+                
+                suffix = "view" # Default
+                if action == "create" or (not action and method == "POST"):
+                    suffix = "create"
+                elif action in ["update", "partial_update"] or (not action and method in ["PUT", "PATCH"]):
+                    suffix = "edit"
+                elif action == "destroy" or (not action and method == "DELETE"):
+                    suffix = "delete"
+                elif action in ["list", "retrieve"] or (not action and method == "GET"):
+                    suffix = "view"
+                
+                permission_code = f"{prefix}.{suffix}"
+
+        # If no specific permission is configured for this endpoint, deny access (Secure by Default).
+        if not permission_code:
+            # Superusers always have access even to unconfigured endpoints.
+            if getattr(request.user, "is_superuser", False):
+                return True
+            # For everyone else, deny access if not explicitly configured.
+            return False
+
 
         # Delegate to the RBAC engine (which handles caching & role logic).
         if not user_has_permission(request.user, permission_code):
@@ -46,3 +71,6 @@ class RBACPermission(BasePermission):
             )
 
         return True
+
+
+

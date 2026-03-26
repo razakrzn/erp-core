@@ -16,7 +16,6 @@ def user_has_permission(user: Any, permission_code: str) -> bool:
     if not getattr(user, "pk", None):
         return False
 
-    # Superusers bypass RBAC and have access to everything.
     if getattr(user, "is_superuser", False):
         return True
 
@@ -24,4 +23,6 @@ def user_has_permission(user: Any, permission_code: str) -> bool:
         role__assigned_users__user=user,
         permission__permission_code=permission_code,
     ).exists()
+
+
 

@@ -12,3 +12,5 @@ class CustomerViewSet(BaseCRMViewSet):
     search_fields = ["customer_name", "email_address", "company_name", "phone_number"]
     ordering_fields = ["customer_name", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    permission_prefix = "crm.customers"
+

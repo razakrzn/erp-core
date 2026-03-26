@@ -6,7 +6,8 @@ from rest_framework import serializers, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 
-from core.permissions.rbac_permission import IsSuperuser
+from core.permissions.rbac_permission import IsSuperuser, RBACPermission
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -36,7 +37,8 @@ class FeatureListAPIView(APIView):
     Company is taken from the authenticated user's company (request.user.company_id).
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RBACPermission]
+
     serializer_class = FeatureSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -123,7 +125,8 @@ class CompanyFeatureListAPIView(APIView):
     Company is taken from the URL: GET /company/<company_id>/features/
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RBACPermission]
+
     serializer_class = FeatureSerializer
 
     def get(self, request: Request, company_id: int, *args: Any, **kwargs: Any) -> Response:
@@ -202,7 +205,8 @@ class SidebarAPIView(APIView):
     Superusers without a company get all features in the sidebar (no filtering).
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RBACPermission]
+
     serializer_class = SidebarFeatureSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -227,7 +231,8 @@ class EnableFeatureAPIView(APIView):
     Enable one or more features for a company by feature ID.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RBACPermission]
+
     serializer_class = FeatureWriteSerializer
 
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -282,7 +287,8 @@ class DisableFeatureAPIView(APIView):
     Disable one or more features for a company by feature ID.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RBACPermission]
+
     serializer_class = FeatureWriteSerializer
 
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -338,7 +344,8 @@ class FeatureReadOnlyListAPIView(APIView):
     GET only. Authenticated users.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RBACPermission]
+
     serializer_class = FeatureReadOnlySerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -359,7 +366,8 @@ class FeatureCreateAPIView(APIView):
     List all features (GET) or create a new Feature (POST). Superuser only.
     """
 
-    permission_classes = [IsAuthenticated, IsSuperuser]
+    permission_classes = [IsAuthenticated, IsSuperuser, RBACPermission]
+
     serializer_class = FeatureWriteSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -397,7 +405,8 @@ class FeatureDetailAPIView(APIView):
     Retrieve, update (PUT/PATCH), or delete a Feature by id. Superuser only.
     """
 
-    permission_classes = [IsAuthenticated, IsSuperuser]
+    permission_classes = [IsAuthenticated, IsSuperuser, RBACPermission]
+
     serializer_class = FeatureWriteSerializer
 
     def _get_feature(self, pk: int) -> Feature | None:
@@ -482,7 +491,8 @@ class ModuleReadOnlyListAPIView(APIView):
     GET only. Authenticated users.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RBACPermission]
+
     serializer_class = ModuleReadOnlySerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -500,7 +510,8 @@ class ModuleListCreateAPIView(APIView):
     List all modules (GET) or create a module (POST). Superuser only.
     """
 
-    permission_classes = [IsAuthenticated, IsSuperuser]
+    permission_classes = [IsAuthenticated, IsSuperuser, RBACPermission]
+
     serializer_class = ModuleWriteSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -621,7 +632,8 @@ class PermissionListCreateAPIView(APIView):
     List all permissions (GET) or create a permission (POST).
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RBACPermission]
+
     serializer_class = PermissionWriteSerializer
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -658,7 +670,8 @@ class PermissionDetailAPIView(APIView):
     Retrieve, update (PUT/PATCH), or delete a Permission by id.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RBACPermission]
+
     serializer_class = PermissionWriteSerializer
 
     def _get_permission(self, pk: int) -> Permission | None:

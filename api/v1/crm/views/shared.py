@@ -1,11 +1,14 @@
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
+from core.permissions.rbac_permission import RBACPermission
+
 
 from core.utils.responses import APIResponse
 
 
 class BaseCRMViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, RBACPermission]
+
     ordering = ["-created_at"]
 
     def _model_has_field(self, field_name):

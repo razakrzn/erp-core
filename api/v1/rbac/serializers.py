@@ -102,7 +102,7 @@ class RoleDetailSerializer(serializers.ModelSerializer):
 
     def get_permissions(self, obj: Role) -> list[dict]:
         return [
-            {"id": rp.permission_id, "permission_name": rp.permission.permission_name}
+            {"id": rp.permission_id, "permission_name": rp.permission.permission_name, "permission_code": rp.permission.permission_code}
             for rp in obj.role_permissions.select_related("permission").all()
         ]
 
@@ -113,9 +113,13 @@ class RoleDetailSerializer(serializers.ModelSerializer):
 class RolePermissionSerializer(serializers.ModelSerializer):
     """Serializer for RolePermission (role–permission link)."""
 
+    role_name = serializers.ReadOnlyField(source="role.role_name")
+    permission_name = serializers.ReadOnlyField(source="permission.permission_name")
+    permission_code = serializers.ReadOnlyField(source="permission.permission_code")
+
     class Meta:
         model = RolePermission
-        fields = ["id", "role", "permission"]
+        fields = ["id", "role", "role_name", "permission", "permission_name", "permission_code"]
 
 
 class RolePermissionWriteSerializer(serializers.ModelSerializer):
