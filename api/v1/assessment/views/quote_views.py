@@ -24,6 +24,8 @@ class QuoteViewSet(BaseAssessmentViewSet):
     search_fields = ["quote_number", "boq__boq_number", "status"]
     ordering_fields = ["quote_number", "status", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    permission_prefix = "estimation.quotations"
+
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -37,6 +39,8 @@ class QuoteItemViewSet(BaseAssessmentViewSet):
     search_fields = ["name", "category", "quote__quote_number", "boq_item__item_code"]
     ordering_fields = ["name", "category", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    permission_prefix = "estimation.quotations"
+
 
     def create(self, request, *args, **kwargs):
         payload = request.data
@@ -122,6 +126,8 @@ class FinishViewSet(BaseAssessmentViewSet):
     search_fields = ["finish_name", "finish_type", "material", "quote_item__name", "quote_item__quote__quote_number"]
     ordering_fields = ["finish_name", "finish_type", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    permission_prefix = "estimation.quotations"
+
 
 
 class TermViewSet(BaseAssessmentViewSet):
@@ -130,3 +136,5 @@ class TermViewSet(BaseAssessmentViewSet):
     search_fields = ["title", "category", "quote__quote_number"]
     ordering_fields = ["title", "category", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    permission_prefix = "estimation.quotations"
+

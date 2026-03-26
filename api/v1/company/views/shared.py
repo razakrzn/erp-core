@@ -1,30 +1,34 @@
-from rest_framework import viewsets, filters, status
+from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
+from core.permissions.rbac_permission import RBACPermission
 
-from apps.company.models import Company
+
 from core.utils.responses import APIResponse
 
-from .permissions import IsCompanyAdminOrReadOnly
-from .serializers import CompanySerializer
 
+class BaseCompanyViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, RBACPermission]
 
-class CompanyViewSet(viewsets.ModelViewSet):
-    """
-    API v1 CRUD viewset for Company.
-
-    Features:
-    - List / retrieve / create / update / delete
-    - Defaults to authenticated access with read-only for non-admins
-    - Basic search on name and code
-    """
-
-    queryset = Company.objects.all()
-    serializer_class = CompanySerializer
-    # permission_classes = [IsAuthenticated & IsCompanyAdminOrReadOnly]
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["name", "code"]
-    ordering_fields = ["name", "code", "created_at"]
     ordering = ["-created_at"]
+
+    def _model_has_field(self, field_name):
+        return field_name in {field.name for field in self.get_queryset().model._meta.fields}
+
+    def perform_create(self, serializer):
+        user = self.request.user if self.request.user and self.request.user.is_authenticated else None
+        save_kwargs = {}
+        if user and self._model_has_field("created_by"):
+            save_kwargs["created_by"] = user
+        if user and self._model_has_field("updated_by"):
+            save_kwargs["updated_by"] = user
+        serializer.save(**save_kwargs)
+
+    def perform_update(self, serializer):
+        user = self.request.user if self.request.user and self.request.user.is_authenticated else None
+        save_kwargs = {}
+        if user and self._model_has_field("updated_by"):
+            save_kwargs["updated_by"] = user
+        serializer.save(**save_kwargs)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -36,39 +40,30 @@ class CompanyViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return APIResponse.success(
             data=serializer.data,
-            message="Companies retrieved successfully.",
+            message=f"{self.queryset.model._meta.verbose_name_plural.title()} retrieved successfully.",
             status_code=status.HTTP_200_OK,
         )
 
     def retrieve(self, request, *args, **kwargs):
-        """
-        Retrieve a single company with standardized API response format.
-        """
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return APIResponse.success(
             data=serializer.data,
-            message="Company retrieved successfully.",
+            message=f"{self.queryset.model._meta.verbose_name.title()} retrieved successfully.",
             status_code=status.HTTP_200_OK,
         )
 
     def create(self, request, *args, **kwargs):
-        """
-        Create a company with standardized API response format.
-        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return APIResponse.success(
             data=serializer.data,
-            message="Company created successfully.",
+            message=f"{self.queryset.model._meta.verbose_name.title()} created successfully.",
             status_code=status.HTTP_201_CREATED,
         )
 
     def update(self, request, *args, **kwargs):
-        """
-        Update a company (full or partial) with standardized API response format.
-        """
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -76,18 +71,15 @@ class CompanyViewSet(viewsets.ModelViewSet):
         self.perform_update(serializer)
         return APIResponse.success(
             data=serializer.data,
-            message="Company updated successfully.",
+            message=f"{self.queryset.model._meta.verbose_name.title()} updated successfully.",
             status_code=status.HTTP_200_OK,
         )
 
     def destroy(self, request, *args, **kwargs):
-        """
-        Delete a company with standardized API response format.
-        """
         instance = self.get_object()
         self.perform_destroy(instance)
         return APIResponse.success(
             data=None,
-            message="Company deleted successfully.",
+            message=f"{self.queryset.model._meta.verbose_name.title()} deleted successfully.",
             status_code=status.HTTP_200_OK,
         )

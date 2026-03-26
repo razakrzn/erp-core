@@ -1,5 +1,5 @@
 from django_filters import rest_framework as django_filters
-from rest_framework import filters, status, viewsets
+from rest_framework import filters, status
 
 from apps.hrm.models.department import Department
 from apps.hrm.models.designation import Designation
@@ -7,9 +7,10 @@ from core.utils.responses import APIResponse
 
 from ..serializers.department_serializers import DepartmentDetailsSerializer, DepartmentSerializer
 from ..serializers.designation_serializers import DesignationSerializer
+from .shared import BaseHRMViewSet
 
 
-class DepartmentViewSet(viewsets.ModelViewSet):
+class DepartmentViewSet(BaseHRMViewSet):
     """
     API v1 CRUD viewset for Department.
 
@@ -25,34 +26,12 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     search_fields = ["name", "slug"]
     ordering_fields = ["name", "created_at"]
     ordering = ["-created_at"]
+    permission_prefix = "hr.department"
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return DepartmentDetailsSerializer
         return DepartmentSerializer
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Departments retrieved successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Department retrieved successfully.",
-            status_code=status.HTTP_200_OK,
-        )
 
     def create(self, request, *args, **kwargs):
         name = request.data.get("name")
@@ -62,35 +41,7 @@ class DepartmentViewSet(viewsets.ModelViewSet):
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
 
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Department created successfully.",
-            status_code=status.HTTP_201_CREATED,
-        )
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop("partial", False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Department updated successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return APIResponse.success(
-            data=None,
-            message="Department deleted successfully.",
-            status_code=status.HTTP_200_OK,
-        )
+        return super().create(request, *args, **kwargs)
 
 
 class DesignationFilter(django_filters.FilterSet):
@@ -101,7 +52,7 @@ class DesignationFilter(django_filters.FilterSet):
         fields = ["department_id"]
 
 
-class DesignationViewSet(viewsets.ModelViewSet):
+class DesignationViewSet(BaseHRMViewSet):
     """
     API v1 CRUD viewset for Designation.
 
@@ -119,29 +70,7 @@ class DesignationViewSet(viewsets.ModelViewSet):
     search_fields = ["name", "slug"]
     ordering_fields = ["name", "created_at"]
     ordering = ["-created_at"]
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Designations retrieved successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Designation retrieved successfully.",
-            status_code=status.HTTP_200_OK,
-        )
+    permission_prefix = "hr.designation"
 
     def create(self, request, *args, **kwargs):
         name = request.data.get("name")
@@ -151,32 +80,4 @@ class DesignationViewSet(viewsets.ModelViewSet):
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
 
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Designation created successfully.",
-            status_code=status.HTTP_201_CREATED,
-        )
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop("partial", False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Designation updated successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return APIResponse.success(
-            data=None,
-            message="Designation deleted successfully.",
-            status_code=status.HTTP_200_OK,
-        )
+        return super().create(request, *args, **kwargs)

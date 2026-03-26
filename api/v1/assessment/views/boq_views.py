@@ -23,6 +23,7 @@ class BoqViewSet(BaseAssessmentViewSet):
     search_fields = ["boq_number", "enquiry__project_name"]
     ordering_fields = ["boq_number", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    permission_prefix = "estimation.boq"
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -74,6 +75,8 @@ class BoqItemViewSet(BaseAssessmentViewSet):
     search_fields = ["item_code", "name", "boq__boq_number"]
     ordering_fields = ["item_code", "name", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    permission_prefix = "estimation.boq"
+
 
     def get_serializer_class(self):
         if self.action == "list":

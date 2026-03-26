@@ -205,7 +205,7 @@ class SidebarAPIView(APIView):
     Superusers without a company get all features in the sidebar (no filtering).
     """
 
-    permission_classes = [IsAuthenticated, RBACPermission]
+    permission_classes = [IsAuthenticated]
 
     serializer_class = SidebarFeatureSerializer
 

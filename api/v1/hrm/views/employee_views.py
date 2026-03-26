@@ -1,5 +1,6 @@
-from rest_framework import filters, status, viewsets
-
+from rest_framework import filters, status
+from rest_framework.permissions import IsAuthenticated
+from core.permissions.rbac_permission import RBACPermission
 from apps.hrm.models.employee import Employee
 from core.utils.responses import APIResponse
 
@@ -8,6 +9,7 @@ from ..serializers.employee_serializers import (
     EmployeeListSerializer,
     EmployeeSerializer,
 )
+from .shared import BaseHRMViewSet
 
 
 class CompanyScopedEmployeeQuerysetMixin:
@@ -22,7 +24,7 @@ class CompanyScopedEmployeeQuerysetMixin:
         return Employee.objects.none()
 
 
-class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, viewsets.ModelViewSet):
+class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMViewSet):
     """
     API v1 CRUD viewset for Employee.
 
@@ -37,6 +39,7 @@ class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, viewsets.ModelViewSet)
     search_fields = ["first_name", "last_name", "email", "user__username", "user__first_name", "user__last_name"]
     ordering_fields = ["created_at", "first_name", "last_name"]
     ordering = ["-created_at"]
+    permission_prefix = "hr.employees"
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -46,62 +49,8 @@ class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, viewsets.ModelViewSet)
     def get_queryset(self):
         return self.get_company_scoped_employee_queryset().select_related('user', 'department', 'designation')
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(queryset, many=True)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Employees retrieved successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Employee details retrieved successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Employee created successfully.",
-            status_code=status.HTTP_201_CREATED,
-        )
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop("partial", False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Employee updated successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return APIResponse.success(
-            data=None,
-            message="Employee deleted successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-
-class EmployeeLightweightViewSet(CompanyScopedEmployeeQuerysetMixin, viewsets.ReadOnlyModelViewSet):
+class EmployeeLightweightViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMViewSet):
     """
     Lightweight employee API (id + full_name).
     Useful for dropdowns/autocomplete.
@@ -113,6 +62,7 @@ class EmployeeLightweightViewSet(CompanyScopedEmployeeQuerysetMixin, viewsets.Re
     search_fields = ["first_name", "last_name", "user__first_name", "user__last_name", "email", "user__username"]
     ordering_fields = ["created_at", "first_name", "last_name"]
     ordering = ["first_name", "last_name", "-created_at"]
+    permission_prefix = "hr.employees"
 
     def get_queryset(self):
         return self.get_company_scoped_employee_queryset().select_related('user')
@@ -142,14 +92,5 @@ class EmployeeLightweightViewSet(CompanyScopedEmployeeQuerysetMixin, viewsets.Re
         return APIResponse.success(
             data=serializer.data,
             message="Employees retrieved successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Employee details retrieved successfully.",
             status_code=status.HTTP_200_OK,
         )

@@ -1,20 +1,22 @@
 from django.utils import timezone
-from rest_framework import status, viewsets
+from rest_framework import status
 from rest_framework.decorators import action
 
 from apps.hrm.models.attendance import Attendance
 from core.utils.responses import APIResponse
 
 from ..serializers.attendance_serializers import AttendanceSerializer
+from .shared import BaseHRMViewSet
 
 
-class AttendanceViewSet(viewsets.GenericViewSet):
+class AttendanceViewSet(BaseHRMViewSet):
     """
     ViewSet for managing Attendance.
     Supports check-in, check-out, listing history, and report.
     """
 
     serializer_class = AttendanceSerializer
+    permission_prefix = "hr.attendance"
 
     def get_queryset(self):
         user = self.request.user
@@ -26,15 +28,6 @@ class AttendanceViewSet(viewsets.GenericViewSet):
             return Attendance.objects.select_related('employee', 'employee__user').filter(employee=employee)
 
         return Attendance.objects.none()
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Attendance history retrieved successfully.",
-            status_code=status.HTTP_200_OK,
-        )
 
     @action(detail=False, methods=['post'], url_path='check-in')
     def check_in(self, request):
