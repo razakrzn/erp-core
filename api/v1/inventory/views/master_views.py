@@ -1,14 +1,7 @@
-from django.db.models import Q
-from rest_framework import filters, status, viewsets
-from rest_framework.decorators import action
-
-from apps.inventory.models import Brand, Category, Finish, Grade, Material, Product, Size, Thickness
-from core.utils.responses import APIResponse
-
+from apps.inventory.models import Brand, Category, Finish, Grade, Material, Size, Thickness
 from ..serializers import (
     BrandSerializer,
     CategorySerializer,
-    DropdownOptionSerializer,
     DropdownOptionWithValueSerializer,
     FinishSerializer,
     GradeSerializer,
@@ -16,141 +9,7 @@ from ..serializers import (
     SizeSerializer,
     ThicknessSerializer,
 )
-
-
-class BaseInventoryMasterViewSet(viewsets.ModelViewSet):
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    ordering = ['-created_at']
-    dropdown_serializer_class = DropdownOptionSerializer
-    dropdown_queryset_fields = ('id', 'name')
-    dropdown_search_fields = ('name', 'code')
-    # Set to the reverse relation name from this model to Product (e.g. 'product', 'product_set')
-    # to enable dropdown filtering by product_name, grade, thickness, size.
-    dropdown_product_relation = None
-
-    @staticmethod
-    def _to_bool(value):
-        if value is None:
-            return False
-        return value.lower() in {'1', 'true', 'yes', 'on'}
-
-    def _get_product_filter_kwargs(self):
-        """Build Product filter kwargs from query params for dropdown filtering."""
-        params = self.request.query_params
-        product_name = (params.get('product_name') or '').strip()
-        grade = (params.get('grade') or '').strip()
-        thickness = (params.get('thickness') or '').strip()
-        size = (params.get('size') or '').strip()
-        kwargs = {}
-        if product_name:
-            kwargs['name__iexact'] = product_name
-        if grade:
-            kwargs['grade__name__iexact'] = grade
-        if thickness:
-            kwargs['thickness__name__icontains'] = thickness
-        if size:
-            kwargs['size__name__icontains'] = size
-        return kwargs
-
-    def get_dropdown_queryset(self):
-        queryset = self.get_queryset().order_by('name')
-
-        include_inactive = self._to_bool(self.request.query_params.get('include_inactive'))
-        if not include_inactive:
-            queryset = queryset.filter(is_active=True)
-
-        search_text = (self.request.query_params.get('q') or '').strip()
-        if search_text:
-            query = Q()
-            for field in self.dropdown_search_fields:
-                query |= Q(**{f'{field}__icontains': search_text})
-            queryset = queryset.filter(query)
-
-        # Apply product-based filters (product_name, grade, thickness, size) when supported
-        relation = getattr(self, 'dropdown_product_relation', None)
-        if relation:
-            filter_kwargs = self._get_product_filter_kwargs()
-            if filter_kwargs:
-                prefix_kwargs = {f'{relation}__{k}': v for k, v in filter_kwargs.items()}
-                queryset = queryset.filter(**prefix_kwargs).distinct()
-
-        return queryset.only(*self.dropdown_queryset_fields)
-
-    @action(detail=False, methods=['get'], url_path='dropdown')
-    def dropdown(self, request, *args, **kwargs):
-        queryset = self.get_dropdown_queryset()
-        limit_param = request.query_params.get('limit')
-
-        if limit_param:
-            try:
-                limit = max(1, int(limit_param))
-                queryset = queryset[:limit]
-            except ValueError:
-                return APIResponse.error(
-                    message='Invalid limit parameter. Please provide a positive integer.',
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                )
-
-        serializer = self.dropdown_serializer_class(queryset, many=True)
-        return APIResponse.success(
-            data=serializer.data,
-            message=f'{self.queryset.model._meta.verbose_name_plural.title()} dropdown retrieved successfully.',
-            status_code=status.HTTP_200_OK,
-        )
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return APIResponse.success(
-            data=serializer.data,
-            message=f'{self.queryset.model._meta.verbose_name_plural.title()} retrieved successfully.',
-            status_code=status.HTTP_200_OK,
-        )
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return APIResponse.success(
-            data=serializer.data,
-            message=f'{self.queryset.model._meta.verbose_name.title()} retrieved successfully.',
-            status_code=status.HTTP_200_OK,
-        )
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return APIResponse.success(
-            data=serializer.data,
-            message=f'{self.queryset.model._meta.verbose_name.title()} created successfully.',
-            status_code=status.HTTP_201_CREATED,
-        )
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return APIResponse.success(
-            data=serializer.data,
-            message=f'{self.queryset.model._meta.verbose_name.title()} updated successfully.',
-            status_code=status.HTTP_200_OK,
-        )
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return APIResponse.success(
-            data=None,
-            message=f'{self.queryset.model._meta.verbose_name.title()} deleted successfully.',
-            status_code=status.HTTP_200_OK,
-        )
+from .shared import BaseInventoryMasterViewSet
 
 
 class CategoryViewSet(BaseInventoryMasterViewSet):
@@ -158,6 +17,7 @@ class CategoryViewSet(BaseInventoryMasterViewSet):
     serializer_class = CategorySerializer
     search_fields = ['name', 'code', 'slug', 'description']
     ordering_fields = ['name', 'created_at', 'updated_at']
+    permission_prefix = "procurement.material_settings"
 
 
 class BrandViewSet(BaseInventoryMasterViewSet):
@@ -165,6 +25,7 @@ class BrandViewSet(BaseInventoryMasterViewSet):
     serializer_class = BrandSerializer
     search_fields = ['name', 'code', 'slug']
     ordering_fields = ['name', 'created_at', 'updated_at']
+    permission_prefix = "procurement.material_settings"
 
 
 class MaterialViewSet(BaseInventoryMasterViewSet):
@@ -172,6 +33,7 @@ class MaterialViewSet(BaseInventoryMasterViewSet):
     serializer_class = MaterialSerializer
     search_fields = ['name', 'code', 'slug', 'description']
     ordering_fields = ['name', 'created_at', 'updated_at']
+    permission_prefix = "procurement.material_settings"
 
 
 class SizeViewSet(BaseInventoryMasterViewSet):
@@ -183,6 +45,7 @@ class SizeViewSet(BaseInventoryMasterViewSet):
     search_fields = ['name', 'value', 'code', 'slug']
     ordering_fields = ['name', 'created_at', 'updated_at']
     dropdown_product_relation = 'product_set'
+    permission_prefix = "procurement.material_settings"
 
 
 class ThicknessViewSet(BaseInventoryMasterViewSet):
@@ -194,6 +57,7 @@ class ThicknessViewSet(BaseInventoryMasterViewSet):
     search_fields = ['name', 'code', 'slug']
     ordering_fields = ['name', 'created_at', 'updated_at']
     dropdown_product_relation = 'product_set'
+    permission_prefix = "procurement.material_settings"
 
 
 class GradeViewSet(BaseInventoryMasterViewSet):
@@ -202,6 +66,7 @@ class GradeViewSet(BaseInventoryMasterViewSet):
     search_fields = ['name', 'code', 'slug']
     ordering_fields = ['name', 'created_at', 'updated_at']
     dropdown_product_relation = 'product'
+    permission_prefix = "procurement.material_settings"
 
 
 class FinishViewSet(BaseInventoryMasterViewSet):
@@ -210,3 +75,4 @@ class FinishViewSet(BaseInventoryMasterViewSet):
     search_fields = ['name', 'code', 'slug']
     ordering_fields = ['name', 'created_at', 'updated_at']
     dropdown_product_relation = 'product_set'
+    permission_prefix = "procurement.material_settings"

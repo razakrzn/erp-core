@@ -1,12 +1,13 @@
 from django_filters import rest_framework as django_filters
 from django.db.models import Q
-from rest_framework import filters, status, viewsets
+from rest_framework import filters, status
 from rest_framework.decorators import action
 
 from apps.inventory.models import Product
 from core.utils.responses import APIResponse
 
 from ..serializers import ProductDropdownSerializer, ProductListSerializer, ProductSerializer
+from .shared import BaseInventoryViewSet
 
 
 class ProductFilter(django_filters.FilterSet):
@@ -35,7 +36,7 @@ class ProductFilter(django_filters.FilterSet):
         ]
 
 
-class ProductViewSet(viewsets.ModelViewSet):
+class ProductViewSet(BaseInventoryViewSet):
     queryset = Product.objects.select_related(
         'category', 'brand', 'material', 'size', 'thickness', 'grade', 'finish'
     )
@@ -45,6 +46,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'slug', 'sku']
     ordering_fields = ['name', 'slug', 'price', 'created_at', 'updated_at']
     ordering = ['-created_at']
+    permission_prefix = "procurement.materials"
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -86,59 +88,5 @@ class ProductViewSet(viewsets.ModelViewSet):
         return APIResponse.success(
             data=serializer.data,
             message='Products dropdown retrieved successfully.',
-            status_code=status.HTTP_200_OK,
-        )
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return APIResponse.success(
-            data=serializer.data,
-            message='Products retrieved successfully.',
-            status_code=status.HTTP_200_OK,
-        )
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return APIResponse.success(
-            data=serializer.data,
-            message='Product retrieved successfully.',
-            status_code=status.HTTP_200_OK,
-        )
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return APIResponse.success(
-            data=serializer.data,
-            message='Product created successfully.',
-            status_code=status.HTTP_201_CREATED,
-        )
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return APIResponse.success(
-            data=serializer.data,
-            message='Product updated successfully.',
-            status_code=status.HTTP_200_OK,
-        )
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return APIResponse.success(
-            data=None,
-            message='Product deleted successfully.',
             status_code=status.HTTP_200_OK,
         )

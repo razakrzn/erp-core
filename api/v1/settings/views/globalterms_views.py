@@ -17,6 +17,7 @@ class GlobalTermsViewSet(BaseSettingsViewSet):
     search_fields = ["title", "category", "content"]
     ordering_fields = ["title", "category", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    permission_prefix = "settings.global_terms"
 
     def get_serializer_class(self):
         if self.action == "list":

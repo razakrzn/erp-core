@@ -1,4 +1,4 @@
-from rest_framework import filters, status, viewsets
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
 
@@ -7,16 +7,17 @@ from apps.production.tasks import process_cutting_optimization_job_sync
 from core.utils.responses import APIResponse
 
 from ..serializers import CuttingOptimizationJobListSerializer, CuttingOptimizationJobSerializer
+from .shared import BaseProductionViewSet
 
 
-class CuttingOptimizationJobViewSet(viewsets.ModelViewSet):
+class CuttingOptimizationJobViewSet(BaseProductionViewSet):
     queryset = CuttingOptimizationJob.objects.all()
     serializer_class = CuttingOptimizationJobSerializer
     parser_classes = [MultiPartParser, FormParser]
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["name", "slug", "status"]
     ordering_fields = ["created_at", "updated_at", "name", "status"]
     ordering = ["-created_at"]
+    permission_prefix = "production.cutting_optimization"
 
     @staticmethod
     def _is_dxf_or_dwg(file_name: str) -> bool:

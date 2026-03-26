@@ -2,44 +2,35 @@ from __future__ import annotations
 
 from typing import Any
 
-from rest_framework import serializers, status
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
-
-from core.permissions.rbac_permission import IsSuperuser, RBACPermission
-
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.company.models import Company, CompanyFeature
+from apps.navigation.models import Feature
+from apps.rbac.services.permission_engine import user_has_permission
+from core.permissions.rbac_permission import IsSuperuser, RBACPermission
 from core.utils.responses import APIResponse
 
-from api.v1.navigation.serializers import (
+from ..serializers import (
     FeatureReadOnlySerializer,
     FeatureSerializer,
     FeatureWriteSerializer,
-    ModuleReadOnlySerializer,
     ModuleSerializer,
-    ModuleWriteSerializer,
     PermissionSerializer,
-    PermissionWriteSerializer,
-    SidebarFeatureSerializer,
 )
-from apps.company.models import Company, CompanyFeature
-from apps.navigation.models import Feature, Module, Permission
-from apps.navigation.services.sidebar_builder import build_sidebar
-from apps.rbac.services.permission_engine import user_has_permission
 
 
 class FeatureListAPIView(APIView):
     """
     List features (with modules and permissions) enabled for the current user's company.
-
-    Company is taken from the authenticated user's company (request.user.company_id).
     """
 
     permission_classes = [IsAuthenticated, RBACPermission]
-
     serializer_class = FeatureSerializer
+    permission_prefix = "core.features"
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         company_id = getattr(request.user, "company_id", None) if request.user.is_authenticated else None
@@ -73,8 +64,6 @@ class FeatureListAPIView(APIView):
         is_superuser = getattr(user, "is_superuser", False)
 
         if is_superuser:
-            # Superuser sees all enabled features and modules, including modules
-            # with no permissions (empty permissions array).
             serializer = FeatureSerializer(features, many=True)
             return APIResponse.success(
                 data={"company_id": company_id, "features": serializer.data},
@@ -84,7 +73,6 @@ class FeatureListAPIView(APIView):
 
         filtered_features: list[dict[str, Any]] = []
         for feature in features:
-            # Superuser feature is visible only to superusers.
             if feature.feature_code.lower() == "superuser":
                 continue
             allowed_modules: list[dict[str, Any]] = []
@@ -121,13 +109,11 @@ class FeatureListAPIView(APIView):
 class CompanyFeatureListAPIView(APIView):
     """
     List features (with modules and permissions) enabled for a company.
-
-    Company is taken from the URL: GET /company/<company_id>/features/
     """
 
     permission_classes = [IsAuthenticated, RBACPermission]
-
     serializer_class = FeatureSerializer
+    permission_prefix = "core.features"
 
     def get(self, request: Request, company_id: int, *args: Any, **kwargs: Any) -> Response:
         enabled_feature_ids = list(
@@ -163,7 +149,6 @@ class CompanyFeatureListAPIView(APIView):
 
         filtered_features: list[dict[str, Any]] = []
         for feature in features:
-            # Superuser feature is visible only to superusers.
             if feature.feature_code.lower() == "superuser":
                 continue
             allowed_modules: list[dict[str, Any]] = []
@@ -197,43 +182,14 @@ class CompanyFeatureListAPIView(APIView):
         )
 
 
-class SidebarAPIView(APIView):
-    """
-    Return the dynamic sidebar for the current user and their company.
-
-    Uses RBAC to include only modules the user has permission to access.
-    Superusers without a company get all features in the sidebar (no filtering).
-    """
-
-    permission_classes = [IsAuthenticated]
-
-    serializer_class = SidebarFeatureSerializer
-
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        company = getattr(request.user, "company", None)
-        if company is None and not getattr(request.user, "is_superuser", False):
-            return APIResponse.error(
-                message="User must be associated with a company.",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-
-        sidebar = build_sidebar(request.user, company)
-        serializer = SidebarFeatureSerializer(sidebar, many=True)
-        return APIResponse.success(
-            data={"sidebar": serializer.data},
-            message="Success",
-            status_code=status.HTTP_200_OK,
-        )
-
-
 class EnableFeatureAPIView(APIView):
     """
     Enable one or more features for a company by feature ID.
     """
 
     permission_classes = [IsAuthenticated, RBACPermission]
-
     serializer_class = FeatureWriteSerializer
+    permission_prefix = "core.features"
 
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         company_id = getattr(request, "company_id", None) or kwargs.get("company_id")
@@ -288,8 +244,8 @@ class DisableFeatureAPIView(APIView):
     """
 
     permission_classes = [IsAuthenticated, RBACPermission]
-
     serializer_class = FeatureWriteSerializer
+    permission_prefix = "core.features"
 
     def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         company_id = getattr(request, "company_id", None) or kwargs.get("company_id")
@@ -340,17 +296,15 @@ class DisableFeatureAPIView(APIView):
 
 class FeatureReadOnlyListAPIView(APIView):
     """
-    Read-only list of all features: id, feature_code, feature_name only.
-    GET only. Authenticated users.
+    Read-only list of all features.
     """
 
     permission_classes = [IsAuthenticated, RBACPermission]
-
     serializer_class = FeatureReadOnlySerializer
+    permission_prefix = "core.features"
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         features = Feature.objects.order_by("order", "feature_name")
-        # Superuser feature is visible only to superusers.
         if not getattr(request.user, "is_superuser", False):
             features = features.exclude(feature_code__iexact="superuser")
         serializer = FeatureReadOnlySerializer(features, many=True)
@@ -363,12 +317,12 @@ class FeatureReadOnlyListAPIView(APIView):
 
 class FeatureCreateAPIView(APIView):
     """
-    List all features (GET) or create a new Feature (POST). Superuser only.
+    List all features or create a new Feature. Superuser only.
     """
 
     permission_classes = [IsAuthenticated, IsSuperuser, RBACPermission]
-
     serializer_class = FeatureWriteSerializer
+    permission_prefix = "core.features"
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         features = (
@@ -402,12 +356,12 @@ class FeatureCreateAPIView(APIView):
 
 class FeatureDetailAPIView(APIView):
     """
-    Retrieve, update (PUT/PATCH), or delete a Feature by id. Superuser only.
+    Retrieve, update, or delete a Feature by id. Superuser only.
     """
 
     permission_classes = [IsAuthenticated, IsSuperuser, RBACPermission]
-
     serializer_class = FeatureWriteSerializer
+    permission_prefix = "core.features"
 
     def _get_feature(self, pk: int) -> Feature | None:
         return Feature.objects.filter(pk=pk).prefetch_related("modules__permissions").first()
@@ -481,270 +435,5 @@ class FeatureDetailAPIView(APIView):
         return APIResponse.success(
             data=None,
             message="Feature deleted successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-
-class ModuleReadOnlyListAPIView(APIView):
-    """
-    Read-only list of all modules: id, module_code, module_name only.
-    GET only. Authenticated users.
-    """
-
-    permission_classes = [IsAuthenticated, RBACPermission]
-
-    serializer_class = ModuleReadOnlySerializer
-
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        modules = Module.objects.order_by("feature", "order", "module_name")
-        serializer = ModuleReadOnlySerializer(modules, many=True)
-        return APIResponse.success(
-            data={"modules": serializer.data},
-            message="Success",
-            status_code=status.HTTP_200_OK,
-        )
-
-
-class ModuleListCreateAPIView(APIView):
-    """
-    List all modules (GET) or create a module (POST). Superuser only.
-    """
-
-    permission_classes = [IsAuthenticated, IsSuperuser, RBACPermission]
-
-    serializer_class = ModuleWriteSerializer
-
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        queryset = Module.objects.prefetch_related("permissions").order_by("feature", "order", "module_name")
-        feature_id = request.query_params.get("feature_id")
-        if feature_id is not None:
-            queryset = queryset.filter(feature_id=feature_id)
-        serializer = ModuleSerializer(queryset, many=True)
-        return APIResponse.success(
-            data={"modules": serializer.data},
-            message="Success",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        serializer = ModuleWriteSerializer(data=request.data)
-        if not serializer.is_valid():
-            return APIResponse.error(
-                message="Validation failed.",
-                errors=serializer.errors,
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-        instance = serializer.save()
-        read_serializer = ModuleSerializer(instance)
-        return APIResponse.success(
-            data=read_serializer.data,
-            message="Module created successfully.",
-            status_code=status.HTTP_201_CREATED,
-        )
-
-
-class ModuleDetailAPIView(APIView):
-    """
-    Retrieve, update (PUT/PATCH), or delete a Module by id. Superuser only.
-    """
-
-    permission_classes = [IsAuthenticated, IsSuperuser]
-    serializer_class = ModuleWriteSerializer
-
-    def _get_module(self, pk: int) -> Module | None:
-        return Module.objects.filter(pk=pk).prefetch_related("permissions").first()
-
-    def get(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
-        module = self._get_module(pk)
-        if module is None:
-            return APIResponse.error(
-                message="Module not found.",
-                status_code=status.HTTP_404_NOT_FOUND,
-            )
-        serializer = ModuleSerializer(module)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Success",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def put(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
-        module = self._get_module(pk)
-        if module is None:
-            return APIResponse.error(
-                message="Module not found.",
-                status_code=status.HTTP_404_NOT_FOUND,
-            )
-        serializer = ModuleWriteSerializer(module, data=request.data, partial=False)
-        if not serializer.is_valid():
-            return APIResponse.error(
-                message="Validation failed.",
-                errors=serializer.errors,
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-        instance = serializer.save()
-        read_serializer = ModuleSerializer(instance)
-        return APIResponse.success(
-            data=read_serializer.data,
-            message="Module updated successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def patch(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
-        module = self._get_module(pk)
-        if module is None:
-            return APIResponse.error(
-                message="Module not found.",
-                status_code=status.HTTP_404_NOT_FOUND,
-            )
-        serializer = ModuleWriteSerializer(module, data=request.data, partial=True)
-        if not serializer.is_valid():
-            return APIResponse.error(
-                message="Validation failed.",
-                errors=serializer.errors,
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-        instance = serializer.save()
-        read_serializer = ModuleSerializer(instance)
-        return APIResponse.success(
-            data=read_serializer.data,
-            message="Module updated successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def delete(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
-        module = Module.objects.filter(pk=pk).first()
-        if module is None:
-            return APIResponse.error(
-                message="Module not found.",
-                status_code=status.HTTP_404_NOT_FOUND,
-            )
-        module.delete()
-        return APIResponse.success(
-            data=None,
-            message="Module deleted successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-
-class PermissionListCreateAPIView(APIView):
-    """
-    List all permissions (GET) or create a permission (POST).
-    """
-
-    permission_classes = [IsAuthenticated, RBACPermission]
-
-    serializer_class = PermissionWriteSerializer
-
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        queryset = Permission.objects.order_by("module", "permission_name")
-        module_id = request.query_params.get("module_id")
-        if module_id is not None:
-            queryset = queryset.filter(module_id=module_id)
-        serializer = PermissionSerializer(queryset, many=True)
-        return APIResponse.success(
-            data={"permissions": serializer.data},
-            message="Success",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        serializer = PermissionWriteSerializer(data=request.data)
-        if not serializer.is_valid():
-            return APIResponse.error(
-                message="Validation failed.",
-                errors=serializer.errors,
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-        instance = serializer.save()
-        read_serializer = PermissionSerializer(instance)
-        return APIResponse.success(
-            data=read_serializer.data,
-            message="Permission created successfully.",
-            status_code=status.HTTP_201_CREATED,
-        )
-
-
-class PermissionDetailAPIView(APIView):
-    """
-    Retrieve, update (PUT/PATCH), or delete a Permission by id.
-    """
-
-    permission_classes = [IsAuthenticated, RBACPermission]
-
-    serializer_class = PermissionWriteSerializer
-
-    def _get_permission(self, pk: int) -> Permission | None:
-        return Permission.objects.filter(pk=pk).first()
-
-    def get(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
-        permission = self._get_permission(pk)
-        if permission is None:
-            return APIResponse.error(
-                message="Permission not found.",
-                status_code=status.HTTP_404_NOT_FOUND,
-            )
-        serializer = PermissionSerializer(permission)
-        return APIResponse.success(
-            data=serializer.data,
-            message="Success",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def put(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
-        permission = self._get_permission(pk)
-        if permission is None:
-            return APIResponse.error(
-                message="Permission not found.",
-                status_code=status.HTTP_404_NOT_FOUND,
-            )
-        serializer = PermissionWriteSerializer(permission, data=request.data, partial=False)
-        if not serializer.is_valid():
-            return APIResponse.error(
-                message="Validation failed.",
-                errors=serializer.errors,
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-        instance = serializer.save()
-        read_serializer = PermissionSerializer(instance)
-        return APIResponse.success(
-            data=read_serializer.data,
-            message="Permission updated successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def patch(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
-        permission = self._get_permission(pk)
-        if permission is None:
-            return APIResponse.error(
-                message="Permission not found.",
-                status_code=status.HTTP_404_NOT_FOUND,
-            )
-        serializer = PermissionWriteSerializer(permission, data=request.data, partial=True)
-        if not serializer.is_valid():
-            return APIResponse.error(
-                message="Validation failed.",
-                errors=serializer.errors,
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-        instance = serializer.save()
-        read_serializer = PermissionSerializer(instance)
-        return APIResponse.success(
-            data=read_serializer.data,
-            message="Permission updated successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
-    def delete(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
-        permission = self._get_permission(pk)
-        if permission is None:
-            return APIResponse.error(
-                message="Permission not found.",
-                status_code=status.HTTP_404_NOT_FOUND,
-            )
-        permission.delete()
-        return APIResponse.success(
-            data=None,
-            message="Permission deleted successfully.",
             status_code=status.HTTP_200_OK,
         )

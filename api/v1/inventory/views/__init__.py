@@ -8,6 +8,7 @@ from .master_views import (
     ThicknessViewSet,
 )
 from .product_views import ProductViewSet
+from .shared import BaseInventoryMasterViewSet, BaseInventoryViewSet
 
 __all__ = [
     'BrandViewSet',
@@ -18,5 +19,7 @@ __all__ = [
     'ProductViewSet',
     'SizeViewSet',
     'ThicknessViewSet',
+    'BaseInventoryMasterViewSet',
+    'BaseInventoryViewSet',
 ]
 

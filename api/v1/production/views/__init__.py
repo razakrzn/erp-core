@@ -11,6 +11,7 @@ from .manufacturing_views import (
     SubcontractingManagementViewSet,
     WIPTrackingViewSet,
 )
+from .shared import BaseProductionViewSet
 
 __all__ = [
     "ProductionPlanningViewSet",
@@ -24,4 +25,5 @@ __all__ = [
     "SubcontractingManagementViewSet",
     "BatchTrackingViewSet",
     "RejectionReworkManagementViewSet",
+    "BaseProductionViewSet",
 ]
