@@ -114,11 +114,10 @@ class Finish(models.Model):
         related_name="finishes",
         verbose_name=_("quote item"),
     )
-    finish_name = models.CharField(_("finish name"), max_length=200)
-    finish_type = models.CharField(_("finish type"), max_length=150)
-    material = models.CharField(_("material"), max_length=200)
-    finish_height = models.DecimalField(_("finish height"), max_digits=14, decimal_places=3, default=0)
-    finish_width = models.DecimalField(_("finish width"), max_digits=14, decimal_places=3, default=0)
+    finish_name = models.CharField(_("finish name"), max_length=200, blank=True, null=True)
+    finish_type = models.CharField(_("finish type"), max_length=150, blank=True, null=True)
+    material = models.CharField(_("material"), max_length=200, blank=True, null=True)
+    design = models.CharField(_("design"), max_length=200, blank=True, null=True)
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 

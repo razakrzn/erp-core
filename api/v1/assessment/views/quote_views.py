@@ -123,8 +123,8 @@ class QuoteItemViewSet(BaseAssessmentViewSet):
 class FinishViewSet(BaseAssessmentViewSet):
     queryset = Finish.objects.select_related("quote_item", "quote_item__quote")
     serializer_class = FinishSerializer
-    search_fields = ["finish_name", "finish_type", "material", "quote_item__name", "quote_item__quote__quote_number"]
-    ordering_fields = ["finish_name", "finish_type", "created_at", "updated_at"]
+    search_fields = ["finish_name", "finish_type", "material", "design", "quote_item__name", "quote_item__quote__quote_number"]
+    ordering_fields = ["finish_name", "finish_type", "material", "design", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "estimation.quotations"
 

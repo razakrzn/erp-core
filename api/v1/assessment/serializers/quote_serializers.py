@@ -4,11 +4,10 @@ from apps.assessment.models import Finish, Quote, QuoteItem, Term
 
 
 class QuoteItemFinishInputSerializer(serializers.Serializer):
-    finish_name = serializers.CharField(max_length=200)
-    finish_type = serializers.CharField(max_length=150)
-    material = serializers.CharField(max_length=200)
-    finish_height = serializers.DecimalField(max_digits=14, decimal_places=3, required=False, default=0)
-    finish_width = serializers.DecimalField(max_digits=14, decimal_places=3, required=False, default=0)
+    finish_name = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
+    finish_type = serializers.CharField(max_length=150, required=False, allow_blank=True, allow_null=True)
+    material = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
+    design = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
     quote_item = serializers.IntegerField(required=False)
     created_at = serializers.DateTimeField(required=False)
     updated_at = serializers.DateTimeField(required=False)
@@ -148,8 +147,7 @@ class QuoteDetailSerializer(serializers.ModelSerializer):
                         "finish_name": finish.finish_name,
                         "finish_type": finish.finish_type,
                         "material": finish.material,
-                        "finish_height": finish.finish_height,
-                        "finish_width": finish.finish_width,
+                        "design": finish.design,
                         "created_at": finish.created_at,
                         "updated_at": finish.updated_at,
                     }
@@ -243,11 +241,10 @@ class QuoteItemSerializer(serializers.ModelSerializer):
             [
                 Finish(
                     quote_item=quote_item,
-                    finish_name=finish_data["finish_name"],
-                    finish_type=finish_data["finish_type"],
-                    material=finish_data["material"],
-                    finish_height=finish_data.get("finish_height", 0),
-                    finish_width=finish_data.get("finish_width", 0),
+                    finish_name=finish_data.get("finish_name"),
+                    finish_type=finish_data.get("finish_type"),
+                    material=finish_data.get("material"),
+                    design=finish_data.get("design"),
                 )
                 for finish_data in finishes_data
             ]
@@ -262,8 +259,7 @@ class QuoteItemSerializer(serializers.ModelSerializer):
                 "finish_name": finish.finish_name,
                 "finish_type": finish.finish_type,
                 "material": finish.material,
-                "finish_height": finish.finish_height,
-                "finish_width": finish.finish_width,
+                "design": finish.design,
                 "created_at": finish.created_at,
                 "updated_at": finish.updated_at,
             }
@@ -280,8 +276,7 @@ class FinishSerializer(serializers.ModelSerializer):
             "finish_name",
             "finish_type",
             "material",
-            "finish_height",
-            "finish_width",
+            "design",
             "created_at",
             "updated_at",
         ]
