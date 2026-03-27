@@ -54,6 +54,7 @@ else:
 # Application definition
 
 INSTALLED_APPS = [
+    "apps.accounts",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -66,7 +67,6 @@ INSTALLED_APPS = [
     "django_filters",
     "django_redis",
     # Domain apps (under the `apps` package)
-    "apps.accounts",
     "apps.company",
     "apps.navigation",
     "apps.access_control",
