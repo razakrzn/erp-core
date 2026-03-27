@@ -1,46 +1,25 @@
-# Render Blueprint: deploy erp-core with Docker + PostgreSQL
-# Docs: https://docs.render.com/blueprint-spec
-
-databases:
-  - name: erp-db
-    plan: free
-    databaseName: erp
-    user: erp
-
 services:
   - type: web
     runtime: docker
     name: erp-core
-    # Repo is set when you connect your Git repo in Render; override here if needed
-    # repo: https://github.com/your-username/erp-core
-
     envVars:
       - key: DJANGO_SETTINGS_MODULE
-        value: "config.settings.dev"
+        value: "config.settings.prod"
+      
+      # Set these in your Render Dashboard → Web Service → Environment tab
       - key: DATABASE_URL
-        fromDatabase:
-          name: erp-db
-          property: connectionString
+        sync: false
       - key: DB_NAME
-        fromDatabase:
-          name: erp-db
-          property: database
+        sync: false
       - key: DB_USER
-        fromDatabase:
-          name: erp-db
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: erp-db
-          property: password
+        sync: false
       - key: DB_HOST
-        fromDatabase:
-          name: erp-db
-          property: host
+        sync: false
       - key: DB_PORT
-        fromDatabase:
-          name: erp-db
-          property: port
+        sync: false
+      
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
@@ -49,4 +28,6 @@ services:
         value: ".onrender.com"
       - key: CORS_ALLOWED_ORIGINS
         value: "https://your-frontend.onrender.com"
+
+
       # Optional: add more env vars in Render Dashboard (e.g. REDIS_URL if you add Redis)
