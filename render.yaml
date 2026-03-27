@@ -21,6 +21,26 @@ services:
         fromDatabase:
           name: erp-db
           property: connectionString
+      - key: DB_NAME
+        fromDatabase:
+          name: erp-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: erp-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: erp-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: erp-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: erp-db
+          property: port
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
