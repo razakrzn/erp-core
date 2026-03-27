@@ -50,26 +50,53 @@ class IndustrialPagination(PageNumberPagination):
 
     def get_paginated_response(self, data):
         user_permissions = []
+        actions = {
+            "canCreate": False,
+            "canEdit": False,
+            "canDelete": False,
+            "canView": False
+        }
+        
+        user = self.request.user
         
         # Check if the view provides a permission prefix for enrichment
         if hasattr(self, 'view') and self.view:
             prefix = getattr(self.view, 'permission_prefix', None)
             if prefix:
-                user_permissions = self._get_user_permissions(self.request.user, prefix)
+                if user and user.is_authenticated and user.is_superuser:
+                    actions = {
+                        "canCreate": True,
+                        "canEdit": True,
+                        "canDelete": True,
+                        "canView": True
+                    }
+                else:
+                    user_permissions = self._get_user_permissions(user, prefix)
+                    # Transform to actions object for easier frontend consumption
+                    for perm in user_permissions:
+                        code = perm.get("permission_code", "").lower()
+                        if code.endswith(".create") or code.endswith(".add"):
+                            actions["canCreate"] = True
+                        elif code.endswith(".edit") or code.endswith(".change") or code.endswith(".update"):
+                            actions["canEdit"] = True
+                        elif code.endswith(".delete"):
+                            actions["canDelete"] = True
+                        elif code.endswith(".view") or code.endswith(".list"):
+                            actions["canView"] = True
 
         return Response({
             "success": True,
             "message": "Data retrieved successfully",
             "data": {
                 "items": data,
+                "actions": actions,
                 "pagination": {
                     "count": self.page.paginator.count,
                     "total_pages": self.page.paginator.num_pages,
                     "current_page": self.page.number,
                     "next": self.get_next_link(),
                     "previous": self.get_previous_link(),
-                },
-                "user_permissions": user_permissions
+                }
             },
             "status_code": 200,
             "timestamp": timezone.now().isoformat(),

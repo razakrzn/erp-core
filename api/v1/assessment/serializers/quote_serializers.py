@@ -38,6 +38,45 @@ class QuoteListSerializer(serializers.ModelSerializer):
             return enquiry.existing_client.customer_name
         return enquiry.new_client_name or None
 
+    def to_representation(self, instance):
+        """
+        Return flags indicating completeness for template and custom items independently.
+        - templateQuoteItemCreated: True if all 'is_template' BoqItems are quoted.
+        - customQuoteItemCreated: True if all custom BoqItems are quoted.
+        """
+        representation = super().to_representation(instance)
+        
+        template_created = False
+        custom_created = False
+        
+        boq = instance.boq
+        if boq:
+            boq_items = list(boq.items.all())
+            if boq_items:
+                # Set of BoqItem IDs actually present in the Quote
+                quote_items = list(instance.items.all())
+                created_boq_item_ids = {
+                    item.boq_item_id for item in quote_items 
+                    if item.boq_item_id is not None
+                }
+                
+                # Split requirements into categories
+                template_boq_ids = {item.id for item in boq_items if item.is_template}
+                custom_boq_ids = {item.id for item in boq_items if not item.is_template}
+                
+                # Calculate completeness for Templates
+                if template_boq_ids:
+                    template_created = template_boq_ids.issubset(created_boq_item_ids)
+                
+                # Calculate completeness for Custom items
+                if custom_boq_ids:
+                    custom_created = custom_boq_ids.issubset(created_boq_item_ids)
+
+        representation["templateQuoteItemCreated"] = template_created
+        representation["customQuoteItemCreated"] = custom_created
+        
+        return representation
+
 
 class QuoteDetailSerializer(serializers.ModelSerializer):
     boq_id = serializers.PrimaryKeyRelatedField(
