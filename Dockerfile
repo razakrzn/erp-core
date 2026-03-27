@@ -29,5 +29,4 @@ COPY . /app/
 RUN chmod +x /app/entrypoint.sh
 
 ENTRYPOINT ["/app/entrypoint.sh"]
-# Render sets PORT at runtime; default 8000 for local Docker
-CMD ["/bin/sh", "-c", "exec gunicorn config.wsgi:application -b 0.0.0.0:${PORT:-8000} --workers 2"]
+CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:8000", "--workers", "2", "--timeout", "120"]

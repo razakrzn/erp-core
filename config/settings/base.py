@@ -151,6 +151,11 @@ if database_url:
             "PASSWORD": parsed_url.password,
             "HOST": parsed_url.hostname,
             "PORT": parsed_url.port or 5432,
+            "OPTIONS": {
+                "connect_timeout": 10,
+            },
+            "DISABLE_SERVER_SIDE_CURSORS": True,
+            "CONN_MAX_AGE": 60,
         }
     }
 else:

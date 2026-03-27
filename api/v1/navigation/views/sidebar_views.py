@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response

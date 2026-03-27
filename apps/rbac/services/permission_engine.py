@@ -25,4 +25,22 @@ def user_has_permission(user: Any, permission_code: str) -> bool:
     ).exists()
 
 
+def get_user_permission_codes(user: Any) -> set[str]:
+    """
+    Return a set of all permission codes assigned to the user across all roles.
+    """
+    if not getattr(user, "pk", None):
+        return set()
+
+    if getattr(user, "is_superuser", False):
+        from apps.navigation.models import Permission
+        return set(Permission.objects.values_list("permission_code", flat=True))
+
+    return set(
+        RolePermission.objects.filter(
+            role__assigned_users__user=user,
+        ).values_list("permission__permission_code", flat=True)
+    )
+
+
 

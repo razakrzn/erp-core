@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Sequence
 
 from apps.company.models import Company, CompanyFeature
 from apps.navigation.models import Feature, Module
-from apps.rbac.services.permission_engine import user_has_permission
+from apps.rbac.services.permission_engine import get_user_permission_codes, user_has_permission
 
 
 def build_sidebar(user: Any, company: Optional[Company] = None) -> List[Dict[str, Any]]:
@@ -45,6 +45,8 @@ def build_sidebar(user: Any, company: Optional[Company] = None) -> List[Dict[str
             .order_by("order", "feature_name")
         )
 
+    # 3. Efficiently fetch user's permissions once and use for all checks.
+    user_permissions: set[str] = get_user_permission_codes(user)
     sidebar: List[Dict[str, Any]] = []
 
     for feature in features:
@@ -57,7 +59,7 @@ def build_sidebar(user: Any, company: Optional[Company] = None) -> List[Dict[str
         for module in modules:
             # User has access to the module if they have any of its permissions.
             has_access = any(
-                user_has_permission(user, perm.permission_code)
+                perm.permission_code in user_permissions
                 for perm in module.permissions.all()
             )
 
