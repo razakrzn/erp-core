@@ -50,6 +50,7 @@ class QuoteItemFinishInputSerializer(serializers.Serializer):
     quantity = serializers.DecimalField(max_digits=14, decimal_places=3, required=False, allow_null=True)
     total_price = serializers.DecimalField(max_digits=14, decimal_places=2, required=False, allow_null=True, read_only=True)
     unit = serializers.CharField(max_length=50, required=False, allow_blank=True, allow_null=True)
+    template = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
     quote_item = serializers.IntegerField(required=False)
 
 
@@ -202,6 +203,7 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
                         "quantity": finish.quantity,
                         "total_price": finish.total_price,
                         "unit": finish.unit,
+                        "template": finish.template,
                     }
                     for finish in sorted(item.finishes.all(), key=lambda finish: finish.id, reverse=True)
                 ],
@@ -302,6 +304,7 @@ class QuoteItemSerializer(serializers.ModelSerializer):
                     unit_price=finish_data.get("unit_price"),
                     quantity=finish_data.get("quantity"),
                     unit=finish_data.get("unit"),
+                    template=finish_data.get("template"),
                 )
                 for finish_data in finishes_data
             ]
@@ -321,6 +324,7 @@ class QuoteItemSerializer(serializers.ModelSerializer):
                 "quantity": finish.quantity,
                 "total_price": finish.total_price,
                 "unit": finish.unit,
+                "template": finish.template,
             }
             for finish in finishes
         ]
@@ -340,6 +344,7 @@ class FinishSerializer(serializers.ModelSerializer):
             "quantity",
             "total_price",
             "unit",
+            "template",
         ]
         read_only_fields = ["total_price"]
 

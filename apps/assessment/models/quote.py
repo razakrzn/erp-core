@@ -82,6 +82,8 @@ class Quote(models.Model):
             self.status = "Awaiting Quotation"
             
         super().save(*args, **kwargs)
+        if self.boq and self.boq.enquiry:
+            self.boq.enquiry.sync_status()
 
     def refresh_totals(self):
         totals = self.items.aggregate(
@@ -162,6 +164,7 @@ class Finish(models.Model):
     quantity = models.DecimalField(_("quantity"), max_digits=14, decimal_places=3, blank=True, null=True)
     total_price = models.DecimalField(_("total price"), max_digits=14, decimal_places=2, blank=True, null=True)
     unit = models.CharField(_("unit"), max_length=50, blank=True, null=True)
+    template = models.CharField(_("template"), max_length=200, blank=True, null=True)
 
     def __str__(self):
         return self.finish_name or "Unnamed Finish"

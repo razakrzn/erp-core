@@ -39,7 +39,7 @@ class BoqViewSet(BaseAssessmentViewSet):
             instance.is_rejected = False
         instance.save()
 
-        message = "BOQ Approved" if value else "BOQ Approval Cancelled"
+        message = "Bill of Quantity Approved" if value else "Bill of Quantity Approval Cancelled"
         return APIResponse.success(
             data=None,
             message=message,
@@ -55,7 +55,7 @@ class BoqViewSet(BaseAssessmentViewSet):
             instance.is_approved = False
         instance.save()
 
-        message = "BOQ Rejected" if value else "BOQ Rejection Cancelled"
+        message = "Bill of Quantity Rejected" if value else "Bill of Quantity Rejection Cancelled"
         return APIResponse.success(
             data=None,
             message=message,

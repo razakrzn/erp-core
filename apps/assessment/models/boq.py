@@ -84,18 +84,8 @@ class Boq(models.Model):
         self._sync_enquiry_status()
 
     def _sync_enquiry_status(self):
-        if not self.enquiry:
-            return
-        if self.is_approved and self.is_rejected:
-            # Edge case: should never happen; keep enquiry in a safe state.
-            self.enquiry.status = "Awaiting BOQ"
-        elif self.is_approved and not self.is_rejected:
-            self.enquiry.status = "BOQ Approved"
-        elif not self.is_approved and self.is_rejected:
-            self.enquiry.status = "BOQ Rejected"
-        else:
-            self.enquiry.status = "Awaiting BOQ"
-        self.enquiry.save(update_fields=["status"])
+        if self.enquiry:
+            self.enquiry.sync_status()
 
 
 class BoqItem(models.Model):
