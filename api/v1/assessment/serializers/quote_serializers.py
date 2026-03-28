@@ -350,14 +350,24 @@ class FinishSerializer(serializers.ModelSerializer):
 
 
 class QuoteTermsConditionsSerializer(serializers.ModelSerializer):
+    quote_id = serializers.PrimaryKeyRelatedField(
+        source="quote",
+        queryset=Quote.objects.all(),
+        write_only=True,
+        required=True,
+    )
+
     class Meta:
         model = QuoteTermsConditions
         fields = [
             "id",
+            "quote",
+            "quote_id",
             "title",
             "content",
             "category",
         ]
+        read_only_fields = ["quote"]
 
 
 class QuoteItemCreateRequestSerializer(serializers.Serializer):

@@ -193,5 +193,10 @@ class QuoteTermsConditions(models.Model):
     content = models.TextField(_("content"))
     category = models.CharField(_("category"), max_length=100, blank=True)
 
+    class Meta:
+        ordering = ["id"]
+        verbose_name = _("quote terms conditions")
+        verbose_name_plural = _("quote terms conditions")
+
     def __str__(self):
         return self.title
