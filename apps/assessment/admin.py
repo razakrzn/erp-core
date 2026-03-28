@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Boq, BoqItem, Finish, Quote, QuoteItem, Term
+from .models import Boq, BoqItem, Finish, Quote, QuoteItem, QuoteTermsConditions, Template, TemplateFinish
 
 
 class BoqItemInline(admin.TabularInline):
@@ -212,13 +212,44 @@ class QuoteItemAdmin(admin.ModelAdmin):
 
 @admin.register(Finish)
 class FinishAdmin(admin.ModelAdmin):
-    list_display = ("finish_name", "finish_type", "material", "quote_item", "updated_at")
+    list_display = ("finish_name", "finish_type", "material", "quantity", "unit_price", "total_price", "quote_item")
     search_fields = ("finish_name", "finish_type", "material", "quote_item__name", "quote_item__quote__quote_number")
-    list_filter = ("finish_type", "material", "created_at", "updated_at")
+    list_filter = ("finish_type", "material")
 
 
-@admin.register(Term)
-class TermAdmin(admin.ModelAdmin):
-    list_display = ("title", "quote", "category", "is_default", "updated_at")
+@admin.register(QuoteTermsConditions)
+class QuoteTermsConditionsAdmin(admin.ModelAdmin):
+    list_display = ("title", "quote", "category")
     search_fields = ("title", "content", "category", "quote__quote_number")
-    list_filter = ("is_default", "category", "created_at", "updated_at")
+    list_filter = ("category",)
+
+
+class TemplateFinishInline(admin.TabularInline):
+    model = TemplateFinish
+    extra = 0
+
+
+@admin.register(Template)
+class TemplateAdmin(admin.ModelAdmin):
+    list_display = ("name", "category", "created_at", "updated_at")
+    search_fields = ("name", "category")
+    list_filter = ("category", "created_at", "updated_at")
+    inlines = [TemplateFinishInline]
+    readonly_fields = ("created_at", "updated_at", "created_by", "updated_by")
+    fieldsets = (
+        (None, {"fields": ("name", "category")}),
+        ("Audit", {"fields": ("created_at", "updated_at", "created_by", "updated_by")}),
+    )
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.created_by = request.user
+        obj.updated_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(TemplateFinish)
+class TemplateFinishAdmin(admin.ModelAdmin):
+    list_display = ("finish_name", "finish_type", "material", "template", "unit_price", "unit")
+    search_fields = ("finish_name", "finish_type", "material", "template__name")
+    list_filter = ("finish_type", "material")

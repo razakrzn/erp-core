@@ -1,4 +1,4 @@
-from .globalterms_views import GlobalTermsViewSet
+from .terms_conditions_views import TermsConditionsViewSet
 from .shared import BaseSettingsViewSet
 
-__all__ = ["GlobalTermsViewSet", "BaseSettingsViewSet"]
+__all__ = ["TermsConditionsViewSet", "BaseSettingsViewSet"]

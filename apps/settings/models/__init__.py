@@ -1,1 +1,1 @@
-from .globalterms import GlobalTerms
+from .terms_conditions import TermsConditions

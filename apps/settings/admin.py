@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import GlobalTerms
+from .models import TermsConditions
 
-@admin.register(GlobalTerms)
-class GlobalTermsAdmin(admin.ModelAdmin):
-    list_display = ("title", "category", "is_default", "is_approved", "created_at", "updated_at")
+@admin.register(TermsConditions)
+class TermsConditionsAdmin(admin.ModelAdmin):
+    list_display = ("title", "category", "is_default")
     search_fields = ("title", "category", "content")
-    list_filter = ("category", "is_default", "is_approved")
+    list_filter = ("category", "is_default")

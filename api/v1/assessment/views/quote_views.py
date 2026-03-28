@@ -3,7 +3,7 @@ from rest_framework import filters
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 
-from apps.assessment.models import Finish, Quote, QuoteItem, Term
+from apps.assessment.models import Finish, Quote, QuoteItem, QuoteTermsConditions
 from core.utils.responses import APIResponse
 
 from ..serializers import (
@@ -13,7 +13,7 @@ from ..serializers import (
     QuoteItemSerializer,
     QuoteItemUpdateRequestSerializer,
     QuoteListSerializer,
-    TermSerializer,
+    QuoteTermsConditionsSerializer,
 )
 from .shared import BaseAssessmentViewSet
 
@@ -124,17 +124,17 @@ class FinishViewSet(BaseAssessmentViewSet):
     queryset = Finish.objects.select_related("quote_item", "quote_item__quote")
     serializer_class = FinishSerializer
     search_fields = ["finish_name", "finish_type", "material", "design", "quote_item__name", "quote_item__quote__quote_number"]
-    ordering_fields = ["finish_name", "finish_type", "material", "design", "created_at", "updated_at"]
+    ordering_fields = ["finish_name", "finish_type", "material", "design"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "estimation.quotations"
 
 
 
-class TermViewSet(BaseAssessmentViewSet):
-    queryset = Term.objects.select_related("quote")
-    serializer_class = TermSerializer
+class QuoteTermsConditionsViewSet(BaseAssessmentViewSet):
+    queryset = QuoteTermsConditions.objects.select_related("quote")
+    serializer_class = QuoteTermsConditionsSerializer
     search_fields = ["title", "category", "quote__quote_number"]
-    ordering_fields = ["title", "category", "created_at", "updated_at"]
+    ordering_fields = ["title", "category"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "estimation.quotations"
 

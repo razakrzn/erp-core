@@ -1,9 +1,9 @@
-from .globalterms_serializers import (
-    GlobalTermsDetailSerializer,
-    GlobalTermsListSerializer,
+from .terms_conditions_serializers import (
+    TermsConditionsDetailSerializer,
+    TermsConditionsListSerializer,
 )
 
 __all__ = [
-    "GlobalTermsDetailSerializer",
-    "GlobalTermsListSerializer",
+    "TermsConditionsDetailSerializer",
+    "TermsConditionsListSerializer",
 ]

@@ -33,8 +33,9 @@ def get_user_permission_codes(user: Any) -> set[str]:
         return set()
 
     if getattr(user, "is_superuser", False):
-        from apps.navigation.models import Permission
-        return set(Permission.objects.values_list("permission_code", flat=True))
+        # Superusers are handled in callers (is_superuser=True), so returning empty set
+        # here is safe and saves a potentially large query.
+        return set()
 
     return set(
         RolePermission.objects.filter(

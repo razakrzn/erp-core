@@ -1,5 +1,5 @@
 from .boq_views import BoqItemViewSet, BoqViewSet
-from .quote_views import FinishViewSet, QuoteItemViewSet, QuoteViewSet, TermViewSet
+from .quote_views import FinishViewSet, QuoteItemViewSet, QuoteViewSet, QuoteTermsConditionsViewSet
 
 __all__ = [
     "BoqViewSet",
@@ -7,5 +7,9 @@ __all__ = [
     "QuoteViewSet",
     "QuoteItemViewSet",
     "FinishViewSet",
-    "TermViewSet",
+    "QuoteTermsConditionsViewSet",
+    "TemplateViewSet",
+    "TemplateFinishViewSet",
 ]
+
+from .template_views import TemplateFinishViewSet, TemplateViewSet

@@ -105,6 +105,20 @@ class QuoteItem(models.Model):
         self.amount = quantity * unit_price
         super().save(*args, **kwargs)
 
+    def refresh_price(self):
+        """
+        Recalculate unit_price based on finishes if they have total_price.
+        """
+        finishes_with_total = self.finishes.filter(total_price__isnull=False)
+        if finishes_with_total.exists():
+            total_finish_price = finishes_with_total.aggregate(
+                total=Sum("total_price")
+            )["total"] or Decimal("0")
+            self.unit_price = total_finish_price
+            self.amount = (self.quantity or Decimal("0")) * self.unit_price
+            self.save(update_fields=["unit_price", "amount"])
+            self.quote.refresh_totals()
+
 
 
 class Finish(models.Model):
@@ -118,26 +132,37 @@ class Finish(models.Model):
     finish_type = models.CharField(_("finish type"), max_length=150, blank=True, null=True)
     material = models.CharField(_("material"), max_length=200, blank=True, null=True)
     design = models.CharField(_("design"), max_length=200, blank=True, null=True)
-    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
-    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+    unit_price = models.DecimalField(_("unit price"), max_digits=14, decimal_places=2, blank=True, null=True)
+    quantity = models.DecimalField(_("quantity"), max_digits=14, decimal_places=3, blank=True, null=True)
+    total_price = models.DecimalField(_("total price"), max_digits=14, decimal_places=2, blank=True, null=True)
+    unit = models.CharField(_("unit"), max_length=50, blank=True, null=True)
 
     def __str__(self):
-        return self.finish_name
+        return self.finish_name or "Unnamed Finish"
+
+    def save(self, *args, **kwargs):
+        unit_price = self.unit_price or Decimal("0")
+        quantity = self.quantity or Decimal("0")
+        self.total_price = unit_price * quantity
+        super().save(*args, **kwargs)
+        self.quote_item.refresh_price()
+
+    def delete(self, *args, **kwargs):
+        quote_item = self.quote_item
+        super().delete(*args, **kwargs)
+        quote_item.refresh_price()
 
 
-class Term(models.Model):
+class QuoteTermsConditions(models.Model):
     quote = models.ForeignKey(
         Quote,
         on_delete=models.CASCADE,
-        related_name="terms",
+        related_name="terms_conditions",
         verbose_name=_("quote"),
     )
     title = models.CharField(_("title"), max_length=200)
     content = models.TextField(_("content"))
     category = models.CharField(_("category"), max_length=100, blank=True)
-    is_default = models.BooleanField(_("is default"), default=False)
-    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
-    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
     def __str__(self):
         return self.title

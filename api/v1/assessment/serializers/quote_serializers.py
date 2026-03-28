@@ -1,51 +1,15 @@
 from rest_framework import serializers
 
-from apps.assessment.models import Finish, Quote, QuoteItem, Term
+from apps.assessment.models import Finish, Quote, QuoteItem, QuoteTermsConditions
 
 
-class QuoteItemFinishInputSerializer(serializers.Serializer):
-    finish_name = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
-    finish_type = serializers.CharField(max_length=150, required=False, allow_blank=True, allow_null=True)
-    material = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
-    design = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
-    quote_item = serializers.IntegerField(required=False)
-    created_at = serializers.DateTimeField(required=False)
-    updated_at = serializers.DateTimeField(required=False)
-
-
-class QuoteListSerializer(serializers.ModelSerializer):
-    boq_number = serializers.CharField(source="boq.boq_number", read_only=True)
-    project_name = serializers.CharField(source="boq.enquiry.project_name", read_only=True)
-    client = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Quote
-        fields = [
-            "id",
-            "quote_number",
-            "boq_number",
-            "project_name",
-            "client",
-            "status",
-            "created_at",
-        ]
-
-    def get_client(self, obj):
-        if not obj.boq or not obj.boq.enquiry:
-            return None
-        enquiry = obj.boq.enquiry
-        if enquiry.existing_client:
-            return enquiry.existing_client.customer_name
-        return enquiry.new_client_name or None
-
-    def to_representation(self, instance):
+class QuoteCompletenessMixin:
+    def add_completeness_flags(self, instance, representation):
         """
         Return flags indicating completeness for template and custom items independently.
         - templateQuoteItemCreated: True if all 'is_template' BoqItems are quoted.
         - customQuoteItemCreated: True if all custom BoqItems are quoted.
         """
-        representation = super().to_representation(instance)
-        
         template_created = False
         custom_created = False
         
@@ -74,11 +38,52 @@ class QuoteListSerializer(serializers.ModelSerializer):
 
         representation["templateQuoteItemCreated"] = template_created
         representation["customQuoteItemCreated"] = custom_created
-        
         return representation
 
 
-class QuoteDetailSerializer(serializers.ModelSerializer):
+class QuoteItemFinishInputSerializer(serializers.Serializer):
+    finish_name = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
+    finish_type = serializers.CharField(max_length=150, required=False, allow_blank=True, allow_null=True)
+    material = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
+    design = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
+    unit_price = serializers.DecimalField(max_digits=14, decimal_places=2, required=False, allow_null=True)
+    quantity = serializers.DecimalField(max_digits=14, decimal_places=3, required=False, allow_null=True)
+    total_price = serializers.DecimalField(max_digits=14, decimal_places=2, required=False, allow_null=True, read_only=True)
+    unit = serializers.CharField(max_length=50, required=False, allow_blank=True, allow_null=True)
+    quote_item = serializers.IntegerField(required=False)
+
+
+class QuoteListSerializer(QuoteCompletenessMixin, serializers.ModelSerializer):
+    boq_number = serializers.CharField(source="boq.boq_number", read_only=True)
+    project_name = serializers.CharField(source="boq.enquiry.project_name", read_only=True)
+    client = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Quote
+        fields = [
+            "id",
+            "quote_number",
+            "boq_number",
+            "project_name",
+            "client",
+            "status",
+            "created_at",
+        ]
+
+    def get_client(self, obj):
+        if not obj.boq or not obj.boq.enquiry:
+            return None
+        enquiry = obj.boq.enquiry
+        if enquiry.existing_client:
+            return enquiry.existing_client.customer_name
+        return enquiry.new_client_name or None
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        return self.add_completeness_flags(instance, representation)
+
+
+class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer):
     boq_id = serializers.PrimaryKeyRelatedField(
         source="boq",
         queryset=Quote._meta.get_field("boq").remote_field.model.objects.all(),
@@ -163,6 +168,10 @@ class QuoteDetailSerializer(serializers.ModelSerializer):
             return super().to_internal_value(payload)
         return super().to_internal_value(data)
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        return self.add_completeness_flags(instance, representation)
+
     def get_quote_items(self, obj):
         items = obj.items.all().order_by("-created_at")
         return [
@@ -187,10 +196,12 @@ class QuoteDetailSerializer(serializers.ModelSerializer):
                         "finish_type": finish.finish_type,
                         "material": finish.material,
                         "design": finish.design,
-                        "created_at": finish.created_at,
-                        "updated_at": finish.updated_at,
+                        "unit_price": finish.unit_price,
+                        "quantity": finish.quantity,
+                        "total_price": finish.total_price,
+                        "unit": finish.unit,
                     }
-                    for finish in sorted(item.finishes.all(), key=lambda finish: finish.created_at, reverse=True)
+                    for finish in sorted(item.finishes.all(), key=lambda finish: finish.id, reverse=True)
                 ],
                 "created_at": item.created_at,
                 "updated_at": item.updated_at,
@@ -263,6 +274,7 @@ class QuoteItemSerializer(serializers.ModelSerializer):
         finishes_data = validated_data.pop("finishes", [])
         instance = super().create(validated_data)
         self._create_finishes(instance, finishes_data)
+        instance.refresh_price()
         return instance
 
     def update(self, instance, validated_data):
@@ -271,6 +283,7 @@ class QuoteItemSerializer(serializers.ModelSerializer):
         if finishes_data is not None:
             instance.finishes.all().delete()
             self._create_finishes(instance, finishes_data)
+            instance.refresh_price()
         return instance
 
     def _create_finishes(self, quote_item, finishes_data):
@@ -284,13 +297,16 @@ class QuoteItemSerializer(serializers.ModelSerializer):
                     finish_type=finish_data.get("finish_type"),
                     material=finish_data.get("material"),
                     design=finish_data.get("design"),
+                    unit_price=finish_data.get("unit_price"),
+                    quantity=finish_data.get("quantity"),
+                    unit=finish_data.get("unit"),
                 )
                 for finish_data in finishes_data
             ]
         )
 
     def get_finish(self, obj):
-        finishes = sorted(obj.finishes.all(), key=lambda finish: finish.created_at, reverse=True)
+        finishes = sorted(obj.finishes.all(), key=lambda finish: finish.id, reverse=True)
         return [
             {
                 "id": finish.id,
@@ -299,8 +315,10 @@ class QuoteItemSerializer(serializers.ModelSerializer):
                 "finish_type": finish.finish_type,
                 "material": finish.material,
                 "design": finish.design,
-                "created_at": finish.created_at,
-                "updated_at": finish.updated_at,
+                "unit_price": finish.unit_price,
+                "quantity": finish.quantity,
+                "total_price": finish.total_price,
+                "unit": finish.unit,
             }
             for finish in finishes
         ]
@@ -316,26 +334,24 @@ class FinishSerializer(serializers.ModelSerializer):
             "finish_type",
             "material",
             "design",
-            "created_at",
-            "updated_at",
+            "unit_price",
+            "quantity",
+            "total_price",
+            "unit",
         ]
-        read_only_fields = ["created_at", "updated_at"]
+        read_only_fields = ["total_price"]
 
 
-class TermSerializer(serializers.ModelSerializer):
+class QuoteTermsConditionsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Term
+        model = QuoteTermsConditions
         fields = [
             "id",
             "quote",
             "title",
             "content",
             "category",
-            "is_default",
-            "created_at",
-            "updated_at",
         ]
-        read_only_fields = ["created_at", "updated_at"]
 
 
 class QuoteItemCreateRequestSerializer(serializers.Serializer):

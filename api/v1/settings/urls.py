@@ -1,8 +1,8 @@
 from rest_framework.routers import DefaultRouter
 
-from .views import GlobalTermsViewSet
+from .views import TermsConditionsViewSet
 
 router = DefaultRouter()
-router.register(r"global-terms", GlobalTermsViewSet, basename="settings-global-term")
+router.register(r"terms-conditions", TermsConditionsViewSet, basename="settings-terms-conditions")
 
 urlpatterns = router.urls

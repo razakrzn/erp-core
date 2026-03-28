@@ -9,7 +9,18 @@ from core.utils.responses import APIResponse
 class BaseAssessmentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, RBACPermission]
 
-    ordering = ["-created_at"]
+    def get_ordering(self):
+        """
+        Default to '-created_at' if it exists, otherwise fallback to '-id'.
+        """
+        ordering = getattr(self, "ordering", ["-created_at"])
+        if isinstance(ordering, (list, tuple)):
+            clean_ordering = [
+                o for o in ordering 
+                if self._model_has_field(o.lstrip("-"))
+            ]
+            return clean_ordering if clean_ordering else ["-id"]
+        return ordering
 
     def _model_has_field(self, field_name):
         return field_name in {field.name for field in self.get_queryset().model._meta.fields}

@@ -13,7 +13,7 @@ from .quote_serializers import (
     QuoteItemSerializer,
     QuoteItemUpdateRequestSerializer,
     QuoteListSerializer,
-    TermSerializer,
+    QuoteTermsConditionsSerializer,
 )
 
 __all__ = [
@@ -25,5 +25,18 @@ __all__ = [
     "QuoteDetailSerializer",
     "QuoteItemSerializer",
     "FinishSerializer",
-    "TermSerializer",
+    "QuoteTermsConditionsSerializer",
+    "TemplateListSerializer",
+    "TemplateDetailSerializer",
+    "TemplateFinishSerializer",
+    "TemplateDropdownSerializer",
+    "TemplateFinishDropdownSerializer",
 ]
+
+from .template_serializers import (
+    TemplateDetailSerializer,
+    TemplateDropdownSerializer,
+    TemplateFinishDropdownSerializer,
+    TemplateFinishSerializer,
+    TemplateListSerializer,
+)

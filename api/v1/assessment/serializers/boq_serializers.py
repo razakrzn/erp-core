@@ -72,6 +72,7 @@ class BoqDetailSerializer(serializers.ModelSerializer):
             "email_address": obj.enquiry.email_address,
             "company_name": obj.enquiry.company_name,
             "phone_number": obj.enquiry.phone_number,
+            "project_description": obj.enquiry.project_description,
             "client": client_name,
             "location": obj.enquiry.location,
             "attachment": obj.enquiry.attachment.url if obj.enquiry.attachment else None,
