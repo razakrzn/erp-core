@@ -34,18 +34,15 @@ class BoqViewSet(BaseAssessmentViewSet):
     def approve(self, request, *args, **kwargs):
         instance = self.get_object()
         value = request.data.get("value", None)
-        if not isinstance(value, bool):
-            raise ValidationError({"value": "This field is required and must be a boolean (true/false)."})
-
         instance.is_approved = value
         if value:
             instance.is_rejected = False
         instance.save()
 
-        serializer = self.get_serializer(instance)
+        message = "BOQ Approved" if value else "BOQ Approval Cancelled"
         return APIResponse.success(
-            data=serializer.data,
-            message=f"Boq approval set to {value}.",
+            data=None,
+            message=message,
             status_code=status.HTTP_200_OK,
         )
 
@@ -53,18 +50,15 @@ class BoqViewSet(BaseAssessmentViewSet):
     def reject(self, request, *args, **kwargs):
         instance = self.get_object()
         value = request.data.get("value", None)
-        if not isinstance(value, bool):
-            raise ValidationError({"value": "This field is required and must be a boolean (true/false)."})
-
         instance.is_rejected = value
         if value:
             instance.is_approved = False
         instance.save()
 
-        serializer = self.get_serializer(instance)
+        message = "BOQ Rejected" if value else "BOQ Rejection Cancelled"
         return APIResponse.success(
-            data=serializer.data,
-            message=f"Boq rejection set to {value}.",
+            data=None,
+            message=message,
             status_code=status.HTTP_200_OK,
         )
 

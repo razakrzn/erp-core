@@ -5,7 +5,7 @@ from apps.assessment.models import Boq, BoqItem
 
 class BoqListSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source="enquiry.project_name", read_only=True)
-    status = serializers.CharField(source="enquiry.status", read_only=True)
+    status = serializers.CharField(read_only=True)
 
     is_boq_items_empty = serializers.SerializerMethodField()
 
@@ -44,6 +44,7 @@ class BoqDetailSerializer(serializers.ModelSerializer):
             "id",
             "enquiry_id",
             "boq_number",
+            "status",
             "is_approved",
             "is_rejected",
             "created_at",

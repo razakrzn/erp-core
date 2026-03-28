@@ -22,6 +22,11 @@ class Boq(models.Model):
         unique=True,
         blank=True,
     )
+    status = models.CharField(
+        _("status"),
+        max_length=50,
+        default="Awaiting BOQ",
+    )
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
     is_approved = models.BooleanField(_("is approved"), default=False)
@@ -67,6 +72,14 @@ class Boq(models.Model):
 
             next_number = (last_boq.num + 1) if last_boq else 1
             self.boq_number = f"{prefix}{next_number:05d}"
+        
+        if self.is_approved:
+            self.status = "Bill of Quantity Approved"
+        elif self.is_rejected:
+            self.status = "Bill of Quantity Rejected"
+        else:
+            self.status = "Awaiting Bill of Quantity"
+            
         super().save(*args, **kwargs)
         self._sync_enquiry_status()
 
