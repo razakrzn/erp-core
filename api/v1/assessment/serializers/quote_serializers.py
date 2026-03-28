@@ -67,6 +67,8 @@ class QuoteListSerializer(QuoteCompletenessMixin, serializers.ModelSerializer):
             "project_name",
             "client",
             "status",
+            "is_approved",
+            "is_rejected",
             "created_at",
         ]
 

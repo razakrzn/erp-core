@@ -1,6 +1,6 @@
 from django.db import transaction
-from rest_framework import filters
-from rest_framework import status
+from rest_framework import filters, status
+from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 
 from apps.assessment.models import Finish, Quote, QuoteItem, QuoteTermsConditions
@@ -31,6 +31,38 @@ class QuoteViewSet(BaseAssessmentViewSet):
         if self.action == "list":
             return QuoteListSerializer
         return QuoteDetailSerializer
+
+    @action(detail=True, methods=["patch"], url_path="approve")
+    def approve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        value = request.data.get("value", None)
+        instance.is_approved = value
+        if value:
+            instance.is_rejected = False
+        instance.save()
+
+        message = "Quotation Approved" if value else "Quotation Approval Cancelled"
+        return APIResponse.success(
+            data=None,
+            message=message,
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=["patch"], url_path="reject")
+    def reject(self, request, *args, **kwargs):
+        instance = self.get_object()
+        value = request.data.get("value", None)
+        instance.is_rejected = value
+        if value:
+            instance.is_approved = False
+        instance.save()
+
+        message = "Quotation Rejected" if value else "Quotation Rejection Cancelled"
+        return APIResponse.success(
+            data=None,
+            message=message,
+            status_code=status.HTTP_200_OK,
+        )
 
 
 class QuoteItemViewSet(BaseAssessmentViewSet):

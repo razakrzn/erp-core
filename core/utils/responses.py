@@ -35,13 +35,15 @@ class APIResponse:
     """
     @staticmethod
     def success(data=None, message="Success", status_code=status.HTTP_200_OK):
-        return Response({
+        payload = {
             "success": True,
             "message": message,
-            "data": data,
             "status_code": status_code,
             "timestamp": timezone.now().isoformat()
-        }, status=status_code)
+        }
+        if data is not None:
+            payload["data"] = data
+        return Response(payload, status=status_code)
 
     @staticmethod
     def error(errors=None, message="An error occurred", status_code=status.HTTP_400_BAD_REQUEST):

@@ -26,7 +26,7 @@ class Quote(models.Model):
     status = models.CharField(
         _("status"),
         max_length=50,
-        default="Awaiting Quote",
+        default="awaiting quotation",
     )
     total_items = models.PositiveIntegerField(_("total items"), default=0)
     total_amount = models.DecimalField(_("total amount"), max_digits=14, decimal_places=2, default=0)
@@ -73,6 +73,14 @@ class Quote(models.Model):
 
             next_number = (last_quote.num + 1) if last_quote else 1
             self.quote_number = f"{prefix}{next_number:05d}"
+        
+        if self.is_approved:
+            self.status = "Quotation Approved"
+        elif self.is_rejected:
+            self.status = "Quotation Rejected"
+        else:
+            self.status = "Awaiting Quotation"
+            
         super().save(*args, **kwargs)
 
     def refresh_totals(self):

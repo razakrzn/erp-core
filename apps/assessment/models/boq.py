@@ -1,5 +1,3 @@
-import uuid
-
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.conf import settings
@@ -103,10 +101,26 @@ class BoqItem(models.Model):
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("boq item")
+        verbose_name_plural = _("boq items")
+
     def __str__(self):
         return f"{self.item_code} - {self.name}"
 
     def save(self, *args, **kwargs):
         if not self.item_code:
-            self.item_code = f"BOQ-ITEM-{uuid.uuid4().hex[:8].upper()}"
+            year = timezone.now().year
+            prefix = f"ITEM-{year}-"
+
+            # Find the max sequence number for this year
+            last_item = BoqItem.objects.filter(
+                item_code__startswith=prefix
+            ).annotate(
+                num=Cast(Substr('item_code', len(prefix) + 1), IntegerField())
+            ).order_by('-num').first()
+
+            next_number = (last_item.num + 1) if last_item else 1
+            self.item_code = f"{prefix}{next_number:05d}"
         super().save(*args, **kwargs)
