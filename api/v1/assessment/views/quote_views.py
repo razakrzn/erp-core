@@ -138,3 +138,10 @@ class QuoteTermsConditionsViewSet(BaseAssessmentViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "estimation.quotations"
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        quote_id = self.request.query_params.get("quote_id")
+        if quote_id:
+            queryset = queryset.filter(quote_id=quote_id)
+        return queryset
+

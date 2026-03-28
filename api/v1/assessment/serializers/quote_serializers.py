@@ -347,7 +347,6 @@ class QuoteTermsConditionsSerializer(serializers.ModelSerializer):
         model = QuoteTermsConditions
         fields = [
             "id",
-            "quote",
             "title",
             "content",
             "category",

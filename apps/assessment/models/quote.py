@@ -3,8 +3,10 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Count, Sum
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+from django.db.models.functions import Cast, Substr
+from django.db.models import IntegerField, Count, Sum
 
 
 class Quote(models.Model):
@@ -49,12 +51,28 @@ class Quote(models.Model):
         verbose_name=_("updated by"),
     )
 
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("quote")
+        verbose_name_plural = _("quotes")
+
     def __str__(self):
         return self.quote_number or f"{self.boq.boq_number} - {self.status}"
 
     def save(self, *args, **kwargs):
         if not self.quote_number:
-            self.quote_number = f"QTN-{uuid.uuid4().hex[:8].upper()}"
+            year = timezone.now().year
+            prefix = f"QTN-{year}-"
+
+            # Find the max sequence number for this year
+            last_quote = Quote.objects.filter(
+                quote_number__startswith=prefix
+            ).annotate(
+                num=Cast(Substr('quote_number', len(prefix) + 1), IntegerField())
+            ).order_by('-num').first()
+
+            next_number = (last_quote.num + 1) if last_quote else 1
+            self.quote_number = f"{prefix}{next_number:05d}"
         super().save(*args, **kwargs)
 
     def refresh_totals(self):

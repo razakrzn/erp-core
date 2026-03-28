@@ -1,7 +1,9 @@
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-import uuid
+from django.utils import timezone
+from django.db.models.functions import Cast, Substr
+from django.db.models import IntegerField
 
 
 class Enquiry(models.Model):
@@ -59,9 +61,25 @@ class Enquiry(models.Model):
         verbose_name=_("updated by"),
     )
 
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("enquiry")
+        verbose_name_plural = _("enquiries")
+
     def save(self, *args, **kwargs):
         if not self.enquiry_code:
-            self.enquiry_code = f"ENQ-{str(uuid.uuid4())[:6].upper()}"
+            year = timezone.now().year
+            prefix = f"ENQ-{year}-"
+
+            # Find the max sequence number for this year to ensure sequential increment
+            last_enquiry = Enquiry.objects.filter(
+                enquiry_code__startswith=prefix
+            ).annotate(
+                num=Cast(Substr('enquiry_code', len(prefix) + 1), IntegerField())
+            ).order_by('-num').first()
+
+            next_number = (last_enquiry.num + 1) if last_enquiry else 1
+            self.enquiry_code = f"{prefix}{next_number:05d}"
         super().save(*args, **kwargs)
 
     def __str__(self):

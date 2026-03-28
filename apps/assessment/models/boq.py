@@ -4,6 +4,9 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+from django.db.models.functions import Cast, Substr
+from django.db.models import IntegerField
 
 
 class Boq(models.Model):
@@ -42,6 +45,11 @@ class Boq(models.Model):
         verbose_name=_("updated by"),
     )
 
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("boq")
+        verbose_name_plural = _("boqs")
+
     def __str__(self):
         return self.boq_number
 
@@ -49,7 +57,18 @@ class Boq(models.Model):
         if self.is_approved and self.is_rejected:
             raise ValidationError(_("BOQ cannot be both approved and rejected."))
         if not self.boq_number:
-            self.boq_number = f"BOQ-{uuid.uuid4().hex[:8].upper()}"
+            year = timezone.now().year
+            prefix = f"BOQ-{year}-"
+
+            # Find the max sequence number for this year
+            last_boq = Boq.objects.filter(
+                boq_number__startswith=prefix
+            ).annotate(
+                num=Cast(Substr('boq_number', len(prefix) + 1), IntegerField())
+            ).order_by('-num').first()
+
+            next_number = (last_boq.num + 1) if last_boq else 1
+            self.boq_number = f"{prefix}{next_number:05d}"
         super().save(*args, **kwargs)
         self._sync_enquiry_status()
 
