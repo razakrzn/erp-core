@@ -13,9 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="enquiry",
             name="status",
-            field=models.CharField(
-                default="Awaiting BOQ", max_length=50, verbose_name="status"
-            ),
+            field=models.CharField(default="Awaiting BOQ", max_length=50, verbose_name="status"),
         ),
     ]
-

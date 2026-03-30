@@ -1,6 +1,4 @@
 from rest_framework import filters, status
-from rest_framework.permissions import IsAuthenticated
-from core.permissions.rbac_permission import RBACPermission
 from apps.hrm.models.employee import Employee
 from core.utils.responses import APIResponse
 
@@ -19,7 +17,7 @@ class CompanyScopedEmployeeQuerysetMixin:
         user = self.request.user
         if user.is_superuser:
             return Employee.objects.all()
-        if hasattr(user, 'company') and user.company:
+        if hasattr(user, "company") and user.company:
             return Employee.objects.filter(company=user.company)
         return Employee.objects.none()
 
@@ -34,7 +32,7 @@ class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMViewSet):
     - Filtered by company
     """
 
-    queryset = Employee.objects.select_related('user', 'department', 'designation')
+    queryset = Employee.objects.select_related("user", "department", "designation")
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["first_name", "last_name", "email", "user__username", "user__first_name", "user__last_name"]
     ordering_fields = ["created_at", "first_name", "last_name"]
@@ -42,12 +40,12 @@ class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMViewSet):
     permission_prefix = "hr.employees"
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.action == "list":
             return EmployeeListSerializer
         return EmployeeSerializer
 
     def get_queryset(self):
-        return self.get_company_scoped_employee_queryset().select_related('user', 'department', 'designation')
+        return self.get_company_scoped_employee_queryset().select_related("user", "department", "designation")
 
 
 class EmployeeLightweightViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMViewSet):
@@ -56,7 +54,7 @@ class EmployeeLightweightViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMView
     Useful for dropdowns/autocomplete.
     """
 
-    queryset = Employee.objects.select_related('user')
+    queryset = Employee.objects.select_related("user")
     serializer_class = EmployeeLightweightSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["first_name", "last_name", "user__first_name", "user__last_name", "email", "user__username"]
@@ -65,7 +63,7 @@ class EmployeeLightweightViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMView
     permission_prefix = "hr.employees"
 
     def get_queryset(self):
-        return self.get_company_scoped_employee_queryset().select_related('user')
+        return self.get_company_scoped_employee_queryset().select_related("user")
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

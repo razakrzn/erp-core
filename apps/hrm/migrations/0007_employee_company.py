@@ -7,14 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('company', '0005_companyfeature'),
-        ('hrm', '0006_employee_user_alter_employee_email_and_more'),
+        ("company", "0005_companyfeature"),
+        ("hrm", "0006_employee_user_alter_employee_email_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='employee',
-            name='company',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='employees', to='company.company'),
+            model_name="employee",
+            name="company",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="employees",
+                to="company.company",
+            ),
         ),
     ]

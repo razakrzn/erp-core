@@ -117,16 +117,16 @@ class UserViewSet(viewsets.ModelViewSet):
 class CheckUsernameAPIView(APIView):
     """
     Check username availability endpoint.
-    
+
     GET /api/v1/check-username?username=value
-    
+
     Returns:
         {
             "available": true/false,
             "message": "Username available" | "Username already taken",
             "suggestions": [...]  // Optional alternative usernames if taken
         }
-    
+
     Lightweight and fast - uses case-insensitive database query.
     Public endpoint (no authentication required) for registration flow.
     """
@@ -180,4 +180,3 @@ class CheckUsernameAPIView(APIView):
                 message="Username available",
                 status_code=status.HTTP_200_OK,
             )
-

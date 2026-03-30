@@ -17,17 +17,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="customer",
             name="created_at",
-            field=models.DateTimeField(
-                auto_now_add=True, default=timezone.now, verbose_name="created at"
-            ),
+            field=models.DateTimeField(auto_now_add=True, default=timezone.now, verbose_name="created at"),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name="customer",
             name="updated_at",
-            field=models.DateTimeField(
-                auto_now=True, default=timezone.now, verbose_name="updated at"
-            ),
+            field=models.DateTimeField(auto_now=True, default=timezone.now, verbose_name="updated at"),
             preserve_default=False,
         ),
         migrations.AddField(
@@ -57,17 +53,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="leadmanagement",
             name="created_at",
-            field=models.DateTimeField(
-                auto_now_add=True, default=timezone.now, verbose_name="created at"
-            ),
+            field=models.DateTimeField(auto_now_add=True, default=timezone.now, verbose_name="created at"),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name="leadmanagement",
             name="updated_at",
-            field=models.DateTimeField(
-                auto_now=True, default=timezone.now, verbose_name="updated at"
-            ),
+            field=models.DateTimeField(auto_now=True, default=timezone.now, verbose_name="updated at"),
             preserve_default=False,
         ),
         migrations.AddField(
@@ -95,4 +87,3 @@ class Migration(migrations.Migration):
             ),
         ),
     ]
-

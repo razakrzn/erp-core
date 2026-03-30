@@ -29,9 +29,7 @@ class OpenApiParameter:
         self.kwargs = kwargs
 
 
-def inline_serializer(
-    *, name: str | None = None, fields: Any = None, **kwargs: Any
-) -> dict[str, Any]:
+def inline_serializer(*, name: str | None = None, fields: Any = None, **kwargs: Any) -> dict[str, Any]:
     return {
         "inline_serializer": True,
         "name": name,
@@ -64,4 +62,3 @@ def extend_schema_view(**schema_kwargs: Any) -> Callable[[T], T]:
         return view
 
     return decorator
-

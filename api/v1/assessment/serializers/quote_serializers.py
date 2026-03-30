@@ -12,26 +12,23 @@ class QuoteCompletenessMixin:
         """
         template_created = False
         custom_created = False
-        
+
         boq = instance.boq
         if boq:
             boq_items = list(boq.items.all())
             if boq_items:
                 # Set of BoqItem IDs actually present in the Quote
                 quote_items = list(instance.items.all())
-                created_boq_item_ids = {
-                    item.boq_item_id for item in quote_items 
-                    if item.boq_item_id is not None
-                }
-                
+                created_boq_item_ids = {item.boq_item_id for item in quote_items if item.boq_item_id is not None}
+
                 # Split requirements into categories
                 template_boq_ids = {item.id for item in boq_items if item.is_template}
                 custom_boq_ids = {item.id for item in boq_items if not item.is_template}
-                
+
                 # Calculate completeness for Templates
                 if template_boq_ids:
                     template_created = template_boq_ids.issubset(created_boq_item_ids)
-                
+
                 # Calculate completeness for Custom items
                 if custom_boq_ids:
                     custom_created = custom_boq_ids.issubset(created_boq_item_ids)
@@ -48,7 +45,9 @@ class QuoteItemFinishInputSerializer(serializers.Serializer):
     design = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
     unit_price = serializers.DecimalField(max_digits=14, decimal_places=2, required=False, allow_null=True)
     quantity = serializers.DecimalField(max_digits=14, decimal_places=3, required=False, allow_null=True)
-    total_price = serializers.DecimalField(max_digits=14, decimal_places=2, required=False, allow_null=True, read_only=True)
+    total_price = serializers.DecimalField(
+        max_digits=14, decimal_places=2, required=False, allow_null=True, read_only=True
+    )
     unit = serializers.CharField(max_length=50, required=False, allow_blank=True, allow_null=True)
     template = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
     quote_item = serializers.IntegerField(required=False)
@@ -97,6 +96,7 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
     boq = serializers.SerializerMethodField()
     enquiry = serializers.SerializerMethodField()
     quote_items = serializers.SerializerMethodField()
+
     class Meta:
         model = Quote
         fields = [
@@ -150,6 +150,7 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
                 for item in boq_items
             ],
         }
+
     def get_enquiry(self, obj):
         if not obj.boq.enquiry:
             return None
@@ -377,4 +378,10 @@ class QuoteItemCreateRequestSerializer(serializers.Serializer):
 
 class QuoteItemUpdateRequestSerializer(serializers.Serializer):
     quote = serializers.IntegerField(required=False, help_text="The ID or number of the parent Quote.")
-    items = QuoteItemSerializer(many=True, required=True, min_length=1, max_length=1, help_text="Exactly one item allowed in this array for single object update.")
+    items = QuoteItemSerializer(
+        many=True,
+        required=True,
+        min_length=1,
+        max_length=1,
+        help_text="Exactly one item allowed in this array for single object update.",
+    )

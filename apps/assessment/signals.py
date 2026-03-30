@@ -22,12 +22,7 @@ def create_quote_when_boq_approved(sender, instance, **kwargs):
     # Automatically add default terms and conditions from settings module
     default_terms = TermsConditions.objects.filter(is_default=True)
     for term in default_terms:
-        QuoteTermsConditions.objects.create(
-            quote=quote,
-            title=term.title,
-            content=term.content,
-            category=term.category
-        )
+        QuoteTermsConditions.objects.create(quote=quote, title=term.title, content=term.content, category=term.category)
 
 
 @receiver(post_save, sender=QuoteItem)

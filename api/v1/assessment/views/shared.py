@@ -15,10 +15,7 @@ class BaseAssessmentViewSet(viewsets.ModelViewSet):
         """
         ordering = getattr(self, "ordering", ["-created_at"])
         if isinstance(ordering, (list, tuple)):
-            clean_ordering = [
-                o for o in ordering 
-                if self._model_has_field(o.lstrip("-"))
-            ]
+            clean_ordering = [o for o in ordering if self._model_has_field(o.lstrip("-"))]
             return clean_ordering if clean_ordering else ["-id"]
         return ordering
 

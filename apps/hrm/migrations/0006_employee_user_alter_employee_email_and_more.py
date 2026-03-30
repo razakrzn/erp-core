@@ -8,29 +8,35 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hrm', '0005_remove_designation_code_remove_designation_head_and_more'),
+        ("hrm", "0005_remove_designation_code_remove_designation_head_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='employee',
-            name='user',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='employee_profile', to=settings.AUTH_USER_MODEL),
+            model_name="employee",
+            name="user",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="employee_profile",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='email',
-            field=models.EmailField(blank=True, max_length=254, null=True, unique=True, verbose_name='email address'),
+            model_name="employee",
+            name="email",
+            field=models.EmailField(blank=True, max_length=254, null=True, unique=True, verbose_name="email address"),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='first_name',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='first name'),
+            model_name="employee",
+            name="first_name",
+            field=models.CharField(blank=True, max_length=100, null=True, verbose_name="first name"),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='last_name',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='last name'),
+            model_name="employee",
+            name="last_name",
+            field=models.CharField(blank=True, max_length=100, null=True, verbose_name="last name"),
         ),
     ]

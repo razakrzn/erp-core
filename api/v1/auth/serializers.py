@@ -1,6 +1,7 @@
 """
 Auth serializers for login and token refresh.
 """
+
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
@@ -13,6 +14,7 @@ class LoginSerializer(serializers.Serializer):
     """
     Validates username and password for login.
     """
+
     username = serializers.CharField(required=True, write_only=True)
     password = serializers.CharField(required=True, write_only=True, style={"input_type": "password"})
 

@@ -46,9 +46,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="enquiry",
             name="enquiry_code",
-            field=models.CharField(
-                blank=True, max_length=50, unique=True, verbose_name="enquiry code"
-            ),
+            field=models.CharField(blank=True, max_length=50, unique=True, verbose_name="enquiry code"),
         ),
     ]
-

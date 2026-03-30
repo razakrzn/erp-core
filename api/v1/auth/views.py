@@ -1,6 +1,7 @@
 """
 Auth API views: login and refresh token.
 """
+
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
@@ -19,6 +20,7 @@ class LoginView(APIView):
     Body: { "username": "...", "password": "..." }
     Returns: { "data": { "access", "refresh", "user": {...} } }
     """
+
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -48,6 +50,7 @@ class RefreshTokenView(APIView):
     Body: { "refresh": "<refresh_token>" }
     Returns: { "data": { "access": "<new_access_token>" } }
     """
+
     permission_classes = [AllowAny]
 
     def post(self, request):

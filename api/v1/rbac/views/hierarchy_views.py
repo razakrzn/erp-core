@@ -20,12 +20,15 @@ from ..serializers import (
 
 class RoleHierarchyListCreateAPIView(APIView):
     """List role hierarchy links or create one."""
+
     permission_classes = [IsAuthenticated, RBACPermission]
     serializer_class = RoleHierarchyWriteSerializer
     permission_prefix = "core.roles"
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        queryset = RoleHierarchy.objects.select_related("parent_role", "child_role").order_by("parent_role", "child_role")
+        queryset = RoleHierarchy.objects.select_related("parent_role", "child_role").order_by(
+            "parent_role", "child_role"
+        )
         parent_id = request.query_params.get("parent_role_id")
         if parent_id is not None:
             queryset = queryset.filter(parent_role_id=parent_id)
@@ -57,6 +60,7 @@ class RoleHierarchyListCreateAPIView(APIView):
 
 class RoleHierarchyDetailAPIView(APIView):
     """Retrieve or delete a RoleHierarchy by id."""
+
     permission_classes = [IsAuthenticated, RBACPermission]
     serializer_class = RoleHierarchySerializer
     permission_prefix = "core.roles"

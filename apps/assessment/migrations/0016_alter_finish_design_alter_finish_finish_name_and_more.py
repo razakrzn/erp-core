@@ -13,29 +13,21 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="finish",
             name="design",
-            field=models.CharField(
-                blank=True, max_length=200, null=True, verbose_name="design"
-            ),
+            field=models.CharField(blank=True, max_length=200, null=True, verbose_name="design"),
         ),
         migrations.AlterField(
             model_name="finish",
             name="finish_name",
-            field=models.CharField(
-                blank=True, max_length=200, null=True, verbose_name="finish name"
-            ),
+            field=models.CharField(blank=True, max_length=200, null=True, verbose_name="finish name"),
         ),
         migrations.AlterField(
             model_name="finish",
             name="finish_type",
-            field=models.CharField(
-                blank=True, max_length=150, null=True, verbose_name="finish type"
-            ),
+            field=models.CharField(blank=True, max_length=150, null=True, verbose_name="finish type"),
         ),
         migrations.AlterField(
             model_name="finish",
             name="material",
-            field=models.CharField(
-                blank=True, max_length=200, null=True, verbose_name="material"
-            ),
+            field=models.CharField(blank=True, max_length=200, null=True, verbose_name="material"),
         ),
     ]

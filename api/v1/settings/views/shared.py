@@ -22,7 +22,7 @@ class BaseSettingsViewSet(viewsets.ModelViewSet):
         if user and self._model_has_field("updated_by"):
             save_kwargs["updated_by"] = user
         if user and self._model_has_field("approved_by") and serializer.validated_data.get("is_approved"):
-             save_kwargs["approved_by"] = user
+            save_kwargs["approved_by"] = user
         serializer.save(**save_kwargs)
 
     def perform_update(self, serializer):
@@ -31,8 +31,8 @@ class BaseSettingsViewSet(viewsets.ModelViewSet):
         if user and self._model_has_field("updated_by"):
             save_kwargs["updated_by"] = user
         if user and self._model_has_field("approved_by") and "is_approved" in serializer.validated_data:
-             if serializer.validated_data.get("is_approved"):
-                 save_kwargs["approved_by"] = user
+            if serializer.validated_data.get("is_approved"):
+                save_kwargs["approved_by"] = user
         serializer.save(**save_kwargs)
 
     def list(self, request, *args, **kwargs):

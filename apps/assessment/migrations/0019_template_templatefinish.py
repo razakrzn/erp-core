@@ -95,15 +95,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "material",
-                    models.CharField(
-                        blank=True, max_length=200, null=True, verbose_name="material"
-                    ),
+                    models.CharField(blank=True, max_length=200, null=True, verbose_name="material"),
                 ),
                 (
                     "design",
-                    models.CharField(
-                        blank=True, max_length=200, null=True, verbose_name="design"
-                    ),
+                    models.CharField(blank=True, max_length=200, null=True, verbose_name="design"),
                 ),
                 (
                     "instance_price",
@@ -117,9 +113,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "unit",
-                    models.CharField(
-                        blank=True, max_length=50, null=True, verbose_name="unit"
-                    ),
+                    models.CharField(blank=True, max_length=50, null=True, verbose_name="unit"),
                 ),
                 (
                     "template",

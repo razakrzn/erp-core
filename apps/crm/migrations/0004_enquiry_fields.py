@@ -17,41 +17,31 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="enquiry",
             name="email_address",
-            field=models.EmailField(
-                blank=True, default="", max_length=254, verbose_name="email address"
-            ),
+            field=models.EmailField(blank=True, default="", max_length=254, verbose_name="email address"),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name="enquiry",
             name="company_name",
-            field=models.CharField(
-                blank=True, default="", max_length=200, verbose_name="company name"
-            ),
+            field=models.CharField(blank=True, default="", max_length=200, verbose_name="company name"),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name="enquiry",
             name="phone_number",
-            field=models.CharField(
-                blank=True, default="", max_length=30, verbose_name="phone number"
-            ),
+            field=models.CharField(blank=True, default="", max_length=30, verbose_name="phone number"),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name="enquiry",
             name="created_at",
-            field=models.DateTimeField(
-                auto_now_add=True, default=timezone.now, verbose_name="created at"
-            ),
+            field=models.DateTimeField(auto_now_add=True, default=timezone.now, verbose_name="created at"),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name="enquiry",
             name="updated_at",
-            field=models.DateTimeField(
-                auto_now=True, default=timezone.now, verbose_name="updated at"
-            ),
+            field=models.DateTimeField(auto_now=True, default=timezone.now, verbose_name="updated at"),
             preserve_default=False,
         ),
         migrations.AddField(
@@ -79,4 +69,3 @@ class Migration(migrations.Migration):
             ),
         ),
     ]
-

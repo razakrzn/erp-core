@@ -21,6 +21,7 @@ from ..serializers import (
 
 class UserRoleListCreateAPIView(APIView):
     """List user-role assignments or create one."""
+
     permission_classes = [IsAuthenticated, RBACPermission]
     serializer_class = UserRoleWriteSerializer
     permission_prefix = "core.users"
@@ -58,6 +59,7 @@ class UserRoleListCreateAPIView(APIView):
 
 class UserRoleDetailAPIView(APIView):
     """Retrieve or delete a UserRole by id."""
+
     permission_classes = [IsAuthenticated, RBACPermission]
     serializer_class = UserRoleDetailsSerializer
     permission_prefix = "core.users"

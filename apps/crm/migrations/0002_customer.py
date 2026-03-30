@@ -32,9 +32,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "company_name",
-                    models.CharField(
-                        blank=True, max_length=150, verbose_name="company name"
-                    ),
+                    models.CharField(blank=True, max_length=150, verbose_name="company name"),
                 ),
                 (
                     "phone_number",

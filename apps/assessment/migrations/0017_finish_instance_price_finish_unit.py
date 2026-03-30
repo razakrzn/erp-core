@@ -24,8 +24,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="finish",
             name="unit",
-            field=models.CharField(
-                blank=True, max_length=50, null=True, verbose_name="unit"
-            ),
+            field=models.CharField(blank=True, max_length=50, null=True, verbose_name="unit"),
         ),
     ]

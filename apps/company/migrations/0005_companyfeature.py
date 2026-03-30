@@ -7,18 +7,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('company', '0004_remove_companyuser'),
-        ('navigation', '0001_initial'),
+        ("company", "0004_remove_companyuser"),
+        ("navigation", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CompanyFeature',
+            name="CompanyFeature",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_enabled', models.BooleanField(default=True)),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='company.company')),
-                ('feature', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='navigation.feature')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("is_enabled", models.BooleanField(default=True)),
+                ("company", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="company.company")),
+                ("feature", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="navigation.feature")),
             ],
         ),
     ]

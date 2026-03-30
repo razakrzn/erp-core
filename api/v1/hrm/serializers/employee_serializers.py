@@ -15,7 +15,15 @@ User = get_user_model()
 class PreviousEmploymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PreviousEmployment
-        fields = ['id', 'company_name', 'designation', 'start_date', 'end_date', 'reason_for_leaving', 'experience_certificate_attached']
+        fields = [
+            "id",
+            "company_name",
+            "designation",
+            "start_date",
+            "end_date",
+            "reason_for_leaving",
+            "experience_certificate_attached",
+        ]
 
 
 class EmployeeListSerializer(serializers.ModelSerializer):
@@ -26,11 +34,11 @@ class EmployeeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = [
-            'id',
-            'email',
-            'full_name',
-            'designation_name',
-            'mobile_number',
+            "id",
+            "email",
+            "full_name",
+            "designation_name",
+            "mobile_number",
         ]
 
     def get_first_name(self, obj: Employee) -> str | None:
@@ -63,7 +71,7 @@ class EmployeeLightweightSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ['id', 'full_name']
+        fields = ["id", "full_name"]
 
     def get_full_name(self, obj: Employee) -> str:
         return obj.full_name or ""
@@ -78,88 +86,141 @@ class EmployeeSerializer(serializers.ModelSerializer):
     # Fields for User creation
     create_user = serializers.BooleanField(write_only=True, required=False, default=False)
     username = serializers.CharField(write_only=True, required=False)
-    password = serializers.CharField(write_only=True, required=False, style={'input_type': 'password'})
+    password = serializers.CharField(write_only=True, required=False, style={"input_type": "password"})
     role = serializers.PrimaryKeyRelatedField(queryset=Role.objects.all(), write_only=True, required=False)
 
     class Meta:
         model = Employee
         fields = [
-            'id', 'username', 'first_name', 'last_name', 'email',
-            'department', 'department_name', 'designation', 'designation_name',
-            'user_details',
-            'is_active', 'created_at',
-            'create_user', 'password', 'role',
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "department",
+            "department_name",
+            "designation",
+            "designation_name",
+            "user_details",
+            "is_active",
+            "created_at",
+            "create_user",
+            "password",
+            "role",
             # Personal Information
-            'profile_photo', 'gender', 'date_of_birth', 'nationality', 'mobile_number',
-            'current_address_uae', 'permanent_address_home_country',
+            "profile_photo",
+            "gender",
+            "date_of_birth",
+            "nationality",
+            "mobile_number",
+            "current_address_uae",
+            "permanent_address_home_country",
             # Emergency Contact
-            'emergency_contact_name', 'emergency_contact_relationship', 'emergency_contact_phone', 'emergency_contact_home_country_phone',
+            "emergency_contact_name",
+            "emergency_contact_relationship",
+            "emergency_contact_phone",
+            "emergency_contact_home_country_phone",
             # Passport and Visa
-            'passport_number', 'passport_issue_date', 'passport_expiry_date', 'passport_place_of_issue',
-            'uae_visa_type', 'visa_number', 'uid_number', 'visa_issue_date', 'visa_expiry_date',
-            'emirates_id_number', 'emirates_id_expiry_date', 'labor_card_number',
+            "passport_number",
+            "passport_issue_date",
+            "passport_expiry_date",
+            "passport_place_of_issue",
+            "uae_visa_type",
+            "visa_number",
+            "uid_number",
+            "visa_issue_date",
+            "visa_expiry_date",
+            "emirates_id_number",
+            "emirates_id_expiry_date",
+            "labor_card_number",
             # Employment
-            'employment_type', 'offer_letter_reference_number', 'contract_type',
-            'probation_period_months', 'date_of_joining', 'work_location',
+            "employment_type",
+            "offer_letter_reference_number",
+            "contract_type",
+            "probation_period_months",
+            "date_of_joining",
+            "work_location",
             # Work Schedule
-            'working_days', 'working_hours', 'overtime_eligible',
+            "working_days",
+            "working_hours",
+            "overtime_eligible",
             # Salary
-            'basic_salary', 'housing_allowance', 'transport_allowance', 'other_allowances', 'total_salary',
-            'bank_name', 'iban_number', 'account_number', 'salary_payment_cycle',
+            "basic_salary",
+            "housing_allowance",
+            "transport_allowance",
+            "other_allowances",
+            "total_salary",
+            "bank_name",
+            "iban_number",
+            "account_number",
+            "salary_payment_cycle",
             # Health
-            'blood_group', 'medical_conditions', 'allergies', 'medical_insurance_provider', 'policy_number',
+            "blood_group",
+            "medical_conditions",
+            "allergies",
+            "medical_insurance_provider",
+            "policy_number",
             # Education
-            'highest_qualification', 'institution_name', 'year_of_graduation', 'attestation_status', 'certifications',
+            "highest_qualification",
+            "institution_name",
+            "year_of_graduation",
+            "attestation_status",
+            "certifications",
             # IT Assets
-            'laptop_allocated', 'sim_card_allocated', 'access_card_allocated', 'biometric_registration_done',
+            "laptop_allocated",
+            "sim_card_allocated",
+            "access_card_allocated",
+            "biometric_registration_done",
             # Declaration
-            'employee_signature', 'signature_date', 'hr_signature',
+            "employee_signature",
+            "signature_date",
+            "hr_signature",
             # Nested
-            'previous_employments'
+            "previous_employments",
         ]
-        read_only_fields = ['created_at']
+        read_only_fields = ["created_at"]
 
     def validate(self, attrs):
-        create_user = attrs.get('create_user')
+        create_user = attrs.get("create_user")
         if create_user:
-            if not attrs.get('username'):
+            if not attrs.get("username"):
                 raise serializers.ValidationError({"username": "Username is required when creating a user."})
-            if not attrs.get('password'):
+            if not attrs.get("password"):
                 raise serializers.ValidationError({"password": "Password is required when creating a user."})
-            if not attrs.get('email'):
+            if not attrs.get("email"):
                 raise serializers.ValidationError({"email": "Email is required when creating a user."})
-            if not attrs.get('role'):
+            if not attrs.get("role"):
                 raise serializers.ValidationError({"role": "Role is required when creating a user."})
 
-            if User.objects.filter(username=attrs.get('username')).exists():
+            if User.objects.filter(username=attrs.get("username")).exists():
                 raise serializers.ValidationError({"username": "Username already exists."})
-            if User.objects.filter(email=attrs.get('email')).exists():
+            if User.objects.filter(email=attrs.get("email")).exists():
                 raise serializers.ValidationError({"email": "Email already exists."})
 
         return attrs
 
     def create(self, validated_data):
-        previous_employments_data = validated_data.pop('previous_employments', [])
-        create_user = validated_data.pop('create_user', False)
-        username = validated_data.pop('username', None)
-        password = validated_data.pop('password', None)
-        role = validated_data.pop('role', None)
+        previous_employments_data = validated_data.pop("previous_employments", [])
+        create_user = validated_data.pop("create_user", False)
+        username = validated_data.pop("username", None)
+        password = validated_data.pop("password", None)
+        role = validated_data.pop("role", None)
 
-        request = self.context.get('request')
+        request = self.context.get("request")
         company = None
-        if request and hasattr(request.user, 'company'):
+        if request and hasattr(request.user, "company"):
             company = request.user.company
 
-        validated_data['company'] = company
+        validated_data["company"] = company
 
         with transaction.atomic():
             if create_user:
                 user = User.objects.create_user(
                     username=username,
                     password=password,
-                    email=validated_data.get('email'),
-                    first_name=validated_data.get('first_name', ''),
-                    last_name=validated_data.get('last_name', ''),
+                    email=validated_data.get("email"),
+                    first_name=validated_data.get("first_name", ""),
+                    last_name=validated_data.get("last_name", ""),
                     company=company,
                 )
 
@@ -176,20 +237,20 @@ class EmployeeSerializer(serializers.ModelSerializer):
         return employee
 
     def update(self, instance, validated_data):
-        previous_employments_data = validated_data.pop('previous_employments', None)
+        previous_employments_data = validated_data.pop("previous_employments", None)
 
-        request = self.context.get('request')
+        request = self.context.get("request")
         company = None
-        if request and hasattr(request.user, 'company'):
+        if request and hasattr(request.user, "company"):
             company = request.user.company
 
         instance.company = company
 
         if instance.user:
             user = instance.user
-            user.first_name = validated_data.get('first_name', user.first_name)
-            user.last_name = validated_data.get('last_name', user.last_name)
-            user.email = validated_data.get('email', user.email)
+            user.first_name = validated_data.get("first_name", user.first_name)
+            user.last_name = validated_data.get("last_name", user.last_name)
+            user.email = validated_data.get("email", user.email)
             user.save()
 
         for attr, value in validated_data.items():
@@ -206,26 +267,26 @@ class EmployeeSerializer(serializers.ModelSerializer):
     def get_user_details(self, obj: Employee) -> list[dict[str, Any]] | None:
         if not obj.user:
             return None
-        user_role = UserRole.objects.select_related('role').filter(user=obj.user).first()
+        user_role = UserRole.objects.select_related("role").filter(user=obj.user).first()
         return [
             {
-                'username': obj.user.username,
-                'first_name': obj.user.first_name,
-                'last_name': obj.user.last_name,
-                'email': obj.user.email,
-                'role_id': user_role.role.id if user_role and user_role.role else None,
-                'role_name': user_role.role.role_name if user_role and user_role.role else None,
+                "username": obj.user.username,
+                "first_name": obj.user.first_name,
+                "last_name": obj.user.last_name,
+                "email": obj.user.email,
+                "role_id": user_role.role.id if user_role and user_role.role else None,
+                "role_name": user_role.role.role_name if user_role and user_role.role else None,
             }
         ]
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         if instance.user:
-            ret.pop('first_name', None)
-            ret.pop('last_name', None)
-            ret.pop('email', None)
+            ret.pop("first_name", None)
+            ret.pop("last_name", None)
+            ret.pop("email", None)
         else:
-            ret.pop('user_details', None)
+            ret.pop("user_details", None)
         return ret
 
     def get_department_name(self, obj: Employee) -> str | None:

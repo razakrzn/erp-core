@@ -38,12 +38,7 @@ class BaseMasterModel(models.Model):
                 queryset = queryset.exclude(pk=self.pk)
             if queryset.exists():
                 raise ValidationError(
-                    {
-                        "name": _(
-                            "This %(model)s already exists."
-                        )
-                        % {"model": self._meta.verbose_name}
-                    }
+                    {"name": _("This %(model)s already exists.") % {"model": self._meta.verbose_name}}
                 )
 
     def save(self, *args, **kwargs):

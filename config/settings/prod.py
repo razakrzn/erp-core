@@ -6,4 +6,3 @@ settings here that should only apply in production.
 """
 
 from .base import *  # noqa
-

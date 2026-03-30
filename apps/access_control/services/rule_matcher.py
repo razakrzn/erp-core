@@ -6,8 +6,8 @@ from apps.access_control.models import APIAccessRule
 from django.db import models
 
 
-
 from django.urls import resolve, Resolver404
+
 
 def match_api_rule(method: str, path: str) -> Optional[APIAccessRule]:
     """
@@ -26,9 +26,11 @@ def match_api_rule(method: str, path: str) -> Optional[APIAccessRule]:
 
     # Normalize the route to match how it's stored in the database.
     # We check for both the raw route and the route with a leading slash.
-    return APIAccessRule.objects.filter(
-        method=method,
-        is_active=True,
-    ).filter(
-        models.Q(path=route) | models.Q(path=f"/{route}")
-    ).first()
+    return (
+        APIAccessRule.objects.filter(
+            method=method,
+            is_active=True,
+        )
+        .filter(models.Q(path=route) | models.Q(path=f"/{route}"))
+        .first()
+    )

@@ -6,8 +6,8 @@ from apps.inventory.models import Product
 
 
 class ProductDropdownSerializer(serializers.Serializer):
-    value = serializers.IntegerField(source='id', read_only=True)
-    label = serializers.CharField(source='name', read_only=True)
+    value = serializers.IntegerField(source="id", read_only=True)
+    label = serializers.CharField(source="name", read_only=True)
 
 
 class ProductNameFieldsSerializer(serializers.ModelSerializer):
@@ -22,30 +22,30 @@ class ProductNameFieldsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            'id',
-            'name',
-            'slug',
-            'sku',
-            'price',
-            'category',
-            'category_name',
-            'brand',
-            'brand_name',
-            'material',
-            'material_name',
-            'size',
-            'size_name',
-            'thickness',
-            'thickness_name',
-            'grade',
-            'grade_name',
-            'finish',
-            'finish_name',
-            'is_active',
-            'created_at',
-            'updated_at',
+            "id",
+            "name",
+            "slug",
+            "sku",
+            "price",
+            "category",
+            "category_name",
+            "brand",
+            "brand_name",
+            "material",
+            "material_name",
+            "size",
+            "size_name",
+            "thickness",
+            "thickness_name",
+            "grade",
+            "grade_name",
+            "finish",
+            "finish_name",
+            "is_active",
+            "created_at",
+            "updated_at",
         ]
-        read_only_fields = ['slug', 'sku', 'created_at', 'updated_at']
+        read_only_fields = ["slug", "sku", "created_at", "updated_at"]
 
     def get_category_name(self, obj: Product) -> str | None:
         return obj.category.name if obj.category else None
@@ -73,49 +73,49 @@ class ProductSerializer(ProductNameFieldsSerializer):
     class Meta:
         model = Product
         fields = [
-            'id',
-            'name',
-            'slug',
-            'sku',
-            'price',
-            'category',
-            'category_name',
-            'brand',
-            'brand_name',
-            'material',
-            'material_name',
-            'size',
-            'size_name',
-            'thickness',
-            'thickness_name',
-            'grade',
-            'grade_name',
-            'finish',
-            'finish_name',
-            'is_active',
-            'created_at',
-            'updated_at',
+            "id",
+            "name",
+            "slug",
+            "sku",
+            "price",
+            "category",
+            "category_name",
+            "brand",
+            "brand_name",
+            "material",
+            "material_name",
+            "size",
+            "size_name",
+            "thickness",
+            "thickness_name",
+            "grade",
+            "grade_name",
+            "finish",
+            "finish_name",
+            "is_active",
+            "created_at",
+            "updated_at",
         ]
-        read_only_fields = ['slug', 'sku', 'created_at', 'updated_at']
+        read_only_fields = ["slug", "sku", "created_at", "updated_at"]
 
 
 class ProductListSerializer(ProductNameFieldsSerializer):
     class Meta:
         model = Product
         fields = [
-            'id',
-            'name',
-            'slug',
-            'sku',
-            'price',
-            'category_name',
-            'brand_name',
-            'material_name',
-            'size_name',
-            'thickness_name',
-            'grade_name',
-            'finish_name',
-            'is_active',
-            'created_at',
-            'updated_at',
+            "id",
+            "name",
+            "slug",
+            "sku",
+            "price",
+            "category_name",
+            "brand_name",
+            "material_name",
+            "size_name",
+            "thickness_name",
+            "grade_name",
+            "finish_name",
+            "is_active",
+            "created_at",
+            "updated_at",
         ]

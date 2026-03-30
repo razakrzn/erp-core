@@ -6,36 +6,36 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inventory', '0004_product_price'),
+        ("inventory", "0004_product_price"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='brand',
-            options={'ordering': ['-created_at']},
+            name="brand",
+            options={"ordering": ["-created_at"]},
         ),
         migrations.AlterModelOptions(
-            name='category',
-            options={'ordering': ['-created_at']},
+            name="category",
+            options={"ordering": ["-created_at"]},
         ),
         migrations.AlterModelOptions(
-            name='finish',
-            options={'ordering': ['-created_at']},
+            name="finish",
+            options={"ordering": ["-created_at"]},
         ),
         migrations.AlterModelOptions(
-            name='grade',
-            options={'ordering': ['-created_at']},
+            name="grade",
+            options={"ordering": ["-created_at"]},
         ),
         migrations.AlterModelOptions(
-            name='material',
-            options={'ordering': ['-created_at']},
+            name="material",
+            options={"ordering": ["-created_at"]},
         ),
         migrations.AlterModelOptions(
-            name='size',
-            options={'ordering': ['-created_at']},
+            name="size",
+            options={"ordering": ["-created_at"]},
         ),
         migrations.AlterModelOptions(
-            name='thickness',
-            options={'ordering': ['-created_at']},
+            name="thickness",
+            options={"ordering": ["-created_at"]},
         ),
     ]

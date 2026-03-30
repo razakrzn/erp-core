@@ -6,26 +6,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hrm', '0004_remove_department_code_department_slug_and_more'),
+        ("hrm", "0004_remove_department_code_department_slug_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='designation',
-            name='code',
+            model_name="designation",
+            name="code",
         ),
         migrations.RemoveField(
-            model_name='designation',
-            name='head',
+            model_name="designation",
+            name="head",
         ),
         migrations.AddField(
-            model_name='designation',
-            name='slug',
-            field=models.SlugField(blank=True, max_length=100, unique=True, verbose_name='slug'),
+            model_name="designation",
+            name="slug",
+            field=models.SlugField(blank=True, max_length=100, unique=True, verbose_name="slug"),
         ),
         migrations.AlterField(
-            model_name='designation',
-            name='name',
-            field=models.CharField(max_length=100, unique=True, verbose_name='name'),
+            model_name="designation",
+            name="name",
+            field=models.CharField(max_length=100, unique=True, verbose_name="name"),
         ),
     ]

@@ -1,7 +1,6 @@
-from rest_framework import filters, status
+from rest_framework import filters
 
 from apps.settings.models import TermsConditions
-from core.utils.responses import APIResponse
 
 from ..serializers import (
     TermsConditionsDetailSerializer,

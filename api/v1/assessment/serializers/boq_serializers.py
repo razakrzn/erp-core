@@ -30,7 +30,7 @@ class BoqDetailSerializer(serializers.ModelSerializer):
     enquiry_id = serializers.PrimaryKeyRelatedField(
         source="enquiry",
         queryset=Boq._meta.get_field("enquiry").remote_field.model.objects.all(),
-        write_only=True,    
+        write_only=True,
         required=False,
         allow_null=True,
     )
@@ -152,7 +152,6 @@ class BoqItemDetailSerializer(serializers.ModelSerializer):
         model = BoqItem
         fields = [
             "id",
-          
             "boq_id",
             "item_code",
             "name",
@@ -164,7 +163,6 @@ class BoqItemDetailSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["item_code", "created_at", "updated_at", "boq"]
-
 
     def to_internal_value(self, data):
         if isinstance(data, dict):
@@ -185,10 +183,10 @@ class BoqItemDetailSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         boq = attrs.get("boq", getattr(self.instance, "boq", None))
         if self.instance is None and not boq:
-            raise serializers.ValidationError(
-                {"boq_id": "This field is required. Use boq_id, boq, or boq_number."}
-            )
+            raise serializers.ValidationError({"boq_id": "This field is required. Use boq_id, boq, or boq_number."})
         return attrs
+
+
 class BoqItemCreateRequestSerializer(serializers.Serializer):
     boq = serializers.IntegerField(required=True, help_text="The ID or number of the parent BOQ.")
     items = BoqItemDetailSerializer(many=True, required=True)
@@ -196,4 +194,10 @@ class BoqItemCreateRequestSerializer(serializers.Serializer):
 
 class BoqItemUpdateRequestSerializer(serializers.Serializer):
     boq = serializers.IntegerField(required=False, help_text="The ID or number of the parent BOQ.")
-    items = BoqItemDetailSerializer(many=True, required=True, min_length=1, max_length=1, help_text="Exactly one item allowed in this array for single object update.")
+    items = BoqItemDetailSerializer(
+        many=True,
+        required=True,
+        min_length=1,
+        max_length=1,
+        help_text="Exactly one item allowed in this array for single object update.",
+    )

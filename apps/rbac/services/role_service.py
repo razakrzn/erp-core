@@ -45,12 +45,8 @@ def create_role(
     )
 
     if permission_codes:
-        permissions = list(
-            Permission.objects.filter(permission_code__in=list(permission_codes))
-        )
-        role_permissions: List[RolePermission] = [
-            RolePermission(role=role, permission=perm) for perm in permissions
-        ]
+        permissions = list(Permission.objects.filter(permission_code__in=list(permission_codes)))
+        role_permissions: List[RolePermission] = [RolePermission(role=role, permission=perm) for perm in permissions]
         RolePermission.objects.bulk_create(role_permissions, ignore_conflicts=True)
 
     return role
@@ -74,12 +70,8 @@ def update_role(
     if permission_codes is not None:
         # Reset the role's permissions to match the provided codes.
         RolePermission.objects.filter(role=role).delete()
-        permissions = list(
-            Permission.objects.filter(permission_code__in=list(permission_codes))
-        )
-        role_permissions: List[RolePermission] = [
-            RolePermission(role=role, permission=perm) for perm in permissions
-        ]
+        permissions = list(Permission.objects.filter(permission_code__in=list(permission_codes)))
+        role_permissions: List[RolePermission] = [RolePermission(role=role, permission=perm) for perm in permissions]
         RolePermission.objects.bulk_create(role_permissions, ignore_conflicts=True)
 
     return role
@@ -131,4 +123,3 @@ def get_company_roles(company_id: int) -> Sequence[dict]:
         "role_name",
         "role_code",
     )
-

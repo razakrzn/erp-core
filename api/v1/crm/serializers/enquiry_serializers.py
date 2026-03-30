@@ -26,9 +26,7 @@ class EnquirySerializerMixin:
         new_client_name = attrs.get("new_client_name", getattr(self.instance, "new_client_name", ""))
 
         if existing_client and (new_client_name or "").strip():
-            raise serializers.ValidationError(
-                {"client": "Use either existing_client or new_client_name, not both."}
-            )
+            raise serializers.ValidationError({"client": "Use either existing_client or new_client_name, not both."})
         if existing_client:
             self._fill_contact_fields_from_existing_client(attrs, existing_client)
         return attrs

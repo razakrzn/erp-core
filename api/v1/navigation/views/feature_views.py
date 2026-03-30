@@ -77,27 +77,27 @@ class FeatureListAPIView(APIView):
                 continue
             allowed_modules: list[dict[str, Any]] = []
             for module in feature.modules.all().order_by("order", "module_name"):
-                allowed_perms = [
-                    p
-                    for p in module.permissions.all()
-                    if user_has_permission(user, p.permission_code)
-                ]
+                allowed_perms = [p for p in module.permissions.all() if user_has_permission(user, p.permission_code)]
                 if not allowed_perms:
                     continue
-                allowed_modules.append({
-                    **ModuleSerializer(module).data,
-                    "permissions": PermissionSerializer(allowed_perms, many=True).data,
-                })
+                allowed_modules.append(
+                    {
+                        **ModuleSerializer(module).data,
+                        "permissions": PermissionSerializer(allowed_perms, many=True).data,
+                    }
+                )
             if not allowed_modules:
                 continue
-            filtered_features.append({
-                "id": feature.id,
-                "feature_code": feature.feature_code,
-                "feature_name": feature.feature_name,
-                "icon": feature.icon,
-                "order": feature.order,
-                "modules": allowed_modules,
-            })
+            filtered_features.append(
+                {
+                    "id": feature.id,
+                    "feature_code": feature.feature_code,
+                    "feature_name": feature.feature_name,
+                    "icon": feature.icon,
+                    "order": feature.order,
+                    "modules": allowed_modules,
+                }
+            )
 
         return APIResponse.success(
             data={"company_id": company_id, "features": filtered_features},
@@ -153,27 +153,27 @@ class CompanyFeatureListAPIView(APIView):
                 continue
             allowed_modules: list[dict[str, Any]] = []
             for module in feature.modules.all().order_by("order", "module_name"):
-                allowed_perms = [
-                    p
-                    for p in module.permissions.all()
-                    if user_has_permission(user, p.permission_code)
-                ]
+                allowed_perms = [p for p in module.permissions.all() if user_has_permission(user, p.permission_code)]
                 if not allowed_perms:
                     continue
-                allowed_modules.append({
-                    **ModuleSerializer(module).data,
-                    "permissions": PermissionSerializer(allowed_perms, many=True).data,
-                })
+                allowed_modules.append(
+                    {
+                        **ModuleSerializer(module).data,
+                        "permissions": PermissionSerializer(allowed_perms, many=True).data,
+                    }
+                )
             if not allowed_modules:
                 continue
-            filtered_features.append({
-                "id": feature.id,
-                "feature_code": feature.feature_code,
-                "feature_name": feature.feature_name,
-                "icon": feature.icon,
-                "order": feature.order,
-                "modules": allowed_modules,
-            })
+            filtered_features.append(
+                {
+                    "id": feature.id,
+                    "feature_code": feature.feature_code,
+                    "feature_name": feature.feature_name,
+                    "icon": feature.icon,
+                    "order": feature.order,
+                    "modules": allowed_modules,
+                }
+            )
 
         return APIResponse.success(
             data={"company_id": company_id, "features": filtered_features},
@@ -325,11 +325,7 @@ class FeatureCreateAPIView(APIView):
     permission_prefix = "core.features"
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        features = (
-            Feature.objects.all()
-            .prefetch_related("modules__permissions")
-            .order_by("order", "feature_name")
-        )
+        features = Feature.objects.all().prefetch_related("modules__permissions").order_by("order", "feature_name")
         serializer = FeatureSerializer(features, many=True)
         return APIResponse.success(
             data={"features": serializer.data},

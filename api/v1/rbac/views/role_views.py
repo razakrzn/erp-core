@@ -23,6 +23,7 @@ from .shared import _get_company_id
 
 class RoleListCreateAPIView(APIView):
     """List roles or create a role."""
+
     permission_classes = [IsAuthenticated, RBACPermission]
     serializer_class = RoleWriteSerializer
     permission_prefix = "core.roles"
@@ -36,7 +37,7 @@ class RoleListCreateAPIView(APIView):
         requested_company_id = request.query_params.get("company_id")
         if requested_company_id is not None:
             queryset = queryset.filter(company_id=requested_company_id)
-            
+
         serializer = RoleSerializer(queryset, many=True)
         return APIResponse.success(
             data=serializer.data,
@@ -92,6 +93,7 @@ class RoleListCreateAPIView(APIView):
 
 class RoleDetailAPIView(APIView):
     """Retrieve, update, or delete a Role by id."""
+
     permission_classes = [IsAuthenticated, RBACPermission]
     serializer_class = RoleWriteSerializer
     permission_prefix = "core.roles"

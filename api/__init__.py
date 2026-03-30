@@ -7,4 +7,3 @@ Current structure:
     - auth/
     - company/
 """
-

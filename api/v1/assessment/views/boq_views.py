@@ -8,10 +8,8 @@ from core.utils.responses import APIResponse
 
 from ..serializers import (
     BoqDetailSerializer,
-    BoqItemCreateRequestSerializer,
     BoqItemDetailSerializer,
     BoqItemListSerializer,
-    BoqItemUpdateRequestSerializer,
     BoqListSerializer,
 )
 from .shared import BaseAssessmentViewSet
@@ -70,7 +68,6 @@ class BoqItemViewSet(BaseAssessmentViewSet):
     ordering_fields = ["item_code", "name", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "estimation.boq"
-
 
     def get_serializer_class(self):
         if self.action == "list":

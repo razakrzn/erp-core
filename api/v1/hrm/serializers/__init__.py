@@ -9,15 +9,15 @@ from .employee_serializers import (
 )
 
 __all__ = [
-    'AttendanceSerializer',
-    'CheckInSerializer',
-    'CheckOutSerializer',
-    'DepartmentDesignationSerializer',
-    'DepartmentDetailsSerializer',
-    'DepartmentSerializer',
-    'DesignationSerializer',
-    'EmployeeLightweightSerializer',
-    'EmployeeListSerializer',
-    'EmployeeSerializer',
-    'PreviousEmploymentSerializer',
+    "AttendanceSerializer",
+    "CheckInSerializer",
+    "CheckOutSerializer",
+    "DepartmentDesignationSerializer",
+    "DepartmentDetailsSerializer",
+    "DepartmentSerializer",
+    "DesignationSerializer",
+    "EmployeeLightweightSerializer",
+    "EmployeeListSerializer",
+    "EmployeeSerializer",
+    "PreviousEmploymentSerializer",
 ]

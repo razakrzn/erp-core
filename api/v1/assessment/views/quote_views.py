@@ -9,9 +9,7 @@ from core.utils.responses import APIResponse
 from ..serializers import (
     FinishSerializer,
     QuoteDetailSerializer,
-    QuoteItemCreateRequestSerializer,
     QuoteItemSerializer,
-    QuoteItemUpdateRequestSerializer,
     QuoteListSerializer,
     QuoteTermsConditionsSerializer,
 )
@@ -25,7 +23,6 @@ class QuoteViewSet(BaseAssessmentViewSet):
     ordering_fields = ["quote_number", "status", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "estimation.quotations"
-
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -72,7 +69,6 @@ class QuoteItemViewSet(BaseAssessmentViewSet):
     ordering_fields = ["name", "category", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "estimation.quotations"
-
 
     def create(self, request, *args, **kwargs):
         payload = request.data
@@ -155,11 +151,17 @@ class QuoteItemViewSet(BaseAssessmentViewSet):
 class FinishViewSet(BaseAssessmentViewSet):
     queryset = Finish.objects.select_related("quote_item", "quote_item__quote")
     serializer_class = FinishSerializer
-    search_fields = ["finish_name", "finish_type", "material", "design", "quote_item__name", "quote_item__quote__quote_number"]
+    search_fields = [
+        "finish_name",
+        "finish_type",
+        "material",
+        "design",
+        "quote_item__name",
+        "quote_item__quote__quote_number",
+    ]
     ordering_fields = ["finish_name", "finish_type", "material", "design"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "estimation.quotations"
-
 
 
 class QuoteTermsConditionsViewSet(BaseAssessmentViewSet):
@@ -176,4 +178,3 @@ class QuoteTermsConditionsViewSet(BaseAssessmentViewSet):
         if quote_id:
             queryset = queryset.filter(quote_id=quote_id)
         return queryset
-

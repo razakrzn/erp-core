@@ -15,19 +15,39 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='GlobalTerms',
+            name="GlobalTerms",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=255, verbose_name='title')),
-                ('category', models.CharField(max_length=150, verbose_name='category')),
-                ('content', models.TextField(verbose_name='content')),
-                ('is_default', models.BooleanField(default=False, verbose_name='is default')),
-                ('is_approved', models.BooleanField(default=False, verbose_name='is approved')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='created at')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='updated at')),
-                ('approved_at', models.DateTimeField(blank=True, null=True, verbose_name='approved at')),
-                ('approved_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='approved_global_terms', to=settings.AUTH_USER_MODEL, verbose_name='approved by')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='created_global_terms', to=settings.AUTH_USER_MODEL, verbose_name='created by')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("title", models.CharField(max_length=255, verbose_name="title")),
+                ("category", models.CharField(max_length=150, verbose_name="category")),
+                ("content", models.TextField(verbose_name="content")),
+                ("is_default", models.BooleanField(default=False, verbose_name="is default")),
+                ("is_approved", models.BooleanField(default=False, verbose_name="is approved")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="created at")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="updated at")),
+                ("approved_at", models.DateTimeField(blank=True, null=True, verbose_name="approved at")),
+                (
+                    "approved_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="approved_global_terms",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="approved by",
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="created_global_terms",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="created by",
+                    ),
+                ),
             ],
         ),
     ]

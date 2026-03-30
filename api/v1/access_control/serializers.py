@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from apps.access_control.models import APIAccessRule
 
+
 class APIAccessRuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = APIAccessRule

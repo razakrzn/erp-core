@@ -10,9 +10,10 @@ class APIAccessRuleViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows API Access Rules to be viewed or edited.
     """
+
     queryset = APIAccessRule.objects.all()
     serializer_class = APIAccessRuleSerializer
-    
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
@@ -71,7 +72,7 @@ class APIAccessRuleViewSet(viewsets.ModelViewSet):
     def available_endpoints(self, request, *args, **kwargs):
         endpoints = get_all_url_patterns()
         # Filter for /api/ paths and extract just the path string, deduplicating
-        data = sorted(list({e['path'] for e in endpoints if e['path'].startswith('/api/')}))
+        data = sorted(list({e["path"] for e in endpoints if e["path"].startswith("/api/")}))
         return APIResponse.success(
             data=data,
             message="Available endpoints retrieved successfully.",

@@ -37,6 +37,7 @@ class AdminUserCreationForm(UserCreationForm):
 
 class UserRoleInlineForUser(admin.TabularInline):
     """Inline on User so staff can assign roles from the user edit page."""
+
     model = UserRole
     extra = 1
     autocomplete_fields = ["role"]
@@ -47,6 +48,7 @@ class UserRoleInlineForUser(admin.TabularInline):
             user = request._obj
             if getattr(user, "company_id", None):
                 from apps.rbac.models import Role
+
                 kwargs["queryset"] = Role.objects.filter(company_id=user.company_id).order_by("role_name")
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
@@ -60,6 +62,7 @@ class UserAdmin(BaseUserAdmin):
     """
     Use Django's UserAdmin so passwords are hashed in the admin (add/change forms).
     """
+
     list_display = ("username", "email", "company", "is_staff", "created_at")
     search_fields = ("username", "email")
     list_filter = ("is_staff", "company")
@@ -72,9 +75,7 @@ class UserAdmin(BaseUserAdmin):
             return []  # No inlines when adding a new user
         return super().get_inline_instances(request, obj)
 
-    fieldsets = BaseUserAdmin.fieldsets + (
-        (None, {"fields": ("company",)}),
-    )
+    fieldsets = BaseUserAdmin.fieldsets + ((None, {"fields": ("company",)}),)
     # Define add_fieldsets explicitly so we don't inherit usable_password from
     # BaseUserAdmin (Django 5.1+), which our User model doesn't have.
     add_fieldsets = (

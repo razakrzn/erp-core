@@ -56,23 +56,17 @@ class UserSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         extra_kwargs = {"company": {"write_only": True}}
-    
+
     def get_company_details(self, obj: User) -> dict[str, Any] | None:
         # 'obj' is the User instance
         if obj.company:
-            return {
-                "id": obj.company.id,
-                "company_name": obj.company.name
-            }
+            return {"id": obj.company.id, "company_name": obj.company.name}
         return None
 
     def get_role_details(self, obj: User) -> dict[str, Any] | str | None:
         user_role = obj.user_roles.select_related("role").first()
         if user_role:
-            return {
-                "id": user_role.role.id,
-                "role_name": user_role.role.role_name
-            }
+            return {"id": user_role.role.id, "role_name": user_role.role.role_name}
         if obj.is_superuser:
             return "Superuser"
         return None
@@ -93,9 +87,7 @@ class UserSerializer(serializers.ModelSerializer):
         if role is not None:
             user_company_id = getattr(user, "company_id", None)
             if user_company_id is not None and role.company_id != user_company_id:
-                raise serializers.ValidationError(
-                    {"role_id": "Role must belong to the same company as the user."}
-                )
+                raise serializers.ValidationError({"role_id": "Role must belong to the same company as the user."})
             UserRole.objects.get_or_create(user=user, role=role)
         return user
 

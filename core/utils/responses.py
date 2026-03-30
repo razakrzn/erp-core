@@ -33,13 +33,14 @@ class APIResponse:
     """
     A utility class to standardize API responses.
     """
+
     @staticmethod
     def success(data=None, message="Success", status_code=status.HTTP_200_OK):
         payload = {
             "success": True,
             "message": message,
             "status_code": status_code,
-            "timestamp": timezone.now().isoformat()
+            "timestamp": timezone.now().isoformat(),
         }
         if data is not None:
             payload["data"] = data
@@ -50,12 +51,16 @@ class APIResponse:
         final_message = message
         if status_code == status.HTTP_400_BAD_REQUEST and errors:
             final_message = _build_validation_message(errors)
-        return Response({
-            "success": False,
-            "message": final_message,
-            "status_code": status_code,
-            "timestamp": timezone.now().isoformat(),
-        }, status=status_code)
+        return Response(
+            {
+                "success": False,
+                "message": final_message,
+                "status_code": status_code,
+                "timestamp": timezone.now().isoformat(),
+            },
+            status=status_code,
+        )
+
 
 def custom_exception_handler(exc, context):
     from rest_framework.views import exception_handler
@@ -82,7 +87,7 @@ def custom_exception_handler(exc, context):
         # However, to be consistent with the user request "use only one function",
         # I will keep the logic as it was in exceptions.py but conceptually they are now in one file.
         # Reuse existing logic to be safe and specific about response structure.
-        
+
         response.data = {
             "success": False,
             "status_code": response.status_code,

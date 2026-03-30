@@ -1,4 +1,3 @@
-import uuid
 from decimal import Decimal
 
 from django.conf import settings
@@ -65,22 +64,23 @@ class Quote(models.Model):
             prefix = f"QTN-{year}-"
 
             # Find the max sequence number for this year
-            last_quote = Quote.objects.filter(
-                quote_number__startswith=prefix
-            ).annotate(
-                num=Cast(Substr('quote_number', len(prefix) + 1), IntegerField())
-            ).order_by('-num').first()
+            last_quote = (
+                Quote.objects.filter(quote_number__startswith=prefix)
+                .annotate(num=Cast(Substr("quote_number", len(prefix) + 1), IntegerField()))
+                .order_by("-num")
+                .first()
+            )
 
             next_number = (last_quote.num + 1) if last_quote else 1
             self.quote_number = f"{prefix}{next_number:05d}"
-        
+
         if self.is_approved:
             self.status = "Quotation Approved"
         elif self.is_rejected:
             self.status = "Quotation Rejected"
         else:
             self.status = "Awaiting Quotation"
-            
+
         super().save(*args, **kwargs)
         if self.boq and self.boq.enquiry:
             self.boq.enquiry.sync_status()
@@ -93,7 +93,6 @@ class Quote(models.Model):
         self.total_items = totals["total_items"] or 0
         self.total_amount = totals["total_amount"] or Decimal("0")
         self.save(update_fields=["total_items", "total_amount"])
-
 
 
 class QuoteItem(models.Model):
@@ -139,14 +138,11 @@ class QuoteItem(models.Model):
         """
         finishes_with_total = self.finishes.filter(total_price__isnull=False)
         if finishes_with_total.exists():
-            total_finish_price = finishes_with_total.aggregate(
-                total=Sum("total_price")
-            )["total"] or Decimal("0")
+            total_finish_price = finishes_with_total.aggregate(total=Sum("total_price"))["total"] or Decimal("0")
             self.unit_price = total_finish_price
             self.amount = (self.quantity or Decimal("0")) * self.unit_price
             self.save(update_fields=["unit_price", "amount"])
             self.quote.refresh_totals()
-
 
 
 class Finish(models.Model):

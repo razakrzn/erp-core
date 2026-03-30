@@ -8,54 +8,147 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Feature',
+            name="Feature",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('feature_code', models.CharField(help_text='Stable identifier used in code/configuration.', max_length=100, unique=True, verbose_name='feature code')),
-                ('feature_name', models.CharField(help_text='Human-readable name shown in the UI.', max_length=150, verbose_name='feature name')),
-                ('icon', models.CharField(blank=True, help_text='Optional icon name for this feature.', max_length=100, null=True, verbose_name='icon')),
-                ('order', models.IntegerField(default=0, help_text='Controls display order in navigation (lower appears first).', verbose_name='order')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "feature_code",
+                    models.CharField(
+                        help_text="Stable identifier used in code/configuration.",
+                        max_length=100,
+                        unique=True,
+                        verbose_name="feature code",
+                    ),
+                ),
+                (
+                    "feature_name",
+                    models.CharField(
+                        help_text="Human-readable name shown in the UI.", max_length=150, verbose_name="feature name"
+                    ),
+                ),
+                (
+                    "icon",
+                    models.CharField(
+                        blank=True,
+                        help_text="Optional icon name for this feature.",
+                        max_length=100,
+                        null=True,
+                        verbose_name="icon",
+                    ),
+                ),
+                (
+                    "order",
+                    models.IntegerField(
+                        default=0,
+                        help_text="Controls display order in navigation (lower appears first).",
+                        verbose_name="order",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'feature',
-                'verbose_name_plural': 'features',
-                'ordering': ('order', 'feature_name'),
+                "verbose_name": "feature",
+                "verbose_name_plural": "features",
+                "ordering": ("order", "feature_name"),
             },
         ),
         migrations.CreateModel(
-            name='Module',
+            name="Module",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('module_code', models.CharField(help_text='Stable identifier used in code/configuration.', max_length=120, unique=True, verbose_name='module code')),
-                ('module_name', models.CharField(help_text='Human-readable name shown in the UI.', max_length=150, verbose_name='module name')),
-                ('route', models.CharField(blank=True, help_text='Frontend route path for this module, if applicable.', max_length=200, null=True, verbose_name='route')),
-                ('icon', models.CharField(blank=True, help_text='Optional icon name for this module.', max_length=100, null=True, verbose_name='icon')),
-                ('order', models.IntegerField(default=0, help_text='Controls display order within a feature.', verbose_name='order')),
-                ('feature', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='modules', to='navigation.feature', verbose_name='feature')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "module_code",
+                    models.CharField(
+                        help_text="Stable identifier used in code/configuration.",
+                        max_length=120,
+                        unique=True,
+                        verbose_name="module code",
+                    ),
+                ),
+                (
+                    "module_name",
+                    models.CharField(
+                        help_text="Human-readable name shown in the UI.", max_length=150, verbose_name="module name"
+                    ),
+                ),
+                (
+                    "route",
+                    models.CharField(
+                        blank=True,
+                        help_text="Frontend route path for this module, if applicable.",
+                        max_length=200,
+                        null=True,
+                        verbose_name="route",
+                    ),
+                ),
+                (
+                    "icon",
+                    models.CharField(
+                        blank=True,
+                        help_text="Optional icon name for this module.",
+                        max_length=100,
+                        null=True,
+                        verbose_name="icon",
+                    ),
+                ),
+                (
+                    "order",
+                    models.IntegerField(
+                        default=0, help_text="Controls display order within a feature.", verbose_name="order"
+                    ),
+                ),
+                (
+                    "feature",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="modules",
+                        to="navigation.feature",
+                        verbose_name="feature",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'module',
-                'verbose_name_plural': 'modules',
-                'ordering': ('feature', 'order', 'module_name'),
+                "verbose_name": "module",
+                "verbose_name_plural": "modules",
+                "ordering": ("feature", "order", "module_name"),
             },
         ),
         migrations.CreateModel(
-            name='Permission',
+            name="Permission",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('permission_code', models.CharField(help_text='Stable permission code used in RBAC checks.', max_length=150, unique=True, verbose_name='permission code')),
-                ('permission_name', models.CharField(help_text='Human-readable permission label.', max_length=150, verbose_name='permission name')),
-                ('module', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='permissions', to='navigation.module', verbose_name='module')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "permission_code",
+                    models.CharField(
+                        help_text="Stable permission code used in RBAC checks.",
+                        max_length=150,
+                        unique=True,
+                        verbose_name="permission code",
+                    ),
+                ),
+                (
+                    "permission_name",
+                    models.CharField(
+                        help_text="Human-readable permission label.", max_length=150, verbose_name="permission name"
+                    ),
+                ),
+                (
+                    "module",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="permissions",
+                        to="navigation.module",
+                        verbose_name="module",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'permission',
-                'verbose_name_plural': 'permissions',
-                'ordering': ('module', 'permission_name'),
+                "verbose_name": "permission",
+                "verbose_name_plural": "permissions",
+                "ordering": ("module", "permission_name"),
             },
         ),
     ]

@@ -30,8 +30,7 @@ def build_sidebar(user: Any, company: Optional[Company] = None) -> List[Dict[str
     # 1. Prepare base query with efficient prefetching of modules and permissions.
     # We use Prefetch objects to ensure ordering is preserved without breaking the prefetch cache.
     module_prefetch = Prefetch(
-        "modules",
-        queryset=Module.objects.all().order_by("order", "module_name").prefetch_related("permissions")
+        "modules", queryset=Module.objects.all().order_by("order", "module_name").prefetch_related("permissions")
     )
 
     if company is None:
@@ -52,11 +51,7 @@ def build_sidebar(user: Any, company: Optional[Company] = None) -> List[Dict[str
         features_qs = Feature.objects.filter(id__in=enabled_feature_ids)
 
     # 2. Fetch all features, modules, and permissions in minimal queries.
-    features = (
-        features_qs
-        .prefetch_related(module_prefetch)
-        .order_by("order", "feature_name")
-    )
+    features = features_qs.prefetch_related(module_prefetch).order_by("order", "feature_name")
 
     # 3. Efficiently fetch user's permissions once.
     user_permissions: set[str] = get_user_permission_codes(user)
@@ -74,20 +69,24 @@ def build_sidebar(user: Any, company: Optional[Company] = None) -> List[Dict[str
             # Check permissions
             module_perms = {p.permission_code for p in module.permissions.all()}
             if is_superuser or (module_perms & user_permissions):
-                module_list.append({
-                    "module_name": module.module_name,
-                    "module_code": module.module_code,
-                    "route": module.route,
-                    "icon": module.icon,
-                })
+                module_list.append(
+                    {
+                        "module_name": module.module_name,
+                        "module_code": module.module_code,
+                        "route": module.route,
+                        "icon": module.icon,
+                    }
+                )
 
         if module_list:
-            sidebar.append({
-                "feature_name": feature.feature_name,
-                "feature_code": feature.feature_code,
-                "icon": feature.icon,
-                "modules": module_list,
-            })
+            sidebar.append(
+                {
+                    "feature_name": feature.feature_name,
+                    "feature_code": feature.feature_code,
+                    "icon": feature.icon,
+                    "modules": module_list,
+                }
+            )
 
     # Cache for 10 minutes (600 seconds)
     try:

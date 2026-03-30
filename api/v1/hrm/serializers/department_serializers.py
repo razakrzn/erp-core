@@ -11,7 +11,7 @@ from apps.hrm.models.designation import Designation
 class DepartmentDesignationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Designation
-        fields = ['id', 'name', 'slug', 'is_active', 'created_at']
+        fields = ["id", "name", "slug", "is_active", "created_at"]
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -19,8 +19,8 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Department
-        fields = ['id', 'name', 'slug', 'head_name', 'is_active', 'created_at']
-        read_only_fields = ['slug', 'created_at']
+        fields = ["id", "name", "slug", "head_name", "is_active", "created_at"]
+        read_only_fields = ["slug", "created_at"]
 
     def get_head_name(self, obj: Department) -> str | None:
         return obj.head.full_name if obj.head else None
@@ -32,13 +32,13 @@ class DepartmentDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Department
-        fields = ['id', 'name', 'slug', 'head_details', 'is_active', 'created_at', 'designations']
-        read_only_fields = ['slug', 'created_at']
+        fields = ["id", "name", "slug", "head_details", "is_active", "created_at", "designations"]
+        read_only_fields = ["slug", "created_at"]
 
     def get_head_details(self, obj: Department) -> dict[str, Any] | None:
         if not obj.head:
             return None
         return {
-            'id': obj.head.id,
-            'full_name': obj.head.full_name,
+            "id": obj.head.id,
+            "full_name": obj.head.full_name,
         }

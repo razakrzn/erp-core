@@ -64,22 +64,23 @@ class Boq(models.Model):
             prefix = f"BOQ-{year}-"
 
             # Find the max sequence number for this year
-            last_boq = Boq.objects.filter(
-                boq_number__startswith=prefix
-            ).annotate(
-                num=Cast(Substr('boq_number', len(prefix) + 1), IntegerField())
-            ).order_by('-num').first()
+            last_boq = (
+                Boq.objects.filter(boq_number__startswith=prefix)
+                .annotate(num=Cast(Substr("boq_number", len(prefix) + 1), IntegerField()))
+                .order_by("-num")
+                .first()
+            )
 
             next_number = (last_boq.num + 1) if last_boq else 1
             self.boq_number = f"{prefix}{next_number:05d}"
-        
+
         if self.is_approved:
             self.status = "Bill of Quantity Approved"
         elif self.is_rejected:
             self.status = "Bill of Quantity Rejected"
         else:
             self.status = "Awaiting Bill of Quantity"
-            
+
         super().save(*args, **kwargs)
         self._sync_enquiry_status()
 
@@ -118,11 +119,12 @@ class BoqItem(models.Model):
             prefix = f"ITEM-{year}-"
 
             # Find the max sequence number for this year
-            last_item = BoqItem.objects.filter(
-                item_code__startswith=prefix
-            ).annotate(
-                num=Cast(Substr('item_code', len(prefix) + 1), IntegerField())
-            ).order_by('-num').first()
+            last_item = (
+                BoqItem.objects.filter(item_code__startswith=prefix)
+                .annotate(num=Cast(Substr("item_code", len(prefix) + 1), IntegerField()))
+                .order_by("-num")
+                .first()
+            )
 
             next_number = (last_item.num + 1) if last_item else 1
             self.item_code = f"{prefix}{next_number:05d}"

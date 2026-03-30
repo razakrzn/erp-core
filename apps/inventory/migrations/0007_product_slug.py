@@ -5,41 +5,41 @@ from django.utils.text import slugify
 
 
 def populate_product_slugs(apps, schema_editor):
-    Product = apps.get_model('inventory', 'Product')
-    used_slugs = set(Product.objects.exclude(slug__isnull=True).exclude(slug='').values_list('slug', flat=True))
+    Product = apps.get_model("inventory", "Product")
+    used_slugs = set(Product.objects.exclude(slug__isnull=True).exclude(slug="").values_list("slug", flat=True))
 
     for product in Product.objects.all().iterator():
         if product.slug:
             continue
 
-        base_slug = slugify(product.name) or f'product-{product.pk}'
+        base_slug = slugify(product.name) or f"product-{product.pk}"
         candidate = base_slug
         counter = 1
         while candidate in used_slugs:
             counter += 1
-            candidate = f'{base_slug}-{counter}'
+            candidate = f"{base_slug}-{counter}"
 
         product.slug = candidate
-        product.save(update_fields=['slug'])
+        product.save(update_fields=["slug"])
         used_slugs.add(candidate)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inventory', '0006_alter_product_sku'),
+        ("inventory", "0006_alter_product_sku"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='product',
-            name='slug',
+            model_name="product",
+            name="slug",
             field=models.SlugField(blank=True, max_length=255, null=True, unique=True),
         ),
         migrations.RunPython(populate_product_slugs, migrations.RunPython.noop),
         migrations.AlterField(
-            model_name='product',
-            name='slug',
+            model_name="product",
+            name="slug",
             field=models.SlugField(blank=True, max_length=255, unique=True),
         ),
     ]

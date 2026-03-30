@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 class Template(models.Model):
     name = models.CharField(_("name"), max_length=200)
     category = models.CharField(_("category"), max_length=100)
-    
+
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
     created_by = models.ForeignKey(

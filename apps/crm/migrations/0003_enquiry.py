@@ -29,9 +29,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "new_client_name",
-                    models.CharField(
-                        blank=True, max_length=200, verbose_name="new client name"
-                    ),
+                    models.CharField(blank=True, max_length=200, verbose_name="new client name"),
                 ),
                 (
                     "project_description",
@@ -39,9 +37,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "location",
-                    models.CharField(
-                        blank=True, max_length=200, verbose_name="location"
-                    ),
+                    models.CharField(blank=True, max_length=200, verbose_name="location"),
                 ),
                 (
                     "attachment",

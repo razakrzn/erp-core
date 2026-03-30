@@ -72,11 +72,12 @@ class Enquiry(models.Model):
             prefix = f"ENQ-{year}-"
 
             # Find the max sequence number for this year to ensure sequential increment
-            last_enquiry = Enquiry.objects.filter(
-                enquiry_code__startswith=prefix
-            ).annotate(
-                num=Cast(Substr('enquiry_code', len(prefix) + 1), IntegerField())
-            ).order_by('-num').first()
+            last_enquiry = (
+                Enquiry.objects.filter(enquiry_code__startswith=prefix)
+                .annotate(num=Cast(Substr("enquiry_code", len(prefix) + 1), IntegerField()))
+                .order_by("-num")
+                .first()
+            )
 
             next_number = (last_enquiry.num + 1) if last_enquiry else 1
             self.enquiry_code = f"{prefix}{next_number:05d}"
@@ -88,7 +89,7 @@ class Enquiry(models.Model):
         Priority: Quotation Approved > Quotation Rejected > Boq Approved > Boq Rejected
         """
         # Check for Quotations (through BOQ relationship).
-        # We can't import Boq/Quote directly due to circular dependencies, 
+        # We can't import Boq/Quote directly due to circular dependencies,
         # but we can filter via related name.
         if self.boqs.filter(quotes__is_approved=True).exists():
             status_val = "Quotation Approved"
@@ -101,7 +102,7 @@ class Enquiry(models.Model):
             status_val = "Bill of Quantity Rejected"
         else:
             status_val = "Awaiting Bill of Quantity"
-        
+
         if self.status != status_val:
             self.status = status_val
             self.save(update_fields=["status"])

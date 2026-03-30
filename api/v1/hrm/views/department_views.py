@@ -20,7 +20,7 @@ class DepartmentViewSet(BaseHRMViewSet):
     - Basic search on name and slug
     """
 
-    queryset = Department.objects.select_related('head').prefetch_related('designations')
+    queryset = Department.objects.select_related("head").prefetch_related("designations")
     serializer_class = DepartmentSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["name", "slug"]
@@ -29,7 +29,7 @@ class DepartmentViewSet(BaseHRMViewSet):
     permission_prefix = "hr.department"
 
     def get_serializer_class(self):
-        if self.action == 'retrieve':
+        if self.action == "retrieve":
             return DepartmentDetailsSerializer
         return DepartmentSerializer
 
@@ -63,7 +63,7 @@ class DesignationViewSet(BaseHRMViewSet):
     - Filter by department_id
     """
 
-    queryset = Designation.objects.select_related('department')
+    queryset = Designation.objects.select_related("department")
     serializer_class = DesignationSerializer
     filter_backends = [django_filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = DesignationFilter

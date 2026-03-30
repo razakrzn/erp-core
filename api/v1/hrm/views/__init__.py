@@ -4,10 +4,10 @@ from .employee_views import EmployeeLightweightViewSet, EmployeeViewSet
 from .shared import BaseHRMViewSet
 
 __all__ = [
-    'AttendanceViewSet',
-    'DepartmentViewSet',
-    'DesignationViewSet',
-    'EmployeeLightweightViewSet',
-    'EmployeeViewSet',
-    'BaseHRMViewSet',
+    "AttendanceViewSet",
+    "DepartmentViewSet",
+    "DesignationViewSet",
+    "EmployeeLightweightViewSet",
+    "EmployeeViewSet",
+    "BaseHRMViewSet",
 ]

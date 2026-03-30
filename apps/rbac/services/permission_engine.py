@@ -42,6 +42,3 @@ def get_user_permission_codes(user: Any) -> set[str]:
             role__assigned_users__user=user,
         ).values_list("permission__permission_code", flat=True)
     )
-
-
-

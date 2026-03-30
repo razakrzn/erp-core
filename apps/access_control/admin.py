@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import APIAccessRule
 
+
 @admin.register(APIAccessRule)
 class APIAccessRuleAdmin(admin.ModelAdmin):
 

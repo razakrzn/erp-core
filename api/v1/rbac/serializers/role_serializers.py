@@ -41,9 +41,7 @@ class RoleWriteSerializer(serializers.ModelSerializer):
         if self.instance is not None:
             qs = qs.exclude(pk=self.instance.pk)
         if qs.exists():
-            raise serializers.ValidationError(
-                "A role with this code already exists for your company."
-            )
+            raise serializers.ValidationError("A role with this code already exists for your company.")
         return value
 
     def create(self, validated_data: dict) -> Role:
@@ -89,6 +87,10 @@ class RoleDetailSerializer(serializers.ModelSerializer):
 
     def get_permissions(self, obj: Role) -> list[dict]:
         return [
-            {"id": rp.permission_id, "permission_name": rp.permission.permission_name, "permission_code": rp.permission.permission_code}
+            {
+                "id": rp.permission_id,
+                "permission_name": rp.permission.permission_name,
+                "permission_code": rp.permission.permission_code,
+            }
             for rp in obj.role_permissions.select_related("permission").all()
         ]

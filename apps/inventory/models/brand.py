@@ -1,6 +1,5 @@
 # inventory/models/brand.py
 
-from django.db import models
 
 from .base import BaseMasterModel
 

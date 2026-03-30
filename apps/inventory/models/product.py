@@ -39,7 +39,7 @@ class Product(models.Model):
         category_code = (self.category.code or "CAT").upper()
         brand_code = ((self.brand.code if self.brand else None) or "NOB").upper()
         if self.size:
-            size_part = (self.size.code or self.size.value or self.size.name or "NOS")
+            size_part = self.size.code or self.size.value or self.size.name or "NOS"
         else:
             size_part = "NOS"
         size_code = str(size_part).replace(" ", "").replace("/", "").upper()
@@ -47,13 +47,13 @@ class Product(models.Model):
         return f"{category_code}-{brand_code}-{size_code}-{random_code}"
 
     def _generate_slug(self):
-        base_slug = slugify(self.name) or f'product-{self.pk or uuid.uuid4().hex[:6]}'
+        base_slug = slugify(self.name) or f"product-{self.pk or uuid.uuid4().hex[:6]}"
         candidate = base_slug
         counter = 1
 
         while self.__class__.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
             counter += 1
-            candidate = f'{base_slug}-{counter}'
+            candidate = f"{base_slug}-{counter}"
         return candidate
 
     def save(self, *args, **kwargs):

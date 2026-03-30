@@ -9,6 +9,7 @@ class User(AbstractUser):
     Custom user model. Password is inherited from AbstractUser (hashed storage).
     Each user may belong to a company (optional).
     """
+
     company = models.ForeignKey(
         "company.Company",
         on_delete=models.CASCADE,
@@ -22,7 +23,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = _("user")
         verbose_name_plural = _("users")
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
     def __str__(self):
         return self.username

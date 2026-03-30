@@ -7,6 +7,7 @@ from core.utils.responses import APIResponse
 
 class BaseProductionViewSet(viewsets.ModelViewSet):
     """Generic base class for production-related ViewSets with common behavior."""
+
     permission_classes = [IsAuthenticated, RBACPermission]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     ordering = ["-created_at"]

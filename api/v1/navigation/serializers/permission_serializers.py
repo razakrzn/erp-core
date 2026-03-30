@@ -4,6 +4,7 @@ from apps.navigation.models import Permission
 
 class PermissionSerializer(serializers.ModelSerializer):
     """Serializer for navigation Permission (used by RBAC)."""
+
     module_name = serializers.SlugRelatedField(
         slug_field="module_name",
         read_only=True,

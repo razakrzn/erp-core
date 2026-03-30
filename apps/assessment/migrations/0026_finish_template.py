@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('assessment', '0025_alter_boq_options_alter_boqitem_options_and_more'),
+        ("assessment", "0025_alter_boq_options_alter_boqitem_options_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='finish',
-            name='template',
-            field=models.CharField(blank=True, max_length=200, null=True, verbose_name='template'),
+            model_name="finish",
+            name="template",
+            field=models.CharField(blank=True, max_length=200, null=True, verbose_name="template"),
         ),
     ]

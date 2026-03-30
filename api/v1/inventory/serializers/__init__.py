@@ -12,16 +12,16 @@ from .master_serializers import (
 from .product_serializers import ProductDropdownSerializer, ProductListSerializer, ProductSerializer
 
 __all__ = [
-    'BrandSerializer',
-    'CategorySerializer',
-    'DropdownOptionSerializer',
-    'DropdownOptionWithValueSerializer',
-    'FinishSerializer',
-    'GradeSerializer',
-    'MaterialSerializer',
-    'ProductDropdownSerializer',
-    'ProductListSerializer',
-    'ProductSerializer',
-    'SizeSerializer',
-    'ThicknessSerializer',
+    "BrandSerializer",
+    "CategorySerializer",
+    "DropdownOptionSerializer",
+    "DropdownOptionWithValueSerializer",
+    "FinishSerializer",
+    "GradeSerializer",
+    "MaterialSerializer",
+    "ProductDropdownSerializer",
+    "ProductListSerializer",
+    "ProductSerializer",
+    "SizeSerializer",
+    "ThicknessSerializer",
 ]

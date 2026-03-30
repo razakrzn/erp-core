@@ -10,80 +10,138 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('company', '0005_companyfeature'),
-        ('navigation', '0001_initial'),
+        ("company", "0005_companyfeature"),
+        ("navigation", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Role',
+            name="Role",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role_name', models.CharField(max_length=150, verbose_name='role name')),
-                ('role_code', models.CharField(max_length=150, verbose_name='role code')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='description')),
-                ('is_active', models.BooleanField(default=True, verbose_name='is active')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='created at')),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='roles', to='company.company', verbose_name='company')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("role_name", models.CharField(max_length=150, verbose_name="role name")),
+                ("role_code", models.CharField(max_length=150, verbose_name="role code")),
+                ("description", models.TextField(blank=True, null=True, verbose_name="description")),
+                ("is_active", models.BooleanField(default=True, verbose_name="is active")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="created at")),
+                (
+                    "company",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="roles",
+                        to="company.company",
+                        verbose_name="company",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'role',
-                'verbose_name_plural': 'roles',
-                'ordering': ('company', 'role_name'),
+                "verbose_name": "role",
+                "verbose_name_plural": "roles",
+                "ordering": ("company", "role_name"),
             },
         ),
         migrations.CreateModel(
-            name='RoleHierarchy',
+            name="RoleHierarchy",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('child_role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='parents', to='rbac.role', verbose_name='child role')),
-                ('parent_role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='children', to='rbac.role', verbose_name='parent role')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "child_role",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="parents",
+                        to="rbac.role",
+                        verbose_name="child role",
+                    ),
+                ),
+                (
+                    "parent_role",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="children",
+                        to="rbac.role",
+                        verbose_name="parent role",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'role hierarchy',
-                'verbose_name_plural': 'role hierarchies',
+                "verbose_name": "role hierarchy",
+                "verbose_name_plural": "role hierarchies",
             },
         ),
         migrations.CreateModel(
-            name='RolePermission',
+            name="RolePermission",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('permission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='role_permissions', to='navigation.permission', verbose_name='permission')),
-                ('role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='role_permissions', to='rbac.role', verbose_name='role')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "permission",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="role_permissions",
+                        to="navigation.permission",
+                        verbose_name="permission",
+                    ),
+                ),
+                (
+                    "role",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="role_permissions",
+                        to="rbac.role",
+                        verbose_name="role",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'role permission',
-                'verbose_name_plural': 'role permissions',
+                "verbose_name": "role permission",
+                "verbose_name_plural": "role permissions",
             },
         ),
         migrations.CreateModel(
-            name='UserRole',
+            name="UserRole",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('assigned_at', models.DateTimeField(auto_now_add=True, verbose_name='assigned at')),
-                ('role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='assigned_users', to='rbac.role', verbose_name='role')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_roles', to=settings.AUTH_USER_MODEL, verbose_name='user')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("assigned_at", models.DateTimeField(auto_now_add=True, verbose_name="assigned at")),
+                (
+                    "role",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="assigned_users",
+                        to="rbac.role",
+                        verbose_name="role",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="user_roles",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="user",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'user role',
-                'verbose_name_plural': 'user roles',
+                "verbose_name": "user role",
+                "verbose_name_plural": "user roles",
             },
         ),
         migrations.AddConstraint(
-            model_name='role',
-            constraint=models.UniqueConstraint(fields=('company', 'role_code'), name='uniq_rbac_role_company_code'),
+            model_name="role",
+            constraint=models.UniqueConstraint(fields=("company", "role_code"), name="uniq_rbac_role_company_code"),
         ),
         migrations.AddConstraint(
-            model_name='rolehierarchy',
-            constraint=models.UniqueConstraint(fields=('parent_role', 'child_role'), name='uniq_rbac_role_hierarchy_parent_child'),
+            model_name="rolehierarchy",
+            constraint=models.UniqueConstraint(
+                fields=("parent_role", "child_role"), name="uniq_rbac_role_hierarchy_parent_child"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='rolepermission',
-            constraint=models.UniqueConstraint(fields=('role', 'permission'), name='uniq_rbac_role_permission'),
+            model_name="rolepermission",
+            constraint=models.UniqueConstraint(fields=("role", "permission"), name="uniq_rbac_role_permission"),
         ),
         migrations.AddConstraint(
-            model_name='userrole',
-            constraint=models.UniqueConstraint(fields=('user', 'role'), name='uniq_rbac_user_role'),
+            model_name="userrole",
+            constraint=models.UniqueConstraint(fields=("user", "role"), name="uniq_rbac_user_role"),
         ),
     ]

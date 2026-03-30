@@ -14,7 +14,7 @@ class Company(models.Model):
     class Meta:
         verbose_name = _("company")
         verbose_name_plural = _("companies")
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.name} ({self.code})"

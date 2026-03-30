@@ -14,7 +14,6 @@ class LeadManagementViewSet(BaseCRMViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "sales.leads"
 
-
     def get_serializer_class(self):
         if self.action == "list":
             return LeadManagementListSerializer

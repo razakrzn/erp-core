@@ -21,17 +21,17 @@ class AttendanceViewSet(BaseHRMViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_superuser:
-            return Attendance.objects.select_related('employee', 'employee__user')
+            return Attendance.objects.select_related("employee", "employee__user")
 
-        employee = getattr(user, 'employee_profile', None)
+        employee = getattr(user, "employee_profile", None)
         if employee:
-            return Attendance.objects.select_related('employee', 'employee__user').filter(employee=employee)
+            return Attendance.objects.select_related("employee", "employee__user").filter(employee=employee)
 
         return Attendance.objects.none()
 
-    @action(detail=False, methods=['post'], url_path='check-in')
+    @action(detail=False, methods=["post"], url_path="check-in")
     def check_in(self, request):
-        employee = getattr(request.user, 'employee_profile', None)
+        employee = getattr(request.user, "employee_profile", None)
         if not employee:
             return APIResponse.error(
                 message="Employee profile not found for this user.",
@@ -49,7 +49,7 @@ class AttendanceViewSet(BaseHRMViewSet):
             employee=employee,
             date=today,
             check_in=timezone.now().time(),
-            status='Present',
+            status="Present",
         )
 
         serializer = self.get_serializer(attendance)
@@ -59,9 +59,9 @@ class AttendanceViewSet(BaseHRMViewSet):
             status_code=status.HTTP_201_CREATED,
         )
 
-    @action(detail=False, methods=['post'], url_path='check-out')
+    @action(detail=False, methods=["post"], url_path="check-out")
     def check_out(self, request):
-        employee = getattr(request.user, 'employee_profile', None)
+        employee = getattr(request.user, "employee_profile", None)
         if not employee:
             return APIResponse.error(
                 message="Employee profile not found.",
@@ -84,7 +84,7 @@ class AttendanceViewSet(BaseHRMViewSet):
             )
 
         attendance.check_out = timezone.now().time()
-        attendance.save(update_fields=['check_out'])
+        attendance.save(update_fields=["check_out"])
 
         serializer = self.get_serializer(attendance)
         return APIResponse.success(
@@ -93,11 +93,11 @@ class AttendanceViewSet(BaseHRMViewSet):
             status_code=status.HTTP_200_OK,
         )
 
-    @action(detail=False, methods=['get'], url_path='report')
+    @action(detail=False, methods=["get"], url_path="report")
     def report(self, request):
         queryset = self.get_queryset()
         total_days = queryset.count()
-        present_days = queryset.filter(status='Present').count()
+        present_days = queryset.filter(status="Present").count()
 
         return APIResponse.success(
             data={

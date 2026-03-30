@@ -7,28 +7,71 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='APIAccessRule',
+            name="APIAccessRule",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(help_text='Human-readable label for this rule.', max_length=150, verbose_name='name')),
-                ('method', models.CharField(choices=[('GET', 'GET'), ('POST', 'POST'), ('PUT', 'PUT'), ('PATCH', 'PATCH'), ('DELETE', 'DELETE')], help_text='HTTP method of the API endpoint', max_length=10, verbose_name='HTTP method')),
-                ('path', models.CharField(db_index=True, help_text='API endpoint path (exact, not a regex)', max_length=255, verbose_name='path')),
-                ('permission_code', models.CharField(help_text='Permission code required to access this API', max_length=150, verbose_name='permission code')),
-                ('description', models.TextField(blank=True, help_text='Optional description of the API endpoint', null=True, verbose_name='description')),
-                ('is_active', models.BooleanField(default=True, verbose_name='is active')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='created at')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='updated at')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Human-readable label for this rule.", max_length=150, verbose_name="name"
+                    ),
+                ),
+                (
+                    "method",
+                    models.CharField(
+                        choices=[
+                            ("GET", "GET"),
+                            ("POST", "POST"),
+                            ("PUT", "PUT"),
+                            ("PATCH", "PATCH"),
+                            ("DELETE", "DELETE"),
+                        ],
+                        help_text="HTTP method of the API endpoint",
+                        max_length=10,
+                        verbose_name="HTTP method",
+                    ),
+                ),
+                (
+                    "path",
+                    models.CharField(
+                        db_index=True,
+                        help_text="API endpoint path (exact, not a regex)",
+                        max_length=255,
+                        verbose_name="path",
+                    ),
+                ),
+                (
+                    "permission_code",
+                    models.CharField(
+                        help_text="Permission code required to access this API",
+                        max_length=150,
+                        verbose_name="permission code",
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(
+                        blank=True,
+                        help_text="Optional description of the API endpoint",
+                        null=True,
+                        verbose_name="description",
+                    ),
+                ),
+                ("is_active", models.BooleanField(default=True, verbose_name="is active")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="created at")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="updated at")),
             ],
             options={
-                'verbose_name': 'API access rule',
-                'verbose_name_plural': 'API access rules',
-                'ordering': ('-created_at',),
-                'constraints': [models.UniqueConstraint(fields=('method', 'path'), name='uniq_api_access_rule_method_path')],
+                "verbose_name": "API access rule",
+                "verbose_name_plural": "API access rules",
+                "ordering": ("-created_at",),
+                "constraints": [
+                    models.UniqueConstraint(fields=("method", "path"), name="uniq_api_access_rule_method_path")
+                ],
             },
         ),
     ]
