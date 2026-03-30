@@ -1,6 +1,10 @@
+import logging
+
 from rest_framework import serializers
 
 from apps.assessment.models import Boq, BoqItem
+
+logger = logging.getLogger(__name__)
 
 
 class BoqListSerializer(serializers.ModelSerializer):
@@ -37,6 +41,10 @@ class BoqDetailSerializer(serializers.ModelSerializer):
     enquiry = serializers.SerializerMethodField()
     boq_items = serializers.SerializerMethodField()
     is_boq_items_empty = serializers.SerializerMethodField()
+    created_by = serializers.SerializerMethodField()
+    updated_by = serializers.SerializerMethodField()
+    approved_by = serializers.SerializerMethodField()
+    rejected_by = serializers.SerializerMethodField()
 
     class Meta:
         model = Boq
@@ -51,11 +59,66 @@ class BoqDetailSerializer(serializers.ModelSerializer):
             "updated_at",
             "created_by",
             "updated_by",
+            "approved_by",
+            "rejected_by",
             "enquiry",
             "boq_items",
             "is_boq_items_empty",
         ]
-        read_only_fields = ["boq_number", "created_at", "updated_at", "created_by", "updated_by", "enquiry"]
+        read_only_fields = [
+            "boq_number",
+            "created_at",
+            "updated_at",
+            "created_by",
+            "updated_by",
+            "approved_by",
+            "rejected_by",
+            "enquiry",
+        ]
+
+    def _get_user_full_name(self, user):
+        if not user:
+            return None
+        full_name = f"{getattr(user, 'first_name', '')} {getattr(user, 'last_name', '')}".strip()
+        if full_name:
+            return full_name
+        if hasattr(user, "get_full_name"):
+            computed = (user.get_full_name() or "").strip()
+            if computed:
+                return computed
+        username = (getattr(user, "username", "") or "").strip()
+        if username:
+            return username
+        email = (getattr(user, "email", "") or "").strip()
+        if email:
+            return email
+        return f"User #{getattr(user, 'id', '')}".strip()
+
+    def get_approved_by(self, obj):
+        logger.debug(
+            "[BoqDetailSerializer get_approved_by] boq_id=%s is_approved=%s approved_by_id=%s approved_by=%s",
+            obj.id,
+            obj.is_approved,
+            getattr(obj, "approved_by_id", None),
+            self._get_user_full_name(obj.approved_by),
+        )
+        return self._get_user_full_name(obj.approved_by)
+
+    def get_rejected_by(self, obj):
+        logger.debug(
+            "[BoqDetailSerializer get_rejected_by] boq_id=%s is_rejected=%s rejected_by_id=%s rejected_by=%s",
+            obj.id,
+            obj.is_rejected,
+            getattr(obj, "rejected_by_id", None),
+            self._get_user_full_name(obj.rejected_by),
+        )
+        return self._get_user_full_name(obj.rejected_by)
+
+    def get_created_by(self, obj):
+        return self._get_user_full_name(obj.created_by)
+
+    def get_updated_by(self, obj):
+        return self._get_user_full_name(obj.updated_by)
 
     def get_enquiry(self, obj):
         if not obj.enquiry:

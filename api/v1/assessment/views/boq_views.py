@@ -1,3 +1,5 @@
+import logging
+
 from django.db import transaction
 from rest_framework import filters, status
 from rest_framework.decorators import action
@@ -14,6 +16,8 @@ from ..serializers import (
 )
 from .shared import BaseAssessmentViewSet
 
+logger = logging.getLogger(__name__)
+
 
 class BoqViewSet(BaseAssessmentViewSet):
     queryset = Boq.objects.select_related("enquiry")
@@ -28,10 +32,91 @@ class BoqViewSet(BaseAssessmentViewSet):
             return BoqListSerializer
         return BoqDetailSerializer
 
+    def perform_update(self, serializer):
+        """
+        Keep approval audit fields in sync even when BOQ is updated via generic
+        PUT/PATCH endpoints (not only custom approve/reject actions).
+        """
+        user = self.request.user if self.request.user and self.request.user.is_authenticated else None
+        validated = serializer.validated_data
+        instance = serializer.instance
+        save_kwargs = {}
+        user_id = getattr(user, "id", None)
+
+        logger.debug(
+            "[BOQ perform_update] boq_id=%s user_id=%s validated_keys=%s incoming_is_approved=%s incoming_is_rejected=%s "
+            "current_is_approved=%s current_is_rejected=%s current_approved_by_id=%s current_rejected_by_id=%s",
+            instance.id,
+            user_id,
+            list(validated.keys()),
+            validated.get("is_approved", "<missing>"),
+            validated.get("is_rejected", "<missing>"),
+            getattr(instance, "is_approved", None),
+            getattr(instance, "is_rejected", None),
+            getattr(instance, "approved_by_id", None),
+            getattr(instance, "rejected_by_id", None),
+        )
+
+        if self._model_has_field("updated_by") and user:
+            save_kwargs["updated_by"] = user
+
+        if "is_approved" in validated:
+            if validated.get("is_approved"):
+                save_kwargs["approved_by"] = user
+                save_kwargs["rejected_by"] = None
+            else:
+                save_kwargs["approved_by"] = None
+
+        if "is_rejected" in validated:
+            if validated.get("is_rejected"):
+                save_kwargs["rejected_by"] = user
+                save_kwargs["approved_by"] = None
+            else:
+                save_kwargs["rejected_by"] = None
+
+        # If one flag is omitted, preserve existing semantics.
+        if "is_approved" not in validated and "is_rejected" in validated and validated.get("is_rejected"):
+            if getattr(instance, "is_approved", False):
+                save_kwargs["approved_by"] = None
+        if "is_rejected" not in validated and "is_approved" in validated and validated.get("is_approved"):
+            if getattr(instance, "is_rejected", False):
+                save_kwargs["rejected_by"] = None
+
+        logger.debug(
+            "[BOQ perform_update] boq_id=%s user_id=%s computed_save_kwargs=%s",
+            instance.id,
+            user_id,
+            {
+                key: (value.id if hasattr(value, "id") else value)
+                for key, value in save_kwargs.items()
+            },
+        )
+        serializer.save(**save_kwargs)
+        serializer.instance.refresh_from_db()
+        logger.debug(
+            "[BOQ perform_update] boq_id=%s persisted is_approved=%s is_rejected=%s approved_by_id=%s rejected_by_id=%s updated_by_id=%s",
+            serializer.instance.id,
+            serializer.instance.is_approved,
+            serializer.instance.is_rejected,
+            serializer.instance.approved_by_id,
+            serializer.instance.rejected_by_id,
+            serializer.instance.updated_by_id,
+        )
+
     @action(detail=True, methods=["patch"], url_path="approve")
     def approve(self, request, *args, **kwargs):
         instance = self.get_object()
         value = request.data.get("value", None)
+        logger.debug(
+            "[BOQ approve] boq_id=%s user_id=%s raw_value=%s before is_approved=%s is_rejected=%s approved_by_id=%s rejected_by_id=%s",
+            instance.id,
+            getattr(request.user, "id", None),
+            value,
+            instance.is_approved,
+            instance.is_rejected,
+            instance.approved_by_id,
+            instance.rejected_by_id,
+        )
         instance.is_approved = value
         if value:
             instance.is_rejected = False
@@ -41,6 +126,16 @@ class BoqViewSet(BaseAssessmentViewSet):
             instance.approved_by = None
         instance.updated_by = request.user if request.user and request.user.is_authenticated else instance.updated_by
         instance.save()
+        instance.refresh_from_db()
+        logger.debug(
+            "[BOQ approve] boq_id=%s after is_approved=%s is_rejected=%s approved_by_id=%s rejected_by_id=%s updated_by_id=%s",
+            instance.id,
+            instance.is_approved,
+            instance.is_rejected,
+            instance.approved_by_id,
+            instance.rejected_by_id,
+            instance.updated_by_id,
+        )
 
         message = "Bill of Quantity Approved" if value else "Bill of Quantity Approval Cancelled"
         return APIResponse.success(
@@ -53,6 +148,16 @@ class BoqViewSet(BaseAssessmentViewSet):
     def reject(self, request, *args, **kwargs):
         instance = self.get_object()
         value = request.data.get("value", None)
+        logger.debug(
+            "[BOQ reject] boq_id=%s user_id=%s raw_value=%s before is_approved=%s is_rejected=%s approved_by_id=%s rejected_by_id=%s",
+            instance.id,
+            getattr(request.user, "id", None),
+            value,
+            instance.is_approved,
+            instance.is_rejected,
+            instance.approved_by_id,
+            instance.rejected_by_id,
+        )
         instance.is_rejected = value
         if value:
             instance.is_approved = False
@@ -62,6 +167,16 @@ class BoqViewSet(BaseAssessmentViewSet):
             instance.rejected_by = None
         instance.updated_by = request.user if request.user and request.user.is_authenticated else instance.updated_by
         instance.save()
+        instance.refresh_from_db()
+        logger.debug(
+            "[BOQ reject] boq_id=%s after is_approved=%s is_rejected=%s approved_by_id=%s rejected_by_id=%s updated_by_id=%s",
+            instance.id,
+            instance.is_approved,
+            instance.is_rejected,
+            instance.approved_by_id,
+            instance.rejected_by_id,
+            instance.updated_by_id,
+        )
 
         message = "Bill of Quantity Rejected" if value else "Bill of Quantity Rejection Cancelled"
         return APIResponse.success(

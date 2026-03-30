@@ -165,8 +165,20 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
     def _get_user_full_name(self, user):
         if not user:
             return None
-        full_name = f"{user.first_name} {user.last_name}".strip()
-        return full_name or None
+        full_name = f"{getattr(user, 'first_name', '')} {getattr(user, 'last_name', '')}".strip()
+        if full_name:
+            return full_name
+        if hasattr(user, "get_full_name"):
+            computed = (user.get_full_name() or "").strip()
+            if computed:
+                return computed
+        username = (getattr(user, "username", "") or "").strip()
+        if username:
+            return username
+        email = (getattr(user, "email", "") or "").strip()
+        if email:
+            return email
+        return f"User #{getattr(user, 'id', '')}".strip()
 
     def get_created_by(self, obj):
         return self._get_user_full_name(obj.created_by)
