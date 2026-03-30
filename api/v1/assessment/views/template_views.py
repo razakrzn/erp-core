@@ -20,7 +20,7 @@ class TemplateViewSet(BaseAssessmentViewSet):
     search_fields = ["name", "category"]
     ordering_fields = ["name", "category", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    permission_prefix = "estimation.templates"
+    permission_prefix = "estimation.quatation_template"
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -46,7 +46,7 @@ class TemplateFinishViewSet(BaseAssessmentViewSet):
     search_fields = ["finish_name", "finish_type", "material", "design"]
     ordering_fields = ["finish_name", "finish_type", "material", "design"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    permission_prefix = "estimation.templates"
+    permission_prefix = "estimation.quatation_template"
 
     def get_serializer_class(self):
         if self.action == "dropdown":
