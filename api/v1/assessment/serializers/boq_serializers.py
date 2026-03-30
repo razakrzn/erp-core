@@ -55,6 +55,7 @@ class BoqDetailSerializer(serializers.ModelSerializer):
             "status",
             "is_approved",
             "is_rejected",
+            "reject_note",
             "created_at",
             "updated_at",
             "created_by",

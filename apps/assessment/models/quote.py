@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
@@ -31,6 +32,7 @@ class Quote(models.Model):
     total_amount = models.DecimalField(_("total amount"), max_digits=14, decimal_places=2, default=0)
     is_approved = models.BooleanField(_("is approved"), default=False)
     is_rejected = models.BooleanField(_("is rejected"), default=False)
+    reject_note = models.TextField(_("reject note"), blank=True, default="")
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
     created_by = models.ForeignKey(
@@ -49,6 +51,22 @@ class Quote(models.Model):
         related_name="updated_quotes",
         verbose_name=_("updated by"),
     )
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="approved_quotes",
+        verbose_name=_("approved by"),
+    )
+    rejected_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="rejected_quotes",
+        verbose_name=_("rejected by"),
+    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -59,6 +77,11 @@ class Quote(models.Model):
         return self.quote_number or f"{self.boq.boq_number} - {self.status}"
 
     def save(self, *args, **kwargs):
+        if self.is_approved and self.is_rejected:
+            raise ValidationError(_("Quote cannot be both approved and rejected."))
+        if not self.is_rejected and self.reject_note:
+            # Keep reject note only while record is in rejected state.
+            self.reject_note = ""
         if not self.quote_number:
             year = timezone.now().year
             prefix = f"QTN-{year}-"

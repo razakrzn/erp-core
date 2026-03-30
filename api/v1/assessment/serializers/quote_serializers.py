@@ -98,6 +98,8 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
     quote_items = serializers.SerializerMethodField()
     created_by = serializers.SerializerMethodField()
     updated_by = serializers.SerializerMethodField()
+    approved_by = serializers.SerializerMethodField()
+    rejected_by = serializers.SerializerMethodField()
 
     class Meta:
         model = Quote
@@ -113,10 +115,13 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
             "total_amount",
             "is_approved",
             "is_rejected",
+            "reject_note",
             "created_at",
             "updated_at",
             "created_by",
             "updated_by",
+            "approved_by",
+            "rejected_by",
         ]
         read_only_fields = [
             "quote_number",
@@ -128,6 +133,8 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
             "updated_at",
             "created_by",
             "updated_by",
+            "approved_by",
+            "rejected_by",
         ]
 
     def get_boq(self, obj):
@@ -185,6 +192,12 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
 
     def get_updated_by(self, obj):
         return self._get_user_full_name(obj.updated_by)
+
+    def get_approved_by(self, obj):
+        return self._get_user_full_name(obj.approved_by)
+
+    def get_rejected_by(self, obj):
+        return self._get_user_full_name(obj.rejected_by)
 
     def to_internal_value(self, data):
         if isinstance(data, dict):
@@ -247,6 +260,23 @@ class QuotationDetailsSerializer(QuoteDetailSerializer):
     Dedicated serializer for quotation detail endpoint.
     Mirrors QuoteDetailSerializer output for full quote details by quote ID.
     """
+    terms_conditions = serializers.SerializerMethodField()
+
+    class Meta(QuoteDetailSerializer.Meta):
+        fields = QuoteDetailSerializer.Meta.fields + ["terms_conditions"]
+        read_only_fields = QuoteDetailSerializer.Meta.read_only_fields + ["terms_conditions"]
+
+    def get_terms_conditions(self, obj):
+        return [
+            {
+                "id": term.id,
+                "quote": term.quote_id,
+                "title": term.title,
+                "content": term.content,
+                "category": term.category,
+            }
+            for term in obj.terms_conditions.all().order_by("id")
+        ]
 
 
 class QuoteItemSerializer(serializers.ModelSerializer):

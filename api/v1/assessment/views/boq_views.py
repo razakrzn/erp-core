@@ -32,6 +32,19 @@ class BoqViewSet(BaseAssessmentViewSet):
             return BoqListSerializer
         return BoqDetailSerializer
 
+    @staticmethod
+    def _parse_boolean_action_value(raw_value, field_name="value"):
+        if isinstance(raw_value, bool):
+            return raw_value
+        if raw_value is None:
+            raise ValidationError({field_name: "This field is required and must be true or false."})
+        normalized = str(raw_value).strip().lower()
+        if normalized in {"true", "1", "yes"}:
+            return True
+        if normalized in {"false", "0", "no"}:
+            return False
+        raise ValidationError({field_name: "Invalid boolean value. Use true or false."})
+
     def perform_update(self, serializer):
         """
         Keep approval audit fields in sync even when BOQ is updated via generic
@@ -69,10 +82,15 @@ class BoqViewSet(BaseAssessmentViewSet):
 
         if "is_rejected" in validated:
             if validated.get("is_rejected"):
+                reject_note = (validated.get("reject_note", getattr(instance, "reject_note", "")) or "").strip()
+                if not reject_note:
+                    raise ValidationError({"reject_note": "This field is required when rejecting BOQ."})
                 save_kwargs["rejected_by"] = user
                 save_kwargs["approved_by"] = None
+                save_kwargs["reject_note"] = reject_note
             else:
                 save_kwargs["rejected_by"] = None
+                save_kwargs["reject_note"] = ""
 
         # If one flag is omitted, preserve existing semantics.
         if "is_approved" not in validated and "is_rejected" in validated and validated.get("is_rejected"):
@@ -81,6 +99,9 @@ class BoqViewSet(BaseAssessmentViewSet):
         if "is_rejected" not in validated and "is_approved" in validated and validated.get("is_approved"):
             if getattr(instance, "is_rejected", False):
                 save_kwargs["rejected_by"] = None
+                save_kwargs["reject_note"] = ""
+        if "is_approved" in validated and validated.get("is_approved"):
+            save_kwargs["reject_note"] = ""
 
         logger.debug(
             "[BOQ perform_update] boq_id=%s user_id=%s computed_save_kwargs=%s",
@@ -106,7 +127,7 @@ class BoqViewSet(BaseAssessmentViewSet):
     @action(detail=True, methods=["patch"], url_path="approve")
     def approve(self, request, *args, **kwargs):
         instance = self.get_object()
-        value = request.data.get("value", None)
+        value = self._parse_boolean_action_value(request.data.get("value", None), "value")
         logger.debug(
             "[BOQ approve] boq_id=%s user_id=%s raw_value=%s before is_approved=%s is_rejected=%s approved_by_id=%s rejected_by_id=%s",
             instance.id,
@@ -122,6 +143,7 @@ class BoqViewSet(BaseAssessmentViewSet):
             instance.is_rejected = False
             instance.approved_by = request.user if request.user and request.user.is_authenticated else None
             instance.rejected_by = None
+            instance.reject_note = ""
         else:
             instance.approved_by = None
         instance.updated_by = request.user if request.user and request.user.is_authenticated else instance.updated_by
@@ -147,7 +169,10 @@ class BoqViewSet(BaseAssessmentViewSet):
     @action(detail=True, methods=["patch"], url_path="reject")
     def reject(self, request, *args, **kwargs):
         instance = self.get_object()
-        value = request.data.get("value", None)
+        value = self._parse_boolean_action_value(request.data.get("value", None), "value")
+        reject_note = (request.data.get("reject_note", "") or "").strip()
+        if value and not reject_note:
+            raise ValidationError({"reject_note": "This field is required when rejecting BOQ."})
         logger.debug(
             "[BOQ reject] boq_id=%s user_id=%s raw_value=%s before is_approved=%s is_rejected=%s approved_by_id=%s rejected_by_id=%s",
             instance.id,
@@ -163,8 +188,10 @@ class BoqViewSet(BaseAssessmentViewSet):
             instance.is_approved = False
             instance.rejected_by = request.user if request.user and request.user.is_authenticated else None
             instance.approved_by = None
+            instance.reject_note = reject_note
         else:
             instance.rejected_by = None
+            instance.reject_note = ""
         instance.updated_by = request.user if request.user and request.user.is_authenticated else instance.updated_by
         instance.save()
         instance.refresh_from_db()

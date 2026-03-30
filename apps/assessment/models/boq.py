@@ -31,6 +31,7 @@ class Boq(models.Model):
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
     is_approved = models.BooleanField(_("is approved"), default=False)
     is_rejected = models.BooleanField(_("is rejected"), default=False)
+    reject_note = models.TextField(_("reject note"), blank=True, default="")
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -75,6 +76,9 @@ class Boq(models.Model):
     def save(self, *args, **kwargs):
         if self.is_approved and self.is_rejected:
             raise ValidationError(_("BOQ cannot be both approved and rejected."))
+        if not self.is_rejected and self.reject_note:
+            # Keep note only while record is in rejected state.
+            self.reject_note = ""
         if not self.boq_number:
             year = timezone.now().year
             prefix = f"BOQ-{year}-"

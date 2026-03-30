@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 
 from apps.assessment.models import Finish, Quote, QuoteItem, QuoteTermsConditions
-from core.utils.responses import APIResponse
+from core.utils.responses import APIResponse, build_actions
 
 from ..serializers import (
     FinishSerializer,
@@ -30,13 +30,65 @@ class QuoteViewSet(BaseAssessmentViewSet):
             return QuoteListSerializer
         return QuoteDetailSerializer
 
+    @staticmethod
+    def _parse_boolean_action_value(raw_value, field_name="value"):
+        if isinstance(raw_value, bool):
+            return raw_value
+        if raw_value is None:
+            raise ValidationError({field_name: "This field is required and must be true or false."})
+        normalized = str(raw_value).strip().lower()
+        if normalized in {"true", "1", "yes"}:
+            return True
+        if normalized in {"false", "0", "no"}:
+            return False
+        raise ValidationError({field_name: "Invalid boolean value. Use true or false."})
+
+    def perform_update(self, serializer):
+        user = self.request.user if self.request.user and self.request.user.is_authenticated else None
+        validated = serializer.validated_data
+        instance = serializer.instance
+        save_kwargs = {}
+
+        if self._model_has_field("updated_by") and user:
+            save_kwargs["updated_by"] = user
+
+        if "is_rejected" in validated:
+            if validated.get("is_rejected"):
+                reject_note = (validated.get("reject_note", getattr(instance, "reject_note", "")) or "").strip()
+                if not reject_note:
+                    raise ValidationError({"reject_note": "This field is required when rejecting quotation."})
+                save_kwargs["reject_note"] = reject_note
+                save_kwargs["rejected_by"] = user
+                save_kwargs["approved_by"] = None
+            else:
+                save_kwargs["reject_note"] = ""
+                save_kwargs["rejected_by"] = None
+
+        if "is_approved" in validated and validated.get("is_approved"):
+            save_kwargs["reject_note"] = ""
+            save_kwargs["approved_by"] = user
+            save_kwargs["rejected_by"] = None
+        if "is_approved" in validated and not validated.get("is_approved"):
+            save_kwargs["approved_by"] = None
+        if "is_rejected" not in validated and "is_approved" in validated and validated.get("is_approved"):
+            if getattr(instance, "is_rejected", False):
+                save_kwargs["reject_note"] = ""
+
+        serializer.save(**save_kwargs)
+
     @action(detail=True, methods=["patch"], url_path="approve")
     def approve(self, request, *args, **kwargs):
         instance = self.get_object()
-        value = request.data.get("value", None)
+        value = self._parse_boolean_action_value(request.data.get("value", None), "value")
         instance.is_approved = value
         if value:
             instance.is_rejected = False
+            instance.reject_note = ""
+            instance.approved_by = request.user if request.user and request.user.is_authenticated else None
+            instance.rejected_by = None
+        else:
+            instance.approved_by = None
+        instance.updated_by = request.user if request.user and request.user.is_authenticated else instance.updated_by
         instance.save()
 
         message = "Quotation Approved" if value else "Quotation Approval Cancelled"
@@ -49,10 +101,20 @@ class QuoteViewSet(BaseAssessmentViewSet):
     @action(detail=True, methods=["patch"], url_path="reject")
     def reject(self, request, *args, **kwargs):
         instance = self.get_object()
-        value = request.data.get("value", None)
+        value = self._parse_boolean_action_value(request.data.get("value", None), "value")
+        reject_note = (request.data.get("reject_note", "") or "").strip()
+        if value and not reject_note:
+            raise ValidationError({"reject_note": "This field is required when rejecting quotation."})
         instance.is_rejected = value
         if value:
             instance.is_approved = False
+            instance.reject_note = reject_note
+            instance.rejected_by = request.user if request.user and request.user.is_authenticated else None
+            instance.approved_by = None
+        else:
+            instance.reject_note = ""
+            instance.rejected_by = None
+        instance.updated_by = request.user if request.user and request.user.is_authenticated else instance.updated_by
         instance.save()
 
         message = "Quotation Rejected" if value else "Quotation Rejection Cancelled"
@@ -64,7 +126,11 @@ class QuoteViewSet(BaseAssessmentViewSet):
 
 
 class QuotationDetailsViewSet(BaseAssessmentViewSet):
-    queryset = Quote.objects.select_related("boq", "boq__enquiry").prefetch_related("items__finishes", "boq__items")
+    queryset = Quote.objects.select_related("boq", "boq__enquiry").prefetch_related(
+        "items__finishes",
+        "boq__items",
+        "terms_conditions",
+    )
     serializer_class = QuotationDetailsSerializer
     http_method_names = ["get"]
     permission_prefix = "estimation.quotations"
@@ -72,8 +138,18 @@ class QuotationDetailsViewSet(BaseAssessmentViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
+        computed_actions = build_actions(request.user, self.permission_prefix)
+        detail_actions = {
+            "canApprove": bool(computed_actions.get("canApprove", False)),
+            "canReject": bool(computed_actions.get("canReject", False)),
+        }
+        data = serializer.data
+        if isinstance(data, dict):
+            data = {**data, "actions": detail_actions}
+        else:
+            data = {"item": data, "actions": detail_actions}
         return APIResponse.success(
-            data=serializer.data,
+            data=data,
             message=f"{self.queryset.model._meta.verbose_name.title()} retrieved successfully.",
             status_code=status.HTTP_200_OK,
         )
