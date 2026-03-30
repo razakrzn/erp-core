@@ -5,31 +5,29 @@ Included under `api/v1/rbac/` by the v1 router.
 """
 
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 
 from .views import (
-    RoleDetailAPIView,
     RoleHierarchyDetailAPIView,
     RoleHierarchyListCreateAPIView,
-    RoleListCreateAPIView,
-    RolePermissionDetailAPIView,
-    RolePermissionListCreateAPIView,
+    RolePermissionViewSet,
+    RoleViewSet,
     UserRoleDetailAPIView,
     UserRoleListCreateAPIView,
 )
 
 app_name = "rbac"
 
+router = DefaultRouter()
+router.register(r"roles", RoleViewSet, basename="rbac-role")
+router.register(r"role-permissions", RolePermissionViewSet, basename="rbac-role-permission")
+
 urlpatterns = [
-    # Roles
-    path("roles/", RoleListCreateAPIView.as_view(), name="role-list-create"),
-    path("roles/<int:pk>/", RoleDetailAPIView.as_view(), name="role-detail"),
-    # Role permissions
-    path("role-permissions/", RolePermissionListCreateAPIView.as_view(), name="role-permission-list-create"),
-    path("role-permissions/<int:pk>/", RolePermissionDetailAPIView.as_view(), name="role-permission-detail"),
     # User roles
     path("user-roles/", UserRoleListCreateAPIView.as_view(), name="user-role-list-create"),
     path("user-roles/<int:pk>/", UserRoleDetailAPIView.as_view(), name="user-role-detail"),
     # Role hierarchy
     path("role-hierarchies/", RoleHierarchyListCreateAPIView.as_view(), name="role-hierarchy-list-create"),
     path("role-hierarchies/<int:pk>/", RoleHierarchyDetailAPIView.as_view(), name="role-hierarchy-detail"),
+    *router.urls,
 ]

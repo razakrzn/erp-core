@@ -71,7 +71,8 @@ class RolePermission(models.Model):
         ]
 
     def __str__(self) -> str:  # pragma: no cover - trivial
-        return f"{self.role} -> {self.permission}"
+        # Avoid implicit FK fetches in admin rendering paths.
+        return f"role:{self.role_id} -> permission:{self.permission_id}"
 
 
 class UserRole(models.Model):
@@ -104,7 +105,8 @@ class UserRole(models.Model):
         ]
 
     def __str__(self) -> str:  # pragma: no cover - trivial
-        return f"{self.user} -> {self.role}"
+        # Avoid implicit FK fetches in admin rendering paths.
+        return f"user:{self.user_id} -> role:{self.role_id}"
 
 
 class RoleHierarchy(models.Model):
@@ -136,4 +138,5 @@ class RoleHierarchy(models.Model):
         ]
 
     def __str__(self) -> str:  # pragma: no cover - trivial
-        return f"{self.parent_role} > {self.child_role}"
+        # Avoid implicit FK fetches in admin rendering paths.
+        return f"parent:{self.parent_role_id} > child:{self.child_role_id}"

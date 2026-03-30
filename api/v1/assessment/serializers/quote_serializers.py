@@ -182,6 +182,7 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
             {
                 "id": item.id,
                 "boq_item": item.boq_item.id if item.boq_item else None,
+                "is_template": item.boq_item.is_template if item.boq_item else False,
                 "image": item.image.url if item.image else None,
                 "name": item.name,
                 "width": item.width,

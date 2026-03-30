@@ -2,6 +2,7 @@
 from rest_framework.response import Response
 from django.utils import timezone
 from rest_framework import status
+from django.db.models import Q
 
 
 def _iter_error_messages(value):
@@ -29,21 +30,142 @@ def _build_validation_message(error_data):
     return "Validation error"
 
 
+def _normalize_prefixes(prefix):
+    if not prefix:
+        return []
+    if isinstance(prefix, str):
+        return [prefix]
+    if isinstance(prefix, (list, tuple, set)):
+        return [p for p in prefix if isinstance(p, str) and p]
+    return []
+
+
+def _get_user_permission_codes(user, prefix):
+    from apps.rbac.models import UserRole, RolePermission
+
+    prefixes = _normalize_prefixes(prefix)
+    if not user or not user.is_authenticated or not prefixes:
+        return []
+
+    try:
+        user_role_ids = UserRole.objects.filter(user=user).values_list("role_id", flat=True)
+        if not user_role_ids:
+            return []
+
+        query = Q()
+        for item in prefixes:
+            query |= Q(permission__permission_code__startswith=f"{item}.")
+
+        role_permissions = (
+            RolePermission.objects.filter(role_id__in=user_role_ids)
+            .filter(query)
+            .select_related("permission")
+            .distinct("permission__permission_code")
+        )
+        return [rp.permission.permission_code.lower() for rp in role_permissions if rp.permission.permission_code]
+    except Exception:
+        return []
+
+
+def _get_optional_actions_for_prefix(prefix):
+    from apps.navigation.models import Permission
+
+    prefixes = _normalize_prefixes(prefix)
+    result = {"canApprove": False, "canReject": False}
+    if not prefixes:
+        return result
+
+    try:
+        query = Q()
+        for item in prefixes:
+            query |= Q(permission_code__startswith=f"{item}.")
+
+        codes = Permission.objects.filter(query).values_list("permission_code", flat=True)
+        for code in codes:
+            lower_code = (code or "").lower()
+            if lower_code.endswith(".approve"):
+                result["canApprove"] = True
+            elif lower_code.endswith(".reject"):
+                result["canReject"] = True
+            if result["canApprove"] and result["canReject"]:
+                break
+    except Exception:
+        return result
+
+    return result
+
+
+def build_actions(user, permission_prefix):
+    actions = {"canCreate": False, "canEdit": False, "canDelete": False, "canView": False}
+
+    optional_actions = _get_optional_actions_for_prefix(permission_prefix)
+    if optional_actions["canApprove"]:
+        actions["canApprove"] = False
+    if optional_actions["canReject"]:
+        actions["canReject"] = False
+
+    if user and user.is_authenticated and user.is_superuser:
+        actions["canCreate"] = True
+        actions["canEdit"] = True
+        actions["canDelete"] = True
+        actions["canView"] = True
+        if "canApprove" in actions:
+            actions["canApprove"] = True
+        if "canReject" in actions:
+            actions["canReject"] = True
+        return actions
+
+    user_permission_codes = _get_user_permission_codes(user, permission_prefix)
+    for code in user_permission_codes:
+        if code.endswith(".create") or code.endswith(".add"):
+            actions["canCreate"] = True
+        elif code.endswith(".edit") or code.endswith(".change") or code.endswith(".update"):
+            actions["canEdit"] = True
+        elif code.endswith(".delete"):
+            actions["canDelete"] = True
+        elif code.endswith(".view") or code.endswith(".list"):
+            actions["canView"] = True
+        elif code.endswith(".approve") and "canApprove" in actions:
+            actions["canApprove"] = True
+        elif code.endswith(".reject") and "canReject" in actions:
+            actions["canReject"] = True
+
+    return actions
+
+
 class APIResponse:
     """
     A utility class to standardize API responses.
     """
 
     @staticmethod
-    def success(data=None, message="Success", status_code=status.HTTP_200_OK):
+    def success(
+        data=None,
+        message="Success",
+        status_code=status.HTTP_200_OK,
+        request=None,
+        permission_prefix=None,
+        include_actions=False,
+    ):
+        final_data = data
+        if include_actions and permission_prefix:
+            user = request.user if request else None
+            actions = build_actions(user, permission_prefix)
+            if isinstance(final_data, dict):
+                final_data = {**final_data, "actions": actions}
+            elif final_data is None:
+                final_data = {"actions": actions}
+            else:
+                final_data = {"item": final_data, "actions": actions}
+
         payload = {
             "success": True,
             "message": message,
             "status_code": status_code,
             "timestamp": timezone.now().isoformat(),
         }
-        if data is not None:
-            payload["data"] = data
+        if final_data is not None:
+            payload["data"] = final_data
         return Response(payload, status=status_code)
 
     @staticmethod

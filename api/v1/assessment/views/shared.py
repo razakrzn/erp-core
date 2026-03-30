@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from core.permissions.rbac_permission import RBACPermission
 
 
-from core.utils.responses import APIResponse
+from core.utils.responses import APIResponse, build_actions
 
 
 class BaseAssessmentViewSet(viewsets.ModelViewSet):
@@ -55,8 +55,22 @@ class BaseAssessmentViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
+        prefix = getattr(self, "permission_prefix", None)
+        data = serializer.data
+
+        # Detail API: expose only approve/reject actions (including explicit false values).
+        if prefix:
+            computed_actions = build_actions(request.user, prefix)
+            detail_actions = {}
+            if "canApprove" in computed_actions:
+                detail_actions["canApprove"] = bool(computed_actions.get("canApprove"))
+            if "canReject" in computed_actions:
+                detail_actions["canReject"] = bool(computed_actions.get("canReject"))
+            if detail_actions and isinstance(data, dict):
+                data = {**data, "actions": detail_actions}
+
         return APIResponse.success(
-            data=serializer.data,
+            data=data,
             message=f"{self.queryset.model._meta.verbose_name.title()} retrieved successfully.",
             status_code=status.HTTP_200_OK,
         )

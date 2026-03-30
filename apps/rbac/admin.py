@@ -42,6 +42,15 @@ class RoleAdmin(admin.ModelAdmin):
     autocomplete_fields = ["company"]
     inlines = [RolePermissionInline, RoleHierarchyInline, UserRoleInline]
 
+    def get_inlines(self, request, obj):
+        """
+        Disable heavy inlines by default to keep Role change pages responsive.
+        Use ?with_inlines=1 if you explicitly want inline editing.
+        """
+        if request.GET.get("with_inlines") == "1":
+            return [RolePermissionInline, RoleHierarchyInline, UserRoleInline]
+        return []
+
 
 @admin.register(RolePermission)
 class RolePermissionAdmin(admin.ModelAdmin):

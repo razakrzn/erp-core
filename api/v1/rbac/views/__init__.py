@@ -3,12 +3,10 @@ from .hierarchy_views import (
     RoleHierarchyListCreateAPIView,
 )
 from .permission_views import (
-    RolePermissionDetailAPIView,
-    RolePermissionListCreateAPIView,
+    RolePermissionViewSet,
 )
 from .role_views import (
-    RoleDetailAPIView,
-    RoleListCreateAPIView,
+    RoleViewSet,
 )
 from .user_role_views import (
     UserRoleDetailAPIView,
@@ -18,10 +16,8 @@ from .user_role_views import (
 __all__ = [
     "RoleHierarchyDetailAPIView",
     "RoleHierarchyListCreateAPIView",
-    "RolePermissionDetailAPIView",
-    "RolePermissionListCreateAPIView",
-    "RoleDetailAPIView",
-    "RoleListCreateAPIView",
+    "RolePermissionViewSet",
+    "RoleViewSet",
     "UserRoleDetailAPIView",
     "UserRoleListCreateAPIView",
 ]
