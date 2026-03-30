@@ -73,6 +73,13 @@ class BoqViewSet(BaseAssessmentViewSet):
         if self._model_has_field("updated_by") and user:
             save_kwargs["updated_by"] = user
 
+        # Business rule: any manual BOQ edit (PUT/PATCH) should revoke approval.
+        save_kwargs["is_approved"] = False
+        save_kwargs["approved_by"] = None
+        save_kwargs["is_rejected"] = False
+        save_kwargs["rejected_by"] = None
+        save_kwargs["reject_note"] = ""
+
         if "is_approved" in validated:
             if validated.get("is_approved"):
                 save_kwargs["approved_by"] = user
@@ -102,6 +109,13 @@ class BoqViewSet(BaseAssessmentViewSet):
                 save_kwargs["reject_note"] = ""
         if "is_approved" in validated and validated.get("is_approved"):
             save_kwargs["reject_note"] = ""
+
+        # Enforce revoke-approval rule even if payload sends is_approved=true.
+        save_kwargs["is_approved"] = False
+        save_kwargs["approved_by"] = None
+        save_kwargs["is_rejected"] = False
+        save_kwargs["rejected_by"] = None
+        save_kwargs["reject_note"] = ""
 
         logger.debug(
             "[BOQ perform_update] boq_id=%s user_id=%s computed_save_kwargs=%s",

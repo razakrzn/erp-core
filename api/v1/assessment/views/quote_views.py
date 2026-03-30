@@ -52,6 +52,13 @@ class QuoteViewSet(BaseAssessmentViewSet):
         if self._model_has_field("updated_by") and user:
             save_kwargs["updated_by"] = user
 
+        # Business rule: any manual Quote edit (PUT/PATCH) should revoke approval.
+        save_kwargs["is_approved"] = False
+        save_kwargs["approved_by"] = None
+        save_kwargs["is_rejected"] = False
+        save_kwargs["rejected_by"] = None
+        save_kwargs["reject_note"] = ""
+
         if "is_rejected" in validated:
             if validated.get("is_rejected"):
                 reject_note = (validated.get("reject_note", getattr(instance, "reject_note", "")) or "").strip()
@@ -73,6 +80,13 @@ class QuoteViewSet(BaseAssessmentViewSet):
         if "is_rejected" not in validated and "is_approved" in validated and validated.get("is_approved"):
             if getattr(instance, "is_rejected", False):
                 save_kwargs["reject_note"] = ""
+
+        # Enforce revoke-approval rule even if payload sends is_approved=true.
+        save_kwargs["is_approved"] = False
+        save_kwargs["approved_by"] = None
+        save_kwargs["is_rejected"] = False
+        save_kwargs["rejected_by"] = None
+        save_kwargs["reject_note"] = ""
 
         serializer.save(**save_kwargs)
 
