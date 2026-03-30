@@ -1,1 +1,1 @@
-
+"""Assessment app package."""

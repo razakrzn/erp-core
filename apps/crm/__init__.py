@@ -1,1 +1,1 @@
-
+"""CRM app package."""

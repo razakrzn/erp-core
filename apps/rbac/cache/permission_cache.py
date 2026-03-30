@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """
 Lightweight caching helpers for RBAC permission codes.
 
@@ -7,6 +5,8 @@ This module is intentionally dumb: it only knows how to cache and invalidate
 sets of permission codes for a given (user, company) pair. The logic for
 actually *computing* those permissions lives in `apps.rbac.services.role_service`.
 """
+
+from __future__ import annotations
 
 from typing import Iterable, Optional, Set
 
@@ -74,4 +74,3 @@ def invalidate_cached_permissions(
     """
     key = _make_cache_key(user_id, company_id)
     cache.delete(key)
-

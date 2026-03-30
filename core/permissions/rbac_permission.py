@@ -6,6 +6,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import BasePermission
 
 from apps.access_control.services.api_access_service import get_required_permission
+from apps.rbac.services.permission_engine import user_has_permission
 
 
 if TYPE_CHECKING:  # pragma: no cover - type-checking only
@@ -17,9 +18,6 @@ class IsSuperuser(BasePermission):
 
     def has_permission(self, request: "Request", view: Any) -> bool:
         return bool(getattr(request.user, "is_superuser", False))
-
-
-from apps.rbac.services.permission_engine import user_has_permission
 
 
 class RBACPermission(BasePermission):
@@ -34,7 +32,7 @@ class RBACPermission(BasePermission):
 
     def has_permission(self, request: "Request", view: Any) -> bool:
         permission_code = get_required_permission(request)
-        
+
         # If no explicit rule in database, try to deduce it from the view's permission_prefix
         if not permission_code:
             prefix = getattr(view, "permission_prefix", None)
@@ -42,8 +40,8 @@ class RBACPermission(BasePermission):
                 # Map DRF actions/HTTP methods to permission suffixes
                 action = getattr(view, "action", None)
                 method = request.method.upper()
-                
-                suffix = "view" # Default
+
+                suffix = "view"  # Default
                 if action == "create" or (not action and method == "POST"):
                     suffix = "create"
                 elif action in ["update", "partial_update"] or (not action and method in ["PUT", "PATCH"]):
@@ -52,7 +50,7 @@ class RBACPermission(BasePermission):
                     suffix = "delete"
                 elif action in ["list", "retrieve"] or (not action and method == "GET"):
                     suffix = "view"
-                
+
                 permission_code = f"{prefix}.{suffix}"
 
         # If no specific permission is configured for this endpoint, deny access (Secure by Default).
@@ -63,14 +61,8 @@ class RBACPermission(BasePermission):
             # For everyone else, deny access if not explicitly configured.
             return False
 
-
         # Delegate to the RBAC engine (which handles caching & role logic).
         if not user_has_permission(request.user, permission_code):
-            raise PermissionDenied(
-                detail="You don't have permission to perform this action"
-            )
+            raise PermissionDenied(detail="You don't have permission to perform this action")
 
         return True
-
-
-

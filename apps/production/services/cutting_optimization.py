@@ -13,13 +13,14 @@ from openpyxl import Workbook
 from ezdxf.addons import odafc  # type: ignore[import-untyped]
 from ezdxf.addons.drawing import Frontend, RenderContext
 from ezdxf.addons.drawing.matplotlib import MatplotlibBackend
+
 matplotlib.use("Agg")
-from matplotlib.backends.backend_pdf import PdfPages
-import matplotlib.pyplot as plt
-from rectpack import newPacker  # type: ignore[import-untyped]
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
-from shapely.geometry import Polygon  # type: ignore[import-untyped]
+from matplotlib.backends.backend_pdf import PdfPages  # noqa: E402
+import matplotlib.pyplot as plt  # noqa: E402
+from rectpack import newPacker  # type: ignore[import-untyped]  # noqa: E402
+from reportlab.lib.pagesizes import A4  # noqa: E402
+from reportlab.pdfgen import canvas  # noqa: E402
+from shapely.geometry import Polygon  # type: ignore[import-untyped]  # noqa: E402
 
 logger = logging.getLogger(__name__)
 _CAD_RENDER_NOISE_SNIPPETS = (

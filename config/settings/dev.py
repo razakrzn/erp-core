@@ -5,6 +5,8 @@ Used when DJANGO_SETTINGS_MODULE=config.settings.dev (set in Render env).
 Imports base then overrides for the deployed Render environment.
 """
 
+import os
+
 import dj_database_url
 from .base import *  # noqa
 
@@ -47,6 +49,4 @@ else:
 # SECRET_KEY must be set in Render env (no insecure default)
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
-    raise ValueError(
-        "SECRET_KEY must be set in the environment on Render (e.g. via Render Dashboard or render.yaml)"
-    )
+    raise ValueError("SECRET_KEY must be set in the environment on Render (e.g. via Render Dashboard or render.yaml)")
