@@ -46,6 +46,10 @@ class RBACPermission(BasePermission):
         action = getattr(view, "action", None)
         method = request.method.upper()
 
+        if action == "approve":
+            return "approve"
+        if action == "reject":
+            return "reject"
         if action == "create" or (not action and method == "POST"):
             return "create"
         if action in ["update", "partial_update"] or (not action and method in ["PUT", "PATCH"]):

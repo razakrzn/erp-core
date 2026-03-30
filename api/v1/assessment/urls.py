@@ -1,9 +1,11 @@
 from rest_framework.routers import DefaultRouter
+from django.urls import path
 
 from .views import (
     BoqItemViewSet,
     BoqViewSet,
     FinishViewSet,
+    QuotationDetailsViewSet,
     QuoteItemViewSet,
     QuoteViewSet,
     TemplateFinishViewSet,
@@ -21,4 +23,11 @@ router.register(r"quote-terms-conditions", QuoteTermsConditionsViewSet, basename
 router.register(r"templates", TemplateViewSet, basename="assessment-template")
 router.register(r"template-finishes", TemplateFinishViewSet, basename="assessment-template-finish")
 
-urlpatterns = router.urls
+urlpatterns = [
+    path(
+        "quotation/<int:pk>/",
+        QuotationDetailsViewSet.as_view({"get": "retrieve"}),
+        name="assessment-quotation-detail",
+    ),
+    *router.urls,
+]

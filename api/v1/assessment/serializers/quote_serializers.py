@@ -96,6 +96,8 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
     boq = serializers.SerializerMethodField()
     enquiry = serializers.SerializerMethodField()
     quote_items = serializers.SerializerMethodField()
+    created_by = serializers.SerializerMethodField()
+    updated_by = serializers.SerializerMethodField()
 
     class Meta:
         model = Quote
@@ -160,6 +162,18 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
             "status": obj.boq.enquiry.status,
         }
 
+    def _get_user_full_name(self, user):
+        if not user:
+            return None
+        full_name = f"{user.first_name} {user.last_name}".strip()
+        return full_name or None
+
+    def get_created_by(self, obj):
+        return self._get_user_full_name(obj.created_by)
+
+    def get_updated_by(self, obj):
+        return self._get_user_full_name(obj.updated_by)
+
     def to_internal_value(self, data):
         if isinstance(data, dict):
             payload = data.copy()
@@ -214,6 +228,13 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
             }
             for item in items
         ]
+
+
+class QuotationDetailsSerializer(QuoteDetailSerializer):
+    """
+    Dedicated serializer for quotation detail endpoint.
+    Mirrors QuoteDetailSerializer output for full quote details by quote ID.
+    """
 
 
 class QuoteItemSerializer(serializers.ModelSerializer):

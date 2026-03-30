@@ -8,6 +8,7 @@ from core.utils.responses import APIResponse
 
 from ..serializers import (
     FinishSerializer,
+    QuotationDetailsSerializer,
     QuoteDetailSerializer,
     QuoteItemSerializer,
     QuoteListSerializer,
@@ -58,6 +59,22 @@ class QuoteViewSet(BaseAssessmentViewSet):
         return APIResponse.success(
             data=None,
             message=message,
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class QuotationDetailsViewSet(BaseAssessmentViewSet):
+    queryset = Quote.objects.select_related("boq", "boq__enquiry").prefetch_related("items__finishes", "boq__items")
+    serializer_class = QuotationDetailsSerializer
+    http_method_names = ["get"]
+    permission_prefix = "estimation.quotations"
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return APIResponse.success(
+            data=serializer.data,
+            message=f"{self.queryset.model._meta.verbose_name.title()} retrieved successfully.",
             status_code=status.HTTP_200_OK,
         )
 

@@ -8,6 +8,7 @@ from .boq_serializers import (
 )
 from .quote_serializers import (
     FinishSerializer,
+    QuotationDetailsSerializer,
     QuoteDetailSerializer,
     QuoteItemCreateRequestSerializer,
     QuoteItemSerializer,
@@ -25,6 +26,7 @@ __all__ = [
     "BoqItemUpdateRequestSerializer",
     "QuoteListSerializer",
     "QuoteDetailSerializer",
+    "QuotationDetailsSerializer",
     "QuoteItemSerializer",
     "QuoteItemCreateRequestSerializer",
     "QuoteItemUpdateRequestSerializer",
