@@ -35,6 +35,11 @@ class BoqViewSet(BaseAssessmentViewSet):
         instance.is_approved = value
         if value:
             instance.is_rejected = False
+            instance.approved_by = request.user if request.user and request.user.is_authenticated else None
+            instance.rejected_by = None
+        else:
+            instance.approved_by = None
+        instance.updated_by = request.user if request.user and request.user.is_authenticated else instance.updated_by
         instance.save()
 
         message = "Bill of Quantity Approved" if value else "Bill of Quantity Approval Cancelled"
@@ -51,6 +56,11 @@ class BoqViewSet(BaseAssessmentViewSet):
         instance.is_rejected = value
         if value:
             instance.is_approved = False
+            instance.rejected_by = request.user if request.user and request.user.is_authenticated else None
+            instance.approved_by = None
+        else:
+            instance.rejected_by = None
+        instance.updated_by = request.user if request.user and request.user.is_authenticated else instance.updated_by
         instance.save()
 
         message = "Bill of Quantity Rejected" if value else "Bill of Quantity Rejection Cancelled"

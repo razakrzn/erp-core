@@ -47,6 +47,22 @@ class Boq(models.Model):
         related_name="updated_boqs",
         verbose_name=_("updated by"),
     )
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="approved_boqs",
+        verbose_name=_("approved by"),
+    )
+    rejected_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="rejected_boqs",
+        verbose_name=_("rejected by"),
+    )
 
     class Meta:
         ordering = ["-created_at"]
