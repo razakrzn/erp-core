@@ -166,6 +166,11 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
         return {
             "id": obj.boq.enquiry.id,
             "project_name": obj.boq.enquiry.project_name,
+            "company_name": obj.boq.enquiry.company_name,
+            "phone_number": obj.boq.enquiry.phone_number,
+            "client": obj.boq.enquiry.client,
+            "project_description": obj.boq.enquiry.project_description,
+            "location": obj.boq.enquiry.location,
             "status": obj.boq.enquiry.status,
         }
 

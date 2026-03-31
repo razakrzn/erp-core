@@ -14,6 +14,12 @@ class CompanySerializer(serializers.ModelSerializer):
             "id",
             "name",
             "code",
+            "address",
+            "phone",
+            "email",
+            "website",
+            "licence_number",
+            "logo",
             "is_active",
             "created_at",
         ]
