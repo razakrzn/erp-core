@@ -19,6 +19,7 @@ class CompanySerializer(serializers.ModelSerializer):
             "email",
             "website",
             "licence_number",
+            "trn",
             "logo",
             "is_active",
             "created_at",

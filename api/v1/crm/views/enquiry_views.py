@@ -13,11 +13,12 @@ class EnquiryViewSet(BaseCRMViewSet):
         "enquiry_code",
         "project_name",
         "company_name",
+        "trn",
         "phone_number",
         "new_client_name",
         "existing_client__customer_name",
     ]
-    ordering_fields = ["enquiry_code", "project_name", "created_at", "updated_at"]
+    ordering_fields = ["enquiry_code", "project_name", "trn", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "sales.enquiry"
 

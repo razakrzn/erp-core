@@ -13,6 +13,7 @@ class Company(models.Model):
     email = models.EmailField(_("email address"), blank=True, default="")
     website = models.URLField(_("website"), blank=True, default="")
     licence_number = models.CharField(_("licence number"), max_length=100, blank=True, default="")
+    trn = models.CharField(_("trn"), max_length=100, blank=True, default="")
     logo = models.ImageField(_("company logo"), upload_to="companies/logos/", null=True, blank=True)
     is_active = models.BooleanField(_("is active"), default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -32,6 +33,7 @@ class Company(models.Model):
         self.email = (self.email or "").lower().strip()
         self.website = (self.website or "").strip()
         self.licence_number = (self.licence_number or "").strip()
+        self.trn = (self.trn or "").strip()
         super().save(*args, **kwargs)
 
 

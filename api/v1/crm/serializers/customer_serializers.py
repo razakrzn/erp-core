@@ -14,6 +14,7 @@ class CustomerSerializer(serializers.ModelSerializer):
             "customer_name",
             "email_address",
             "company_name",
+            "trn",
             "phone_number",
             "created_at",
             "updated_at",

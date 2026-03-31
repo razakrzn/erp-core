@@ -82,6 +82,7 @@ class EnquiryDetailSerializer(EnquirySerializerMixin, serializers.ModelSerialize
             "status",
             "email_address",
             "company_name",
+            "trn",
             "phone_number",
             "existing_client",
             "existing_client_id",

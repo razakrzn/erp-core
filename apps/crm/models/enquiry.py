@@ -21,6 +21,7 @@ class Enquiry(models.Model):
     )
     email_address = models.EmailField(_("email address"), blank=True)
     company_name = models.CharField(_("company name"), max_length=200, blank=True)
+    trn = models.CharField(_("trn"), max_length=100, blank=True)
     phone_number = models.CharField(_("phone number"), max_length=30, blank=True)
     existing_client = models.ForeignKey(
         "crm.Customer",
