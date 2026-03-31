@@ -11,7 +11,7 @@ class Company(models.Model):
     address = models.TextField(_("address"), blank=True, default="")
     phone = models.CharField(_("phone"), max_length=30, blank=True, default="")
     email = models.EmailField(_("email address"), blank=True, default="")
-    website = models.URLField(_("website"), blank=True, default="")
+    website = models.CharField(_("website"), max_length=500, blank=True, default="")
     licence_number = models.CharField(_("licence number"), max_length=100, blank=True, default="")
     trn = models.CharField(_("trn"), max_length=100, blank=True, default="")
     logo = models.ImageField(_("company logo"), upload_to="companies/logos/", null=True, blank=True)

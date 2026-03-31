@@ -161,17 +161,24 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
         }
 
     def get_enquiry(self, obj):
-        if not obj.boq.enquiry:
+        if not obj.boq or not obj.boq.enquiry:
             return None
+        enquiry = obj.boq.enquiry
+        client_name = ""
+        if enquiry.existing_client:
+            client_name = enquiry.existing_client.customer_name
+        elif enquiry.new_client_name:
+            client_name = enquiry.new_client_name
+
         return {
-            "id": obj.boq.enquiry.id,
-            "project_name": obj.boq.enquiry.project_name,
-            "company_name": obj.boq.enquiry.company_name,
-            "phone_number": obj.boq.enquiry.phone_number,
-            "client": obj.boq.enquiry.client,
-            "project_description": obj.boq.enquiry.project_description,
-            "location": obj.boq.enquiry.location,
-            "status": obj.boq.enquiry.status,
+            "id": enquiry.id,
+            "project_name": enquiry.project_name,
+            "company_name": enquiry.company_name,
+            "phone_number": enquiry.phone_number,
+            "client": client_name,
+            "project_description": enquiry.project_description,
+            "location": enquiry.location,
+            "status": enquiry.status,
         }
 
     def _get_user_full_name(self, user):
@@ -268,8 +275,22 @@ class QuotationDetailsSerializer(QuoteDetailSerializer):
     terms_conditions = serializers.SerializerMethodField()
 
     class Meta(QuoteDetailSerializer.Meta):
-        fields = QuoteDetailSerializer.Meta.fields + ["terms_conditions"]
-        read_only_fields = QuoteDetailSerializer.Meta.read_only_fields + ["terms_conditions"]
+        fields = QuoteDetailSerializer.Meta.fields + [
+            "discount_amount",
+            "exclusive_total",
+            "vat_percent",
+            "vat_amount",
+            "grand_total",
+            "terms_conditions",
+        ]
+        read_only_fields = QuoteDetailSerializer.Meta.read_only_fields + [
+            "discount_amount",
+            "exclusive_total",
+            "vat_percent",
+            "vat_amount",
+            "grand_total",
+            "terms_conditions",
+        ]
 
     def get_terms_conditions(self, obj):
         return [

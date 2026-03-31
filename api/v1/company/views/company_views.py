@@ -1,6 +1,6 @@
 from rest_framework import filters, status
 from rest_framework.decorators import action
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 
 from apps.company.models import Company
 from core.utils.responses import APIResponse
@@ -12,7 +12,7 @@ from .shared import BaseCompanyViewSet
 class CompanyViewSet(BaseCompanyViewSet):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
     search_fields = ["name", "code", "email", "phone", "licence_number", "trn", "website", "address"]
     ordering_fields = ["name", "code", "email", "phone", "licence_number", "trn", "created_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]

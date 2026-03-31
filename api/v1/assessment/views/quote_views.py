@@ -43,6 +43,14 @@ class QuoteViewSet(BaseAssessmentViewSet):
             return False
         raise ValidationError({field_name: "Invalid boolean value. Use true or false."})
 
+    @staticmethod
+    def _reset_financial_fields(instance):
+        instance.discount_amount = 0
+        instance.exclusive_total = 0
+        instance.vat_percent = 0
+        instance.vat_amount = 0
+        instance.grand_total = 0
+
     def perform_update(self, serializer):
         user = self.request.user if self.request.user and self.request.user.is_authenticated else None
         validated = serializer.validated_data
@@ -94,6 +102,18 @@ class QuoteViewSet(BaseAssessmentViewSet):
     def approve(self, request, *args, **kwargs):
         instance = self.get_object()
         value = self._parse_boolean_action_value(request.data.get("value", None), "value")
+
+        financial_fields = [
+            "discount_amount",
+            "exclusive_total",
+            "vat_percent",
+            "vat_amount",
+            "grand_total",
+        ]
+        for field in financial_fields:
+            if field in request.data:
+                setattr(instance, field, request.data.get(field))
+
         instance.is_approved = value
         if value:
             instance.is_rejected = False
@@ -101,6 +121,7 @@ class QuoteViewSet(BaseAssessmentViewSet):
             instance.approved_by = request.user if request.user and request.user.is_authenticated else None
             instance.rejected_by = None
         else:
+            self._reset_financial_fields(instance)
             instance.approved_by = None
         instance.updated_by = request.user if request.user and request.user.is_authenticated else instance.updated_by
         instance.save()
@@ -119,6 +140,7 @@ class QuoteViewSet(BaseAssessmentViewSet):
         reject_note = (request.data.get("reject_note", "") or "").strip()
         if value and not reject_note:
             raise ValidationError({"reject_note": "This field is required when rejecting quotation."})
+        self._reset_financial_fields(instance)
         instance.is_rejected = value
         if value:
             instance.is_approved = False

@@ -28,6 +28,11 @@ class Quote(models.Model):
         max_length=50,
         default="awaiting quotation",
     )
+    discount_amount = models.DecimalField(_("discount amount"), max_digits=14, decimal_places=2, default=0)
+    exclusive_total = models.DecimalField(_("exclusive total"), max_digits=14, decimal_places=2, default=0)
+    vat_percent = models.DecimalField(_("vat percent"), max_digits=5, decimal_places=2, default=0)
+    vat_amount = models.DecimalField(_("vat amount"), max_digits=14, decimal_places=2, default=0)
+    grand_total = models.DecimalField(_("grand total"), max_digits=14, decimal_places=2, default=0)
     total_items = models.PositiveIntegerField(_("total items"), default=0)
     total_amount = models.DecimalField(_("total amount"), max_digits=14, decimal_places=2, default=0)
     is_approved = models.BooleanField(_("is approved"), default=False)
