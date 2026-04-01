@@ -1,16 +1,2 @@
-from .attributes import Finish, Grade, Size, Thickness
-from .brand import Brand
-from .category import Category
-from .material import Material
-from .product import Product
+from .vendor import Vendor
 
-__all__ = [
-    "Size",
-    "Thickness",
-    "Grade",
-    "Finish",
-    "Brand",
-    "Category",
-    "Material",
-    "Product",
-]

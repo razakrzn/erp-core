@@ -20,8 +20,8 @@ from .shared import BaseAssessmentViewSet
 class QuoteViewSet(BaseAssessmentViewSet):
     queryset = Quote.objects.select_related("boq").prefetch_related("items__finishes", "boq__items")
     serializer_class = QuoteDetailSerializer
-    search_fields = ["quote_number", "boq__boq_number", "status"]
-    ordering_fields = ["quote_number", "status", "created_at", "updated_at"]
+    search_fields = ["quote_number", "boq__boq_number", "status", "client_status"]
+    ordering_fields = ["quote_number", "status", "client_status", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "estimation.quotations"
 
@@ -42,6 +42,15 @@ class QuoteViewSet(BaseAssessmentViewSet):
         if normalized in {"false", "0", "no"}:
             return False
         raise ValidationError({field_name: "Invalid boolean value. Use true or false."})
+
+    @staticmethod
+    def _parse_client_status_value(raw_value, field_name="client_status"):
+        if raw_value is None:
+            raise ValidationError({field_name: "This field is required. Use accepted or rejected."})
+        normalized = str(raw_value).strip().lower()
+        if normalized in {Quote.ClientStatus.ACCEPTED, Quote.ClientStatus.REJECTED}:
+            return normalized
+        raise ValidationError({field_name: "Invalid value. Use accepted or rejected."})
 
     @staticmethod
     def _reset_financial_fields(instance):
@@ -118,10 +127,12 @@ class QuoteViewSet(BaseAssessmentViewSet):
         if value:
             instance.is_rejected = False
             instance.reject_note = ""
+            instance.client_status = Quote.ClientStatus.ACCEPTED
             instance.approved_by = request.user if request.user and request.user.is_authenticated else None
             instance.rejected_by = None
         else:
             self._reset_financial_fields(instance)
+            instance.client_status = None
             instance.approved_by = None
         instance.updated_by = request.user if request.user and request.user.is_authenticated else instance.updated_by
         instance.save()
@@ -145,10 +156,12 @@ class QuoteViewSet(BaseAssessmentViewSet):
         if value:
             instance.is_approved = False
             instance.reject_note = reject_note
+            instance.client_status = Quote.ClientStatus.REJECTED
             instance.rejected_by = request.user if request.user and request.user.is_authenticated else None
             instance.approved_by = None
         else:
             instance.reject_note = ""
+            instance.client_status = None
             instance.rejected_by = None
         instance.updated_by = request.user if request.user and request.user.is_authenticated else instance.updated_by
         instance.save()
@@ -156,6 +169,49 @@ class QuoteViewSet(BaseAssessmentViewSet):
         message = "Quotation Rejected" if value else "Quotation Rejection Cancelled"
         return APIResponse.success(
             data=None,
+            message=message,
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=["patch"], url_path="client-status")
+    def client_status(self, request, *args, **kwargs):
+        instance = self.get_object()
+        user = request.user if request.user and request.user.is_authenticated else None
+
+        raw_status = request.data.get("client_status", request.data.get("status"))
+        client_status = self._parse_client_status_value(raw_status, "client_status")
+        reject_note = (request.data.get("reject_note", "") or "").strip()
+
+        if client_status == Quote.ClientStatus.REJECTED and not reject_note:
+            raise ValidationError({"reject_note": "This field is required when client status is rejected."})
+
+        instance.client_status = client_status
+        instance.updated_by = user if user else instance.updated_by
+
+        if client_status == Quote.ClientStatus.REJECTED:
+            self._reset_financial_fields(instance)
+            instance.is_rejected = True
+            instance.is_approved = False
+            instance.reject_note = reject_note
+            instance.rejected_by = user
+            instance.approved_by = None
+            message = "Client status updated to rejected."
+        else:
+            instance.is_rejected = False
+            instance.is_approved = True
+            instance.reject_note = ""
+            instance.rejected_by = None
+            instance.approved_by = user
+            message = "Client status updated to accepted."
+
+        instance.save()
+
+        return APIResponse.success(
+            data={
+                "id": instance.id,
+                "client_status": instance.client_status,
+                "reject_note": instance.reject_note,
+            },
             message=message,
             status_code=status.HTTP_200_OK,
         )

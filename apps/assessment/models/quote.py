@@ -10,6 +10,10 @@ from django.db.models import IntegerField, Count, Sum
 
 
 class Quote(models.Model):
+    class ClientStatus(models.TextChoices):
+        ACCEPTED = "accepted", _("Accepted")
+        REJECTED = "rejected", _("Rejected")
+
     quote_number = models.CharField(
         _("quote number"),
         max_length=100,
@@ -27,6 +31,13 @@ class Quote(models.Model):
         _("status"),
         max_length=50,
         default="awaiting quotation",
+    )
+    client_status = models.CharField(
+        _("client status"),
+        max_length=20,
+        choices=ClientStatus.choices,
+        blank=True,
+        null=True,
     )
     discount_amount = models.DecimalField(_("discount amount"), max_digits=14, decimal_places=2, default=0)
     exclusive_total = models.DecimalField(_("exclusive total"), max_digits=14, decimal_places=2, default=0)

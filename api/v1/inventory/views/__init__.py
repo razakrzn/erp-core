@@ -1,24 +1,6 @@
-from .master_views import (
-    BrandViewSet,
-    CategoryViewSet,
-    FinishViewSet,
-    GradeViewSet,
-    MaterialViewSet,
-    SizeViewSet,
-    ThicknessViewSet,
-)
-from .product_views import ProductViewSet
-from .shared import BaseInventoryMasterViewSet, BaseInventoryViewSet
+from .vendor_views import VendorViewSet
 
 __all__ = [
-    "BrandViewSet",
-    "CategoryViewSet",
-    "FinishViewSet",
-    "GradeViewSet",
-    "MaterialViewSet",
-    "ProductViewSet",
-    "SizeViewSet",
-    "ThicknessViewSet",
-    "BaseInventoryMasterViewSet",
-    "BaseInventoryViewSet",
+    "VendorViewSet",
 ]
+

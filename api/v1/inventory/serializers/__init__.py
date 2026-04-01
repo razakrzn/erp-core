@@ -1,27 +1,6 @@
-from .master_serializers import (
-    BrandSerializer,
-    CategorySerializer,
-    DropdownOptionSerializer,
-    DropdownOptionWithValueSerializer,
-    FinishSerializer,
-    GradeSerializer,
-    MaterialSerializer,
-    SizeSerializer,
-    ThicknessSerializer,
-)
-from .product_serializers import ProductDropdownSerializer, ProductListSerializer, ProductSerializer
+from .vendor_serializers import VendorSerializer
 
 __all__ = [
-    "BrandSerializer",
-    "CategorySerializer",
-    "DropdownOptionSerializer",
-    "DropdownOptionWithValueSerializer",
-    "FinishSerializer",
-    "GradeSerializer",
-    "MaterialSerializer",
-    "ProductDropdownSerializer",
-    "ProductListSerializer",
-    "ProductSerializer",
-    "SizeSerializer",
-    "ThicknessSerializer",
+    "VendorSerializer",
 ]
+

@@ -43,7 +43,7 @@ class BOMExplosionAdmin(admin.ModelAdmin):
 
 @admin.register(CuttingOptimizationJob)
 class CuttingOptimizationJobAdmin(admin.ModelAdmin):
-    list_display = ("name", "status", "cad_file", "cutlist_pdf_file", "cutlist_xlsx_file", "updated_at")
+    list_display = ("name", "status", "cad_file", "updated_at")
     search_fields = ("name", "slug")
     list_filter = ("status", "is_active")
 

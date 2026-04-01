@@ -3,6 +3,7 @@ import json
 from rest_framework import serializers
 
 from apps.production.models import CuttingOptimizationJob
+from apps.production.services import validate_cad_file_name
 
 
 class CuttingOptimizationJobListSerializer(serializers.ModelSerializer):
@@ -16,8 +17,6 @@ class CuttingOptimizationJobListSerializer(serializers.ModelSerializer):
             "slug",
             "description",
             "cad_file",
-            "cutlist_pdf_file",
-            "cutlist_xlsx_file",
             "status",
             "error_message",
             "is_active",
@@ -48,8 +47,6 @@ class CuttingOptimizationJobSerializer(serializers.ModelSerializer):
             "stock_sheets",
             "extracted_parts",
             "optimization_result",
-            "cutlist_pdf_file",
-            "cutlist_xlsx_file",
             "error_message",
             "is_active",
             "created_at",
@@ -63,14 +60,12 @@ class CuttingOptimizationJobSerializer(serializers.ModelSerializer):
             "error_message",
             "created_at",
             "updated_at",
-            "cutlist_pdf_file",
-            "cutlist_xlsx_file",
         ]
 
     def validate_cad_file(self, value):
-        file_name = (value.name or "").lower()
-        if not (file_name.endswith(".dxf") or file_name.endswith(".dwg")):
-            raise serializers.ValidationError("Only .dxf or .dwg files are supported.")
+        is_valid, error_message = validate_cad_file_name(value.name or "")
+        if not is_valid and error_message:
+            raise serializers.ValidationError(error_message)
         return value
 
     def validate_stock_sheets(self, value):
@@ -93,5 +88,5 @@ class CuttingOptimizationJobSerializer(serializers.ModelSerializer):
     def get_cad_reupload_required(self, obj: CuttingOptimizationJob) -> bool:
         if not obj.cad_file:
             return True
-        lower_name = (obj.cad_file.name or "").lower()
-        return not (lower_name.endswith(".dxf") or lower_name.endswith(".dwg"))
+        is_valid, _ = validate_cad_file_name(obj.cad_file.name or "")
+        return not is_valid

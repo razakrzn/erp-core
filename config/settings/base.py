@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "apps.rbac",
     "apps.hrm",
     "apps.crm.apps.CrmConfig",
+    "apps.Projects.apps.ProjectsConfig",
     "apps.inventory",
     "apps.production",
     "apps.assessment.apps.AssessmentConfig",

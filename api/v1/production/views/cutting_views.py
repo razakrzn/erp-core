@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, MultiPartParser
 
 from apps.production.models import CuttingOptimizationJob
+from apps.production.services import validate_cad_file_name
 from apps.production.tasks import process_cutting_optimization_job_sync
 from core.utils.responses import APIResponse
 
@@ -19,15 +20,11 @@ class CuttingOptimizationJobViewSet(BaseProductionViewSet):
     ordering = ["-created_at"]
     permission_prefix = "production.cutting_optimization"
 
-    @staticmethod
-    def _is_dxf_or_dwg(file_name: str) -> bool:
-        lower_name = (file_name or "").lower()
-        return lower_name.endswith(".dxf") or lower_name.endswith(".dwg")
-
     def _job_has_reprocessable_cad(self, job: CuttingOptimizationJob) -> bool:
         if not job.cad_file:
             return False
-        if not self._is_dxf_or_dwg(job.cad_file.name):
+        is_valid, _ = validate_cad_file_name(job.cad_file.name or "")
+        if not is_valid:
             return False
         try:
             return job.cad_file.storage.exists(job.cad_file.name)
@@ -96,10 +93,20 @@ class CuttingOptimizationJobViewSet(BaseProductionViewSet):
         job = self.get_object()
 
         reuploaded_cad = request.FILES.get("cad_file")
-        if reuploaded_cad and not self._is_dxf_or_dwg(reuploaded_cad.name):
+        if reuploaded_cad:
+            is_valid, error_message = validate_cad_file_name(reuploaded_cad.name or "")
+            if not is_valid:
+                message = error_message or "Unsupported CAD file."
+                return APIResponse.error(
+                    errors={"cad_file": [message]},
+                    message="Validation error",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                )
+
+        if reuploaded_cad is None and not self._job_has_reprocessable_cad(job):
             return APIResponse.error(
-                errors={"cad_file": ["Only .dxf or .dwg files are supported."]},
-                message="Validation error",
+                errors={"cad_file": ["Original CAD source is unavailable. Please reupload a .dxf file and retry."]},
+                message="CAD reupload required",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -110,12 +117,6 @@ class CuttingOptimizationJobViewSet(BaseProductionViewSet):
             if old_name and old_name != job.cad_file.name:
                 job.cad_file.storage.delete(old_name)
             update_fields.append("cad_file")
-        elif not self._job_has_reprocessable_cad(job):
-            return APIResponse.error(
-                errors={"cad_file": ["Original CAD source is unavailable. Please reupload .dxf/.dwg and retry."]},
-                message="CAD reupload required",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
 
         job.status = "pending"
         job.error_message = ""

@@ -111,6 +111,7 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
             "enquiry",
             "quote_items",
             "status",
+            "client_status",
             "total_items",
             "total_amount",
             "is_approved",

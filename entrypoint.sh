@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+APP_ROLE="${APP_ROLE:-web}"
+
 # Database host/port: use INTERNAL_DATABASE_URL or DATABASE_URL (Render), else DB_HOST/DB_PORT (local Docker)
 if [ -n "${INTERNAL_DATABASE_URL:-$DATABASE_URL}" ]; then
   _out=$(python -c "
@@ -39,13 +41,15 @@ if [ -n "$DB_HOST" ]; then
   echo "Database is up"
 fi
 
-# Run migrations
-echo "Applying database migrations..."
-python manage.py migrate --noinput
+if [ "$APP_ROLE" = "web" ]; then
+  echo "Applying database migrations..."
+  python manage.py migrate --noinput
 
-# Collect static files so admin (and other app) CSS/JS are served under /static/
-echo "Collecting static files..."
-python manage.py collectstatic --noinput
+  echo "Collecting static files..."
+  python manage.py collectstatic --noinput
+else
+  echo "Skipping migrations and collectstatic for APP_ROLE=${APP_ROLE}."
+fi
 
 # Start Django development server (or any other command passed in)
 echo "Starting application..."

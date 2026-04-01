@@ -1,81 +1,24 @@
 from django.contrib import admin
 
-from .models import Brand, Category, Finish, Grade, Material, Product, Size, Thickness
+from .models import Vendor
 
 
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "code", "is_active", "updated_at")
-    search_fields = ("name", "code", "slug")
-    list_filter = ("is_active",)
-
-
-@admin.register(Brand)
-class BrandAdmin(admin.ModelAdmin):
-    list_display = ("name", "code", "is_active", "updated_at")
-    search_fields = ("name", "code", "slug")
-    list_filter = ("is_active",)
-
-
-@admin.register(Material)
-class MaterialAdmin(admin.ModelAdmin):
-    list_display = ("name", "code", "is_active", "updated_at")
-    search_fields = ("name", "code", "slug")
-    list_filter = ("is_active",)
-
-
-@admin.register(Size)
-class SizeAdmin(admin.ModelAdmin):
-    list_display = ("name", "value", "code", "is_active", "updated_at")
-    search_fields = ("name", "value", "code", "slug")
-    list_filter = ("is_active",)
-
-
-@admin.register(Thickness)
-class ThicknessAdmin(admin.ModelAdmin):
-    list_display = ("name", "value", "code", "is_active", "updated_at")
-    search_fields = ("name", "code", "slug")
-    list_filter = ("is_active",)
-
-
-@admin.register(Grade)
-class GradeAdmin(admin.ModelAdmin):
-    list_display = ("name", "code", "is_active", "updated_at")
-    search_fields = ("name", "code", "slug")
-    list_filter = ("is_active",)
-
-
-@admin.register(Finish)
-class FinishAdmin(admin.ModelAdmin):
-    list_display = ("name", "code", "is_active", "updated_at")
-    search_fields = ("name", "code", "slug")
-    list_filter = ("is_active",)
-
-
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+@admin.register(Vendor)
+class VendorAdmin(admin.ModelAdmin):
     list_display = (
-        "name",
-        "sku",
-        "price",
-        "category",
-        "brand",
-        "material",
-        "size",
-        "thickness",
-        "grade",
-        "finish",
-        "is_active",
-        "updated_at",
+        "legal_trade_name",
+        "trade_license_number",
+        "tax_registration_number",
+        "phone_number",
+        "email_address",
+        "status",
     )
-    search_fields = ("name", "sku")
-    list_filter = (
-        "is_active",
-        "category",
-        "brand",
-        "material",
-        "size",
-        "thickness",
-        "grade",
-        "finish",
+    list_filter = ("status",)
+    search_fields = (
+        "legal_trade_name",
+        "trade_license_number",
+        "tax_registration_number",
+        "email_address",
+        "phone_number",
     )
+
