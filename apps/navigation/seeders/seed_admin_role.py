@@ -15,6 +15,7 @@ from __future__ import annotations
 from django.db import transaction
 
 from apps.company.models import Company, CompanyFeature
+from apps.company.services import get_company_disabled_module_ids
 from apps.navigation.models import Permission
 from apps.rbac.models import Role
 from apps.rbac.services import role_service
@@ -39,12 +40,15 @@ def _get_permission_codes_for_company(company_id: int) -> list[str]:
         )
         .values_list("feature_id", flat=True)
     )
+    disabled_module_ids = get_company_disabled_module_ids(company_id, enabled_feature_ids)
 
-    return list(
-        Permission.objects.filter(
-            module__feature_id__in=enabled_feature_ids,
-        ).values_list("permission_code", flat=True)
+    permission_queryset = Permission.objects.filter(
+        module__feature_id__in=enabled_feature_ids,
     )
+    if disabled_module_ids:
+        permission_queryset = permission_queryset.exclude(module_id__in=disabled_module_ids)
+
+    return list(permission_queryset.values_list("permission_code", flat=True))
 
 
 @transaction.atomic

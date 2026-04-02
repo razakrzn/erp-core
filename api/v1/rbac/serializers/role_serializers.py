@@ -4,6 +4,7 @@ from rest_framework import serializers
 from django.db.models import Prefetch
 
 from apps.company.models import CompanyFeature
+from apps.company.services import get_company_disabled_module_ids
 from apps.navigation.models import Feature, Module, Permission
 from apps.rbac.models import Role, RolePermission
 
@@ -105,6 +106,7 @@ class RoleDetailSerializer(serializers.ModelSerializer):
         )
         if not enabled_feature_ids:
             return []
+        disabled_module_ids = get_company_disabled_module_ids(obj.company_id, enabled_feature_ids)
 
         assigned_permission_ids = set(
             RolePermission.objects.filter(role=obj).values_list("permission_id", flat=True)
@@ -130,6 +132,8 @@ class RoleDetailSerializer(serializers.ModelSerializer):
 
             modules: list[dict] = []
             for module in feature.modules.all():
+                if module.id in disabled_module_ids:
+                    continue
                 permissions = [
                     {
                         "id": permission.id,

@@ -4,6 +4,7 @@ from .feature_serializers import (
     FeatureWriteSerializer,
 )
 from .module_serializers import (
+    CompanyModuleAccessSerializer,
     ModuleReadOnlySerializer,
     ModuleSerializer,
     ModuleWriteSerializer,
@@ -21,6 +22,7 @@ __all__ = [
     "FeatureReadOnlySerializer",
     "FeatureSerializer",
     "FeatureWriteSerializer",
+    "CompanyModuleAccessSerializer",
     "ModuleReadOnlySerializer",
     "ModuleSerializer",
     "ModuleWriteSerializer",

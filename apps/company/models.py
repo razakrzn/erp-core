@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from apps.navigation.models import Feature
+from apps.navigation.models import Feature, Module
 
 
 class Company(models.Model):
@@ -41,3 +41,28 @@ class CompanyFeature(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     feature = models.ForeignKey(Feature, on_delete=models.CASCADE)
     is_enabled = models.BooleanField(default=True)
+
+
+class CompanyModule(models.Model):
+    """
+    Company-level module override within an enabled feature.
+
+    Modules are considered enabled by default whenever their parent feature is
+    enabled for the company. This table stores explicit per-company overrides so
+    individual modules can be disabled or re-enabled without changing the
+    feature-level grant.
+    """
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    module = models.ForeignKey(Module, on_delete=models.CASCADE)
+    is_enabled = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = _("company module")
+        verbose_name_plural = _("company modules")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["company", "module"],
+                name="unique_company_module_access",
+            )
+        ]

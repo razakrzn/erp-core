@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 from django.core.cache import cache
 from django.db.models import Prefetch
-from django.db.models import Q
 
 from apps.company.models import Company, CompanyFeature
+from apps.company.services import get_company_disabled_module_ids
 from apps.navigation.models import Feature, Module
 from apps.rbac.services.permission_engine import get_user_permission_codes
 
@@ -60,6 +60,7 @@ def build_sidebar(user: Any, company: Optional[Company] = None) -> List[Dict[str
 
     user_permissions: set[str] = get_user_permission_codes(user)
     effective_user_permissions = _expand_permission_codes(user_permissions)
+    disabled_module_ids: set[int] = set()
 
     if company is None:
         if not is_superuser:
@@ -72,14 +73,12 @@ def build_sidebar(user: Any, company: Optional[Company] = None) -> List[Dict[str
                 is_enabled=True,
             ).values_list("feature_id", flat=True)
         )
+        disabled_module_ids = get_company_disabled_module_ids(company.id, enabled_feature_ids)
 
-        if not enabled_feature_ids and not effective_user_permissions:
+        if not enabled_feature_ids:
             return []
 
-        features_qs = Feature.objects.filter(
-            Q(id__in=enabled_feature_ids)
-            | Q(modules__permissions__permission_code__in=effective_user_permissions)
-        ).distinct()
+        features_qs = Feature.objects.filter(id__in=enabled_feature_ids).distinct()
 
     # 2. Fetch all features, modules, and permissions in minimal queries.
     features = features_qs.prefetch_related(module_prefetch).order_by("order", "feature_name")
@@ -98,6 +97,8 @@ def build_sidebar(user: Any, company: Optional[Company] = None) -> List[Dict[str
         module_list: List[Dict[str, Any]] = []
         # Calling .all() here uses the prefetch cache, preserving order from Prefetch queryset
         for module in feature.modules.all():
+            if company is not None and module.id in disabled_module_ids:
+                continue
             # Check permissions
             module_perms = {p.permission_code for p in module.permissions.all()}
             if is_superuser or (module_perms & effective_user_permissions):

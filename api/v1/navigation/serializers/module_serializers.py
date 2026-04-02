@@ -43,3 +43,10 @@ class ModuleReadOnlySerializer(serializers.ModelSerializer):
         model = Module
         fields = ["id", "module_code", "module_name"]
         read_only_fields = ["id", "module_code", "module_name"]
+
+
+class CompanyModuleAccessSerializer(serializers.Serializer):
+    """Validate company-level module access payloads."""
+
+    feature_id = serializers.IntegerField(required=True, min_value=1)
+    module_id = serializers.IntegerField(required=True, min_value=1)

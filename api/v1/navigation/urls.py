@@ -8,7 +8,9 @@ from django.urls import path
 
 from .views import (
     CompanyFeatureListAPIView,
+    DisableCompanyModuleAPIView,
     DisableFeatureAPIView,
+    EnableCompanyModuleAPIView,
     EnableFeatureAPIView,
     FeatureCreateAPIView,
     FeatureDetailAPIView,
@@ -44,6 +46,16 @@ urlpatterns = [
         "company/<int:company_id>/disable-features/",
         DisableFeatureAPIView.as_view(),
         name="disable-features",
+    ),
+    path(
+        "company/<int:company_id>/enable-module/",
+        EnableCompanyModuleAPIView.as_view(),
+        name="enable-module",
+    ),
+    path(
+        "company/<int:company_id>/disable-module/",
+        DisableCompanyModuleAPIView.as_view(),
+        name="disable-module",
     ),
     path(
         "sidebar/",

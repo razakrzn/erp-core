@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.company.models import Company, CompanyFeature
+from apps.company.services import get_company_disabled_module_ids, get_company_module_access_overrides
 from apps.navigation.models import Feature, Module, Permission
 from apps.rbac.services.permission_engine import get_user_permission_codes
 from core.permissions.rbac_permission import IsSuperuser, RBACPermission
@@ -30,7 +31,7 @@ def _is_superuser_only_feature(feature_code: str | None) -> bool:
     return (feature_code or "").lower() in SUPERUSER_ONLY_FEATURE_CODES
 
 
-def _get_enabled_features_queryset(enabled_feature_ids: list[int]):
+def _get_enabled_features_queryset(enabled_feature_ids: list[int], disabled_module_ids: set[int] | None = None):
     module_queryset = Module.objects.select_related("feature").only(
         "id",
         "feature_id",
@@ -40,7 +41,11 @@ def _get_enabled_features_queryset(enabled_feature_ids: list[int]):
         "route",
         "icon",
         "order",
-    ).order_by("order", "module_name").prefetch_related(
+    )
+    if disabled_module_ids:
+        module_queryset = module_queryset.exclude(id__in=disabled_module_ids)
+
+    module_queryset = module_queryset.order_by("order", "module_name").prefetch_related(
         Prefetch(
             "permissions",
             queryset=Permission.objects.select_related("module").only(
@@ -162,8 +167,14 @@ def _serialize_lightweight_features(features, permission_codes: set[str] | None 
     return lightweight_features
 
 
-def _serialize_company_feature_matrix(features, enabled_feature_ids: set[int], is_superuser: bool) -> list[dict[str, Any]]:
+def _serialize_company_feature_matrix(
+    features,
+    enabled_feature_ids: set[int],
+    is_superuser: bool,
+    module_access_overrides: dict[int, bool] | None = None,
+) -> list[dict[str, Any]]:
     company_features: list[dict[str, Any]] = []
+    module_access_overrides = module_access_overrides or {}
 
     for feature in features:
         if _is_superuser_only_feature(feature.feature_code) and not is_superuser:
@@ -171,12 +182,14 @@ def _serialize_company_feature_matrix(features, enabled_feature_ids: set[int], i
 
         modules: list[dict[str, Any]] = []
         for module in feature.modules.all():
+            module_enabled = feature.id in enabled_feature_ids and module_access_overrides.get(module.id, True)
             modules.append(
                 {
                     "id": module.id,
                     "module_name": module.module_name,
                     "icon": module.icon,
                     "order": module.order,
+                    "enabled": module_enabled,
                     "permissions": [
                         {
                             "id": permission.id,
@@ -232,7 +245,8 @@ class FeatureListAPIView(APIView):
                 status_code=status.HTTP_200_OK,
             )
 
-        features = _get_enabled_features_queryset(enabled_feature_ids)
+        disabled_module_ids = get_company_disabled_module_ids(company_id, enabled_feature_ids)
+        features = _get_enabled_features_queryset(enabled_feature_ids, disabled_module_ids)
 
         user = request.user
         is_superuser = getattr(user, "is_superuser", False)
@@ -269,6 +283,7 @@ class CompanyFeatureListAPIView(APIView):
                 is_enabled=True,
             ).values_list("feature_id", flat=True)
         )
+        module_access_overrides = get_company_module_access_overrides(company_id, enabled_feature_ids)
 
         features = (
             Feature.objects.all()
@@ -290,7 +305,12 @@ class CompanyFeatureListAPIView(APIView):
         return APIResponse.success(
             data={
                 "company_id": company_id,
-                "features": _serialize_company_feature_matrix(features, enabled_feature_ids, is_superuser),
+                "features": _serialize_company_feature_matrix(
+                    features,
+                    enabled_feature_ids,
+                    is_superuser,
+                    module_access_overrides,
+                ),
             },
             message="Success",
             status_code=status.HTTP_200_OK,
