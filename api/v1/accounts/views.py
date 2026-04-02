@@ -23,7 +23,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.filter(is_superuser=False)
     serializer_class = UserSerializer
-    permission_prefix = "core.users"
+    permission_prefix = ["core.users", "hr.employees"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["username", "email", "first_name", "last_name"]
     ordering_fields = ["username", "email", "date_joined", "created_at"]
@@ -31,6 +31,18 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = User.objects.filter(is_superuser=False)
+        user = getattr(self.request, "user", None)
+
+        if user and user.is_authenticated and not user.is_superuser:
+            company_id = getattr(self.request, "company_id", None)
+            if company_id is not None:
+                queryset = queryset.filter(company_id=company_id)
+            elif hasattr(user, "company_id"):
+                queryset = queryset.filter(company_id=user.company_id)
+            else:
+                queryset = queryset.none()
+            return queryset
+
         company_id = self.request.query_params.get("company_id")
         if company_id is not None:
             queryset = queryset.filter(company_id=company_id)

@@ -1,0 +1,1994 @@
+{
+  "info": {
+    "_postman_id": "0cbb2fb6-5542-4334-b086-c6ee0f45d0ad",
+    "name": "ERP Core Inventory Products",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Inventory product and lookup API collection for ERP Core."
+  },
+  "item": [
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/categories/?search={{search}}&ordering={{ordering}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "categories",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "{{search}}"
+                },
+                {
+                  "key": "ordering",
+                  "value": "{{ordering}}"
+                }
+              ]
+            },
+            "description": "Get all categories. Supports search by name and ordering."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Plywood\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/categories/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "categories",
+                ""
+              ]
+            },
+            "description": "Create a new category."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/categories/{{category_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "categories",
+                "{{category_id}}",
+                ""
+              ]
+            },
+            "description": "Get a single category by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Decorative Plywood\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/categories/{{category_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "categories",
+                "{{category_id}}",
+                ""
+              ]
+            },
+            "description": "Replace category by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Category (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Marine Plywood\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/categories/{{category_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "categories",
+                "{{category_id}}",
+                ""
+              ]
+            },
+            "description": "Partially update a category by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/categories/{{category_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "categories",
+                "{{category_id}}",
+                ""
+              ]
+            },
+            "description": "Delete category by id."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Brands",
+      "item": [
+        {
+          "name": "List Brands",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/brands/?search={{search}}&ordering={{ordering}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "brands",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "{{search}}"
+                },
+                {
+                  "key": "ordering",
+                  "value": "{{ordering}}"
+                }
+              ]
+            },
+            "description": "Get all brands. Supports search by name and ordering."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Brand",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"GreenPanel\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/brands/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "brands",
+                ""
+              ]
+            },
+            "description": "Create a new brand."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Brand",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/brands/{{brand_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "brands",
+                "{{brand_id}}",
+                ""
+              ]
+            },
+            "description": "Get a single brand by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Brand (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"GreenPanel Premium\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/brands/{{brand_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "brands",
+                "{{brand_id}}",
+                ""
+              ]
+            },
+            "description": "Replace brand by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Brand (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"GreenPanel Pro\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/brands/{{brand_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "brands",
+                "{{brand_id}}",
+                ""
+              ]
+            },
+            "description": "Partially update a brand by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Brand",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/brands/{{brand_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "brands",
+                "{{brand_id}}",
+                ""
+              ]
+            },
+            "description": "Delete brand by id."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Materials",
+      "item": [
+        {
+          "name": "List Materials",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/materials/?search={{search}}&ordering={{ordering}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "materials",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "{{search}}"
+                },
+                {
+                  "key": "ordering",
+                  "value": "{{ordering}}"
+                }
+              ]
+            },
+            "description": "Get all materials. Supports search by name and ordering."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Material",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"MDF\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/materials/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "materials",
+                ""
+              ]
+            },
+            "description": "Create a new material."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Material",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/materials/{{material_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "materials",
+                "{{material_id}}",
+                ""
+              ]
+            },
+            "description": "Get a single material by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Material (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Moisture Resistant MDF\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/materials/{{material_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "materials",
+                "{{material_id}}",
+                ""
+              ]
+            },
+            "description": "Replace material by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Material (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Birch Plywood\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/materials/{{material_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "materials",
+                "{{material_id}}",
+                ""
+              ]
+            },
+            "description": "Partially update a material by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Material",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/materials/{{material_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "materials",
+                "{{material_id}}",
+                ""
+              ]
+            },
+            "description": "Delete material by id."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Sizes",
+      "item": [
+        {
+          "name": "List Sizes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/sizes/?search={{search}}&ordering={{ordering}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "sizes",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "{{search}}"
+                },
+                {
+                  "key": "ordering",
+                  "value": "{{ordering}}"
+                }
+              ]
+            },
+            "description": "Get all sizes. Supports search by name and ordering."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Size",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"1220 x 2440 mm\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/sizes/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "sizes",
+                ""
+              ]
+            },
+            "description": "Create a new size."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Size",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/sizes/{{size_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "sizes",
+                "{{size_id}}",
+                ""
+              ]
+            },
+            "description": "Get a single size by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Size (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"1220 x 3050 mm\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/sizes/{{size_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "sizes",
+                "{{size_id}}",
+                ""
+              ]
+            },
+            "description": "Replace size by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Size (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"1830 x 2440 mm\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/sizes/{{size_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "sizes",
+                "{{size_id}}",
+                ""
+              ]
+            },
+            "description": "Partially update a size by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Size",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/sizes/{{size_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "sizes",
+                "{{size_id}}",
+                ""
+              ]
+            },
+            "description": "Delete size by id."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Thicknesses",
+      "item": [
+        {
+          "name": "List Thicknesses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/thicknesses/?search={{search}}&ordering={{ordering}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "thicknesses",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "{{search}}"
+                },
+                {
+                  "key": "ordering",
+                  "value": "{{ordering}}"
+                }
+              ]
+            },
+            "description": "Get all thicknesses. Supports search by name and ordering."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Thickness",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"18 mm\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/thicknesses/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "thicknesses",
+                ""
+              ]
+            },
+            "description": "Create a new thickness."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Thickness",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/thicknesses/{{thickness_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "thicknesses",
+                "{{thickness_id}}",
+                ""
+              ]
+            },
+            "description": "Get a single thickness by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Thickness (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"25 mm\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/thicknesses/{{thickness_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "thicknesses",
+                "{{thickness_id}}",
+                ""
+              ]
+            },
+            "description": "Replace thickness by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Thickness (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"12 mm\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/thicknesses/{{thickness_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "thicknesses",
+                "{{thickness_id}}",
+                ""
+              ]
+            },
+            "description": "Partially update a thickness by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Thickness",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/thicknesses/{{thickness_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "thicknesses",
+                "{{thickness_id}}",
+                ""
+              ]
+            },
+            "description": "Delete thickness by id."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Grades",
+      "item": [
+        {
+          "name": "List Grades",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/grades/?search={{search}}&ordering={{ordering}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "grades",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "{{search}}"
+                },
+                {
+                  "key": "ordering",
+                  "value": "{{ordering}}"
+                }
+              ]
+            },
+            "description": "Get all grades. Supports search by name and ordering."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Grade",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"BWR\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/grades/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "grades",
+                ""
+              ]
+            },
+            "description": "Create a new grade."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Grade",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/grades/{{grade_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "grades",
+                "{{grade_id}}",
+                ""
+              ]
+            },
+            "description": "Get a single grade by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Grade (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"MR\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/grades/{{grade_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "grades",
+                "{{grade_id}}",
+                ""
+              ]
+            },
+            "description": "Replace grade by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Grade (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Exterior\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/grades/{{grade_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "grades",
+                "{{grade_id}}",
+                ""
+              ]
+            },
+            "description": "Partially update a grade by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Grade",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/grades/{{grade_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "grades",
+                "{{grade_id}}",
+                ""
+              ]
+            },
+            "description": "Delete grade by id."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Finishes",
+      "item": [
+        {
+          "name": "List Finishes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/finishes/?search={{search}}&ordering={{ordering}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "finishes",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "{{search}}"
+                },
+                {
+                  "key": "ordering",
+                  "value": "{{ordering}}"
+                }
+              ]
+            },
+            "description": "Get all finishes. Supports search by name and ordering."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Finish",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Matte\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/finishes/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "finishes",
+                ""
+              ]
+            },
+            "description": "Create a new finish."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Finish",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/finishes/{{finish_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "finishes",
+                "{{finish_id}}",
+                ""
+              ]
+            },
+            "description": "Get a single finish by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Finish (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"High Gloss\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/finishes/{{finish_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "finishes",
+                "{{finish_id}}",
+                ""
+              ]
+            },
+            "description": "Replace finish by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Finish (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Textured\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/finishes/{{finish_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "finishes",
+                "{{finish_id}}",
+                ""
+              ]
+            },
+            "description": "Partially update a finish by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Finish",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/finishes/{{finish_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "finishes",
+                "{{finish_id}}",
+                ""
+              ]
+            },
+            "description": "Delete finish by id."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Units",
+      "item": [
+        {
+          "name": "List Units",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/units/?search={{search}}&ordering={{ordering}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "units",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "{{search}}"
+                },
+                {
+                  "key": "ordering",
+                  "value": "{{ordering}}"
+                }
+              ]
+            },
+            "description": "Get all units. Supports search by name and ordering."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Unit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sheet\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/units/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "units",
+                ""
+              ]
+            },
+            "description": "Create a new unit."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Unit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/units/{{unit_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "units",
+                "{{unit_id}}",
+                ""
+              ]
+            },
+            "description": "Get a single unit by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Unit (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Board\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/units/{{unit_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "units",
+                "{{unit_id}}",
+                ""
+              ]
+            },
+            "description": "Replace unit by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Unit (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Piece\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/units/{{unit_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "units",
+                "{{unit_id}}",
+                ""
+              ]
+            },
+            "description": "Partially update a unit by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Unit",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/units/{{unit_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "units",
+                "{{unit_id}}",
+                ""
+              ]
+            },
+            "description": "Delete unit by id."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/products/?search={{search}}&ordering={{product_ordering}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "products",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "{{search}}"
+                },
+                {
+                  "key": "ordering",
+                  "value": "{{product_ordering}}"
+                }
+              ]
+            },
+            "description": "Get all products. Supports search by name, SKU, and related lookup names, plus ordering."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"MDF Board 18mm\",\n  \"sku\": \"MDF-18-1220X2440\",\n  \"price\": \"145.00\",\n  \"category\": {{category_id}},\n  \"brand\": {{brand_id}},\n  \"material\": {{material_id}},\n  \"size\": {{size_id}},\n  \"thickness\": {{thickness_id}},\n  \"grade\": {{grade_id}},\n  \"finish\": {{finish_id}},\n  \"unit\": {{unit_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/products/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "products",
+                ""
+              ]
+            },
+            "description": "Create a new product. Only name and sku are strictly required by the model; related ids can be null."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Product",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/products/{{product_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "products",
+                "{{product_id}}",
+                ""
+              ]
+            },
+            "description": "Get a single product by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"MDF Board 18mm Premium\",\n  \"sku\": \"MDF-18-1220X2440-P\",\n  \"price\": \"165.00\",\n  \"category\": {{category_id}},\n  \"brand\": {{brand_id}},\n  \"material\": {{material_id}},\n  \"size\": {{size_id}},\n  \"thickness\": {{thickness_id}},\n  \"grade\": {{grade_id}},\n  \"finish\": {{finish_id}},\n  \"unit\": {{unit_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/products/{{product_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "products",
+                "{{product_id}}",
+                ""
+              ]
+            },
+            "description": "Replace product by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Product (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": \"175.00\",\n  \"finish\": null\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/products/{{product_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "products",
+                "{{product_id}}",
+                ""
+              ]
+            },
+            "description": "Partially update product fields by id."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/products/{{product_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "products",
+                "{{product_id}}",
+                ""
+              ]
+            },
+            "description": "Delete product by id."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "search",
+      "value": ""
+    },
+    {
+      "key": "ordering",
+      "value": "name"
+    },
+    {
+      "key": "product_ordering",
+      "value": "-updated_at"
+    },
+    {
+      "key": "category_id",
+      "value": "1"
+    },
+    {
+      "key": "brand_id",
+      "value": "1"
+    },
+    {
+      "key": "material_id",
+      "value": "1"
+    },
+    {
+      "key": "size_id",
+      "value": "1"
+    },
+    {
+      "key": "thickness_id",
+      "value": "1"
+    },
+    {
+      "key": "grade_id",
+      "value": "1"
+    },
+    {
+      "key": "finish_id",
+      "value": "1"
+    },
+    {
+      "key": "unit_id",
+      "value": "1"
+    },
+    {
+      "key": "product_id",
+      "value": "1"
+    }
+  ]
+}

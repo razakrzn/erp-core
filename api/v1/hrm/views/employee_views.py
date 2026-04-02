@@ -21,6 +21,25 @@ class CompanyScopedEmployeeQuerysetMixin:
             return Employee.objects.filter(company=user.company)
         return Employee.objects.none()
 
+    def apply_user_link_filter(self, queryset):
+        """
+        Filter employees by whether they are linked to an auth user.
+
+        Supported query params:
+        - `has_user=true`
+        - `has_user=false`
+        """
+        has_user = self.request.query_params.get("has_user")
+        if has_user is None:
+            return queryset
+
+        normalized_value = has_user.strip().lower()
+        if normalized_value in {"true", "1", "yes"}:
+            return queryset.filter(user__isnull=False)
+        if normalized_value in {"false", "0", "no"}:
+            return queryset.filter(user__isnull=True)
+        return queryset
+
 
 class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMViewSet):
     """
@@ -45,7 +64,8 @@ class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMViewSet):
         return EmployeeSerializer
 
     def get_queryset(self):
-        return self.get_company_scoped_employee_queryset().select_related("user", "department", "designation")
+        queryset = self.get_company_scoped_employee_queryset().select_related("user", "department", "designation")
+        return self.apply_user_link_filter(queryset)
 
 
 class EmployeeLightweightViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMViewSet):
@@ -63,7 +83,8 @@ class EmployeeLightweightViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMView
     permission_prefix = "hr.employees"
 
     def get_queryset(self):
-        return self.get_company_scoped_employee_queryset().select_related("user")
+        queryset = self.get_company_scoped_employee_queryset().select_related("user")
+        return self.apply_user_link_filter(queryset)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
