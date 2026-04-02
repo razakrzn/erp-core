@@ -23,10 +23,18 @@ class UserViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.filter(is_superuser=False)
     serializer_class = UserSerializer
+    permission_prefix = "core.users"
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["username", "email", "first_name", "last_name"]
     ordering_fields = ["username", "email", "date_joined", "created_at"]
     ordering = ["-date_joined"]
+
+    def get_queryset(self):
+        queryset = User.objects.filter(is_superuser=False)
+        company_id = self.request.query_params.get("company_id")
+        if company_id is not None:
+            queryset = queryset.filter(company_id=company_id)
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
