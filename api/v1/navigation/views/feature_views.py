@@ -105,6 +105,54 @@ def _serialize_filtered_features(features, user: Any) -> list[dict[str, Any]]:
     return filtered_features
 
 
+def _serialize_lightweight_features(features, permission_codes: set[str] | None = None) -> list[dict[str, Any]]:
+    lightweight_features: list[dict[str, Any]] = []
+
+    for feature in features:
+        if feature.feature_code.lower() == "superuser":
+            continue
+
+        modules: list[dict[str, Any]] = []
+        for module in feature.modules.all():
+            permissions = list(module.permissions.all())
+            if permission_codes is not None:
+                permissions = [permission for permission in permissions if permission.permission_code in permission_codes]
+
+            if not permissions:
+                continue
+
+            modules.append(
+                {
+                    "id": module.id,
+                    "module_name": module.module_name,
+                    "icon": module.icon,
+                    "order": module.order,
+                    "permissions": [
+                        {
+                            "id": permission.id,
+                            "permission_name": permission.permission_name,
+                        }
+                        for permission in permissions
+                    ],
+                }
+            )
+
+        if not modules:
+            continue
+
+        lightweight_features.append(
+            {
+                "id": feature.id,
+                "feature_name": feature.feature_name,
+                "icon": feature.icon,
+                "order": feature.order,
+                "modules": modules,
+            }
+        )
+
+    return lightweight_features
+
+
 class FeatureListAPIView(APIView):
     """
     List features (with modules and permissions) enabled for the current user's company.
@@ -131,7 +179,7 @@ class FeatureListAPIView(APIView):
 
         if not enabled_feature_ids:
             return APIResponse.success(
-                data={"company_id": company_id, "features": []},
+                data={"features": []},
                 message="No enabled features for this company.",
                 status_code=status.HTTP_200_OK,
             )
@@ -142,17 +190,16 @@ class FeatureListAPIView(APIView):
         is_superuser = getattr(user, "is_superuser", False)
 
         if is_superuser:
-            serializer = FeatureSerializer(features, many=True)
             return APIResponse.success(
-                data={"company_id": company_id, "features": serializer.data},
+                data={"features": _serialize_lightweight_features(features)},
                 message="Success",
                 status_code=status.HTTP_200_OK,
             )
 
-        filtered_features = _serialize_filtered_features(features, user)
+        filtered_features = _serialize_lightweight_features(features, get_user_permission_codes(user))
 
         return APIResponse.success(
-            data={"company_id": company_id, "features": filtered_features},
+            data={"features": filtered_features},
             message="Success",
             status_code=status.HTTP_200_OK,
         )

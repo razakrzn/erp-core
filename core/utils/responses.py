@@ -161,11 +161,11 @@ class APIResponse:
         payload = {
             "success": True,
             "message": message,
-            "status_code": status_code,
-            "timestamp": timezone.now().isoformat(),
         }
         if final_data is not None:
             payload["data"] = final_data
+        payload["status_code"] = status_code
+        payload["timestamp"] = timezone.now().isoformat()
         return Response(payload, status=status_code)
 
     @staticmethod
@@ -212,9 +212,9 @@ def custom_exception_handler(exc, context):
 
         response.data = {
             "success": False,
-            "status_code": response.status_code,
             "message": message,
-            "timestamp": timezone.now().isoformat(),
         }
+        response.data["status_code"] = response.status_code
+        response.data["timestamp"] = timezone.now().isoformat()
 
     return response

@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from collections import OrderedDict
-
 from rest_framework import serializers
+from django.db.models import Prefetch
 
 from apps.company.models import CompanyFeature
-from apps.navigation.models import Permission
+from apps.navigation.models import Feature, Module, Permission
 from apps.rbac.models import Role, RolePermission
 
 
@@ -75,7 +74,7 @@ class RoleWriteSerializer(serializers.ModelSerializer):
 
 
 class RoleDetailSerializer(serializers.ModelSerializer):
-    """Serializer for Role detail with nested role_permission ids."""
+    """Serializer for Role detail with full company navigation and enabled permissions."""
 
     features = serializers.SerializerMethodField()
 
@@ -98,66 +97,54 @@ class RoleDetailSerializer(serializers.ModelSerializer):
         if not enabled_feature_ids:
             return []
 
-        role_permissions = (
-            RolePermission.objects.filter(role=obj)
-            .select_related("permission__module__feature")
-            .order_by(
-                "permission__module__feature__order",
-                "permission__module__feature__feature_name",
-                "permission__module__order",
-                "permission__module__module_name",
-                "permission__permission_name",
-            )
+        assigned_permission_ids = set(
+            RolePermission.objects.filter(role=obj).values_list("permission_id", flat=True)
         )
 
-        feature_map: OrderedDict[int, dict] = OrderedDict()
+        feature_qs = (
+            Feature.objects.filter(id__in=enabled_feature_ids)
+            .prefetch_related(
+                Prefetch(
+                    "modules",
+                    queryset=Module.objects.prefetch_related(
+                        Prefetch("permissions", queryset=Permission.objects.all().order_by("permission_name", "id"))
+                    ).order_by("order", "module_name", "id"),
+                )
+            )
+            .order_by("order", "feature_name", "id")
+        )
 
-        for role_permission in role_permissions:
-            permission = role_permission.permission
-            module = permission.module
-            feature = module.feature
+        features: list[dict] = []
+        for feature in feature_qs:
+            modules: list[dict] = []
+            for module in feature.modules.all():
+                permissions = [
+                    {
+                        "id": permission.id,
+                        "permission_name": permission.permission_name,
+                        "enabled": permission.id in assigned_permission_ids,
+                    }
+                    for permission in module.permissions.all()
+                ]
 
-            if feature.id not in enabled_feature_ids:
-                continue
+                modules.append(
+                    {
+                        "id": module.id,
+                        "module_name": module.module_name,
+                        "icon": module.icon,
+                        "order": module.order,
+                        "permissions": permissions,
+                    }
+                )
 
-            if feature.id not in feature_map:
-                feature_map[feature.id] = {
+            features.append(
+                {
                     "id": feature.id,
-                    "feature_code": feature.feature_code,
                     "feature_name": feature.feature_name,
                     "icon": feature.icon,
                     "order": feature.order,
-                    "_modules_map": OrderedDict(),
-                }
-
-            modules_map = feature_map[feature.id]["_modules_map"]
-            if module.id not in modules_map:
-                modules_map[module.id] = {
-                    "id": module.id,
-                    "feature_name": feature.feature_name,
-                    "module_code": module.module_code,
-                    "module_name": module.module_name,
-                    "route": module.route,
-                    "icon": module.icon,
-                    "order": module.order,
-                    "permissions": [],
-                }
-
-            modules_map[module.id]["permissions"].append(
-                {
-                    "id": permission.id,
-                    "module_name": module.module_name,
-                    "permission_code": permission.permission_code,
-                    "permission_name": permission.permission_name,
+                    "modules": modules,
                 }
             )
-
-        features: list[dict] = []
-        for feature_data in feature_map.values():
-            modules = list(feature_data.pop("_modules_map").values())
-            if not modules:
-                continue
-            feature_data["modules"] = modules
-            features.append(feature_data)
 
         return features
