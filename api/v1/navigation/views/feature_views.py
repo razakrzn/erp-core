@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from django.db.models import Q
 from django.db.models import Prefetch
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -20,6 +21,13 @@ from ..serializers import (
     FeatureSerializer,
     FeatureWriteSerializer,
 )
+
+
+SUPERUSER_ONLY_FEATURE_CODES = {"superuser", "core"}
+
+
+def _is_superuser_only_feature(feature_code: str | None) -> bool:
+    return (feature_code or "").lower() in SUPERUSER_ONLY_FEATURE_CODES
 
 
 def _get_enabled_features_queryset(enabled_feature_ids: list[int]):
@@ -58,7 +66,7 @@ def _serialize_filtered_features(features, user: Any) -> list[dict[str, Any]]:
     filtered_features: list[dict[str, Any]] = []
 
     for feature in features:
-        if feature.feature_code.lower() == "superuser":
+        if _is_superuser_only_feature(feature.feature_code):
             continue
 
         allowed_modules: list[dict[str, Any]] = []
@@ -107,9 +115,10 @@ def _serialize_filtered_features(features, user: Any) -> list[dict[str, Any]]:
 
 def _serialize_lightweight_features(features, permission_codes: set[str] | None = None) -> list[dict[str, Any]]:
     lightweight_features: list[dict[str, Any]] = []
+    is_superuser = permission_codes is None
 
     for feature in features:
-        if feature.feature_code.lower() == "superuser":
+        if _is_superuser_only_feature(feature.feature_code) and not is_superuser:
             continue
 
         modules: list[dict[str, Any]] = []
@@ -153,6 +162,45 @@ def _serialize_lightweight_features(features, permission_codes: set[str] | None 
     return lightweight_features
 
 
+def _serialize_company_feature_matrix(features, enabled_feature_ids: set[int], is_superuser: bool) -> list[dict[str, Any]]:
+    company_features: list[dict[str, Any]] = []
+
+    for feature in features:
+        if _is_superuser_only_feature(feature.feature_code) and not is_superuser:
+            continue
+
+        modules: list[dict[str, Any]] = []
+        for module in feature.modules.all():
+            modules.append(
+                {
+                    "id": module.id,
+                    "module_name": module.module_name,
+                    "icon": module.icon,
+                    "order": module.order,
+                    "permissions": [
+                        {
+                            "id": permission.id,
+                            "permission_name": permission.permission_name,
+                        }
+                        for permission in module.permissions.all()
+                    ],
+                }
+            )
+
+        company_features.append(
+            {
+                "id": feature.id,
+                "feature_name": feature.feature_name,
+                "icon": feature.icon,
+                "order": feature.order,
+                "enabled": feature.id in enabled_feature_ids,
+                "modules": modules,
+            }
+        )
+
+    return company_features
+
+
 class FeatureListAPIView(APIView):
     """
     List features (with modules and permissions) enabled for the current user's company.
@@ -160,7 +208,7 @@ class FeatureListAPIView(APIView):
 
     permission_classes = [IsAuthenticated, RBACPermission]
     serializer_class = FeatureSerializer
-    permission_prefix = "core.features"
+    permission_prefix = ["core.features", "hr.roles"]
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         company_id = getattr(request.user, "company_id", None) if request.user.is_authenticated else None
@@ -212,40 +260,38 @@ class CompanyFeatureListAPIView(APIView):
 
     permission_classes = [IsAuthenticated, RBACPermission]
     serializer_class = FeatureSerializer
-    permission_prefix = "core.features"
+    permission_prefix = ["core.features", "hr.roles"]
 
     def get(self, request: Request, company_id: int, *args: Any, **kwargs: Any) -> Response:
-        enabled_feature_ids = list(
+        enabled_feature_ids = set(
             CompanyFeature.objects.filter(
                 company_id=company_id,
                 is_enabled=True,
             ).values_list("feature_id", flat=True)
         )
 
-        if not enabled_feature_ids:
-            return APIResponse.success(
-                data={"company_id": company_id, "features": []},
-                message="No enabled features for this company.",
-                status_code=status.HTTP_200_OK,
+        features = (
+            Feature.objects.all()
+            .only("id", "feature_code", "feature_name", "icon", "order")
+            .prefetch_related(
+                Prefetch(
+                    "modules",
+                    queryset=Module.objects.only("id", "feature_id", "module_name", "icon", "order").prefetch_related(
+                        Prefetch("permissions", queryset=Permission.objects.only("id", "module_id", "permission_name"))
+                    ),
+                )
             )
-
-        features = _get_enabled_features_queryset(enabled_feature_ids)
+            .order_by("order", "feature_name")
+        )
 
         user = request.user
         is_superuser = getattr(user, "is_superuser", False)
 
-        if is_superuser:
-            serializer = FeatureSerializer(features, many=True)
-            return APIResponse.success(
-                data={"company_id": company_id, "features": serializer.data},
-                message="Success",
-                status_code=status.HTTP_200_OK,
-            )
-
-        filtered_features = _serialize_filtered_features(features, user)
-
         return APIResponse.success(
-            data={"company_id": company_id, "features": filtered_features},
+            data={
+                "company_id": company_id,
+                "features": _serialize_company_feature_matrix(features, enabled_feature_ids, is_superuser),
+            },
             message="Success",
             status_code=status.HTTP_200_OK,
         )
@@ -375,7 +421,10 @@ class FeatureReadOnlyListAPIView(APIView):
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         features = Feature.objects.order_by("order", "feature_name")
         if not getattr(request.user, "is_superuser", False):
-            features = features.exclude(feature_code__iexact="superuser")
+            hidden_features = Q()
+            for feature_code in SUPERUSER_ONLY_FEATURE_CODES:
+                hidden_features |= Q(feature_code__iexact=feature_code)
+            features = features.exclude(hidden_features)
         serializer = FeatureReadOnlySerializer(features, many=True)
         return APIResponse.success(
             data={"features": serializer.data},
@@ -394,10 +443,21 @@ class FeatureCreateAPIView(APIView):
     permission_prefix = "core.features"
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        features = Feature.objects.all().prefetch_related("modules__permissions").order_by("order", "feature_name")
-        serializer = FeatureSerializer(features, many=True)
+        features = (
+            Feature.objects.all()
+            .only("id", "feature_code", "feature_name", "icon", "order")
+            .prefetch_related(
+                Prefetch(
+                    "modules",
+                    queryset=Module.objects.only("id", "feature_id", "module_name", "icon", "order").prefetch_related(
+                        Prefetch("permissions", queryset=Permission.objects.only("id", "module_id", "permission_name"))
+                    ),
+                )
+            )
+            .order_by("order", "feature_name")
+        )
         return APIResponse.success(
-            data={"features": serializer.data},
+            data={"features": _serialize_lightweight_features(features)},
             message="Success",
             status_code=status.HTTP_200_OK,
         )

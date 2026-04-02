@@ -7,6 +7,12 @@ from apps.company.models import CompanyFeature
 from apps.navigation.models import Feature, Module, Permission
 from apps.rbac.models import Role, RolePermission
 
+SUPERUSER_ONLY_FEATURE_CODES = {"superuser", "core"}
+
+
+def _is_superuser_only_feature(feature_code: str | None) -> bool:
+    return (feature_code or "").lower() in SUPERUSER_ONLY_FEATURE_CODES
+
 
 class RoleSerializer(serializers.ModelSerializer):
     """Serializer for Role (read, with nested role_permissions)."""
@@ -91,6 +97,9 @@ class RoleDetailSerializer(serializers.ModelSerializer):
         ]
 
     def get_features(self, obj: Role) -> list[dict]:
+        request = self.context.get("request")
+        is_superuser = bool(getattr(getattr(request, "user", None), "is_superuser", False))
+
         enabled_feature_ids = set(
             CompanyFeature.objects.filter(company_id=obj.company_id, is_enabled=True).values_list("feature_id", flat=True)
         )
@@ -116,6 +125,9 @@ class RoleDetailSerializer(serializers.ModelSerializer):
 
         features: list[dict] = []
         for feature in feature_qs:
+            if _is_superuser_only_feature(feature.feature_code) and not is_superuser:
+                continue
+
             modules: list[dict] = []
             for module in feature.modules.all():
                 permissions = [

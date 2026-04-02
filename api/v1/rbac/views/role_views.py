@@ -78,7 +78,7 @@ class RoleViewSet(BaseRBACViewSet):
                 )
             raise
 
-        read_serializer = RoleDetailSerializer(instance)
+        read_serializer = RoleDetailSerializer(instance, context={"request": request})
         return APIResponse.success(
             data=read_serializer.data,
             message="Role created successfully.",

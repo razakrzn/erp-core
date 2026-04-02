@@ -123,7 +123,7 @@ def build_actions(user, permission_prefix):
             actions["canEdit"] = True
         elif code.endswith(".delete"):
             actions["canDelete"] = True
-        elif code.endswith(".view") or code.endswith(".list"):
+        elif code.endswith(".view"):
             actions["canView"] = True
         elif code.endswith(".approve") and "canApprove" in actions:
             actions["canApprove"] = True
