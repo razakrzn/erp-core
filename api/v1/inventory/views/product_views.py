@@ -126,8 +126,26 @@ class ProductViewSet(BaseInventoryViewSet):
 
     @action(detail=False, methods=["get"], url_path="dropdown")
     def dropdown(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = ProductDropdownSerializer(queryset, many=True)
+        query = (request.query_params.get("search") or request.query_params.get("query") or "").strip()
+        queryset = self.get_queryset().order_by("name")
+        if query:
+            queryset = queryset.filter(name__icontains=query) | queryset.filter(product_code__icontains=query)
+            queryset = queryset.distinct().order_by("name")
+
+        page_size_raw = request.query_params.get("page_size", "10")
+        page_raw = request.query_params.get("page", "1")
+        try:
+            page_size = max(1, int(page_size_raw))
+        except (TypeError, ValueError):
+            page_size = 10
+        try:
+            page = max(1, int(page_raw))
+        except (TypeError, ValueError):
+            page = 1
+
+        start = (page - 1) * page_size
+        end = start + page_size
+        serializer = ProductDropdownSerializer(queryset[start:end], many=True)
         return APIResponse.success(
             data=serializer.data,
             message="Products retrieved successfully.",
