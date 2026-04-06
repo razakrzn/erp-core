@@ -1,8 +1,11 @@
-from rest_framework import filters
+from rest_framework import filters, status
+from rest_framework.decorators import action
 
 from apps.inventory.models import Vendor
 
-from ..serializers import VendorSerializer
+from core.utils.responses import APIResponse
+
+from ..serializers import VendorDropdownSerializer, VendorSerializer
 from .shared import BaseInventoryViewSet
 
 
@@ -28,3 +31,12 @@ class VendorViewSet(BaseInventoryViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "procurement.vendors"
 
+    @action(detail=False, methods=["get"], url_path="dropdown")
+    def dropdown(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = VendorDropdownSerializer(queryset, many=True)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Vendors retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )

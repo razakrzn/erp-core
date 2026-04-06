@@ -21,3 +21,11 @@ class VendorSerializer(serializers.ModelSerializer):
             "status",
         ]
 
+
+class VendorDropdownSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vendor
+        fields = [
+            "id",
+            "legal_trade_name",
+        ]

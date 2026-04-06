@@ -1,6 +1,9 @@
-from rest_framework import filters
+from rest_framework import filters, status
+from rest_framework.decorators import action
 
 from apps.inventory.models import Brand, Category, Finish, Grade, Material, Product, Size, Thickness, Unit
+
+from core.utils.responses import APIResponse
 
 from ..serializers import (
     BrandSerializer,
@@ -8,6 +11,8 @@ from ..serializers import (
     FinishSerializer,
     GradeSerializer,
     MaterialSerializer,
+    ProductDropdownSerializer,
+    ProductListSerializer,
     ProductSerializer,
     SizeSerializer,
     ThicknessSerializer,
@@ -66,6 +71,7 @@ class UnitViewSet(BaseInventoryLookupViewSet):
 
 class ProductViewSet(BaseInventoryViewSet):
     queryset = Product.objects.select_related(
+        "preferred_supplier",
         "category",
         "brand",
         "material",
@@ -80,6 +86,10 @@ class ProductViewSet(BaseInventoryViewSet):
     search_fields = [
         "name",
         "sku",
+        "product_code",
+        "status",
+        "preferred_supplier__legal_trade_name",
+        "hsn_sac_code",
         "category__name",
         "brand__name",
         "material__name",
@@ -89,6 +99,37 @@ class ProductViewSet(BaseInventoryViewSet):
         "finish__name",
         "unit__name",
     ]
-    ordering_fields = ["id", "name", "sku", "price", "created_at", "updated_at"]
+    ordering_fields = [
+        "id",
+        "name",
+        "sku",
+        "product_code",
+        "status",
+        "price",
+        "standard_cost",
+        "reorder_level",
+        "lead_time_days",
+        "max_stock_level",
+        "moq",
+        "opening_stock",
+        "opening_stock_date",
+        "created_at",
+        "updated_at",
+    ]
     ordering = ["name"]
     permission_prefix = "procurement.materials"
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ProductListSerializer
+        return ProductSerializer
+
+    @action(detail=False, methods=["get"], url_path="dropdown")
+    def dropdown(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = ProductDropdownSerializer(queryset, many=True)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Products retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )

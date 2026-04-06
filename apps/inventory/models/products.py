@@ -66,7 +66,28 @@ class Unit(InventoryLookupModel):
 class Product(models.Model):
     name = models.CharField(_("name"), max_length=255)
     sku = models.CharField(_("SKU"), max_length=100)
+    product_code = models.CharField(_("product code"), max_length=100, unique=True, blank=True, null=True)
+    status = models.CharField(_("status"), max_length=20, blank=True, null=True)
     price = models.DecimalField(_("price"), max_digits=12, decimal_places=2, default=0)
+    standard_cost = models.DecimalField(
+        _("standard cost"), max_digits=12, decimal_places=2, default=0, blank=True, null=True
+    )
+    reorder_level = models.PositiveIntegerField(_("reorder level"), default=0, blank=True, null=True)
+    preferred_supplier = models.ForeignKey(
+        "Vendor",
+        verbose_name=_("preferred supplier"),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="products",
+    )
+    lead_time_days = models.PositiveIntegerField(_("lead time (days)"), default=0, blank=True, null=True)
+    max_stock_level = models.PositiveIntegerField(_("max stock level"), blank=True, null=True)
+    moq = models.PositiveIntegerField(_("MOQ (min order)"), default=1, blank=True, null=True)
+    opening_stock = models.PositiveIntegerField(_("opening stock"), default=0, blank=True, null=True)
+    opening_stock_date = models.DateField(_("opening stock date"), blank=True, null=True)
+    hsn_sac_code = models.CharField(_("HSN / SAC code"), max_length=50, blank=True, null=True)
+    admin_notes = models.TextField(_("administrative notes"), blank=True, null=True)
     category = models.ForeignKey(
         Category,
         verbose_name=_("category"),

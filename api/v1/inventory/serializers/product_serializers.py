@@ -62,6 +62,7 @@ class ProductSerializer(serializers.ModelSerializer):
     grade_name = serializers.SerializerMethodField()
     finish_name = serializers.SerializerMethodField()
     unit_name = serializers.SerializerMethodField()
+    preferred_supplier_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -69,7 +70,20 @@ class ProductSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "sku",
+            "product_code",
+            "status",
             "price",
+            "standard_cost",
+            "reorder_level",
+            "preferred_supplier",
+            "preferred_supplier_name",
+            "lead_time_days",
+            "max_stock_level",
+            "moq",
+            "opening_stock",
+            "opening_stock_date",
+            "hsn_sac_code",
+            "admin_notes",
             "category",
             "category_name",
             "brand",
@@ -117,3 +131,33 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_unit_name(self, obj):
         return self._get_related_name(obj, "unit")
+
+    def get_preferred_supplier_name(self, obj):
+        related_obj = getattr(obj, "preferred_supplier", None)
+        return related_obj.legal_trade_name if related_obj else None
+
+
+class ProductListSerializer(serializers.ModelSerializer):
+    brand_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "product_code",
+            "name",
+            "brand_name",
+            "status",
+        ]
+
+    def get_brand_name(self, obj):
+        return obj.brand.name if obj.brand else None
+
+
+class ProductDropdownSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "name",
+        ]
