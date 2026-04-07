@@ -7,6 +7,8 @@ from .models import (
     Grade,
     Material,
     Product,
+    PurchaseOrder,
+    PurchaseOrderLineItem,
     PurchaseRequisition,
     PurchaseRequisitionLineItem,
     Size,
@@ -108,7 +110,7 @@ class PurchaseRequisitionLineItemInline(admin.TabularInline):
     model = PurchaseRequisitionLineItem
     extra = 0
     autocomplete_fields = ("product",)
-    readonly_fields = ("net_required_qty", "line_total")
+    readonly_fields = ("net_required_qty",)
 
 
 @admin.register(PurchaseRequisition)
@@ -120,7 +122,6 @@ class PurchaseRequisitionAdmin(admin.ModelAdmin):
         "priority",
         "status",
         "created_by",
-        "total_value",
         "created_at",
     )
     list_filter = ("status", "priority", "required_by_date", "created_at")
@@ -133,9 +134,6 @@ class PurchaseRequisitionAdmin(admin.ModelAdmin):
     )
     readonly_fields = (
         "purchase_request_number",
-        "estimated_subtotal",
-        "vat_amount",
-        "total_value",
         "created_at",
         "updated_at",
     )
@@ -150,8 +148,48 @@ class PurchaseRequisitionLineItemAdmin(admin.ModelAdmin):
         "product",
         "requested_qty",
         "net_required_qty",
-        "line_total",
     )
     list_filter = ("purchase_requisition__status",)
     search_fields = ("purchase_requisition__id", "product__name", "product__sku")
-    readonly_fields = ("net_required_qty", "line_total")
+    readonly_fields = ("net_required_qty",)
+
+
+@admin.register(PurchaseOrder)
+class PurchaseOrderAdmin(admin.ModelAdmin):
+    list_display = (
+        "po_number",
+        "purchase_requisition",
+        "vendor",
+        "po_issued_date",
+        "status",
+        "net_amount",
+        "vat_amount",
+        "grand_total",
+        "created_by",
+        "created_at",
+    )
+    list_filter = ("status", "po_issued_date", "created_at", "is_confirmed", "is_closed")
+    search_fields = ("po_number", "vendor__legal_trade_name", "created_by__username")
+    readonly_fields = ("po_number", "created_at", "updated_at")
+
+
+@admin.register(PurchaseOrderLineItem)
+class PurchaseOrderLineItemAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "purchase_order",
+        "product",
+        "qty",
+        "negotiated_price",
+        "line_total",
+        "required_by",
+    )
+    list_filter = ("required_by", "purchase_order__status")
+    search_fields = (
+        "purchase_order__po_number",
+        "product__name",
+        "product__sku",
+        "delivery_location",
+        "unit",
+    )
+    readonly_fields = ("line_total",)

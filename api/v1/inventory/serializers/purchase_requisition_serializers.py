@@ -1,13 +1,16 @@
-from decimal import Decimal
-
 from django.db import transaction
 from rest_framework import serializers
 
-from apps.inventory.models import Product, PurchaseRequisition, PurchaseRequisitionLineItem
+from apps.inventory.models import PurchaseRequisition, PurchaseRequisitionLineItem
 
 
 class PurchaseRequisitionLineItemSerializer(serializers.ModelSerializer):
     product_name = serializers.SerializerMethodField(read_only=True)
+    product_code = serializers.SerializerMethodField(read_only=True)
+    standard_cost = serializers.SerializerMethodField(read_only=True)
+    category_name = serializers.SerializerMethodField(read_only=True)
+    unit_name = serializers.SerializerMethodField(read_only=True)
+    
 
     class Meta:
         model = PurchaseRequisitionLineItem
@@ -16,14 +19,17 @@ class PurchaseRequisitionLineItemSerializer(serializers.ModelSerializer):
             "purchase_requisition",
             "product",
             "product_name",
+            "product_code",
+            "standard_cost",
+            "category_name",
+            "unit_name",
             "stock_on_hand",
             "pending_pr_qty",
             "pending_po_qty",
             "requested_qty",
             "net_required_qty",
-            "line_total",
         ]
-        read_only_fields = ["net_required_qty", "line_total"]
+        read_only_fields = ["net_required_qty"]
         extra_kwargs = {
             "purchase_requisition": {"required": False},
         }
@@ -31,9 +37,27 @@ class PurchaseRequisitionLineItemSerializer(serializers.ModelSerializer):
     def get_product_name(self, obj):
         return obj.product.name if obj.product else None
 
+    def get_product_code(self, obj):
+        return obj.product.product_code if obj.product else None
+
+    def get_standard_cost(self, obj):
+        return obj.product.standard_cost if obj.product else None
+
+    def get_category_name(self, obj):
+        if not obj.product or not obj.product.category:
+            return None
+        return obj.product.category.name
+
+    def get_unit_name(self, obj):
+        if not obj.product or not obj.product.unit:
+            return None
+        return obj.product.unit.name
+
 
 class PurchaseRequisitionSerializer(serializers.ModelSerializer):
     created_by_name = serializers.SerializerMethodField(read_only=True)
+    approved_by_name = serializers.SerializerMethodField(read_only=True)
+    rejected_by_name = serializers.SerializerMethodField(read_only=True)
     line_items = PurchaseRequisitionLineItemSerializer(many=True, required=False)
 
     class Meta:
@@ -48,13 +72,16 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
             "reason_description",
             "notes_to_purchase_team",
             "status",
+            "is_approved",
+            "is_rejected",
             "created_by",
             "created_by_name",
+            "approved_by",
+            "approved_by_name",
+            "rejected_by",
+            "rejected_by_name",
             "created_at",
             "updated_at",
-            "estimated_subtotal",
-            "vat_amount",
-            "total_value",
             "line_items",
         ]
         read_only_fields = [
@@ -62,9 +89,6 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
             "created_by",
             "created_at",
             "updated_at",
-            "estimated_subtotal",
-            "vat_amount",
-            "total_value",
         ]
 
     def get_created_by_name(self, obj):
@@ -72,27 +96,15 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
             return None
         return obj.created_by.get_full_name() or obj.created_by.get_username()
 
-    def _calculate_totals(self, requisition):
-        line_items = requisition.line_items.all()
-        subtotal = sum((item.line_total for item in line_items), Decimal("0.00"))
-        vat_amount = (subtotal * requisition.VAT_RATE).quantize(Decimal("0.01"))
-        total_value = (subtotal + vat_amount).quantize(Decimal("0.01"))
-        requisition.estimated_subtotal = subtotal
-        requisition.vat_amount = vat_amount
-        requisition.total_value = total_value
-        requisition.save(update_fields=["estimated_subtotal", "vat_amount", "total_value", "updated_at"])
+    def get_approved_by_name(self, obj):
+        if not obj.approved_by:
+            return None
+        return obj.approved_by.get_full_name() or obj.approved_by.get_username()
 
-    @staticmethod
-    def _line_total_from_payload(item_data):
-        requested_qty = item_data.get("requested_qty") or Decimal("0.00")
-        product_id = item_data.get("product")
-        if not product_id:
-            return Decimal("0.00")
-
-        product = Product.objects.filter(pk=product_id).only("price").first()
-        if not product:
-            return Decimal("0.00")
-        return (requested_qty * (product.price or Decimal("0.00"))).quantize(Decimal("0.01"))
+    def get_rejected_by_name(self, obj):
+        if not obj.rejected_by:
+            return None
+        return obj.rejected_by.get_full_name() or obj.rejected_by.get_username()
 
     def create(self, validated_data):
         line_items_data = validated_data.pop("line_items", [])
@@ -100,9 +112,7 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             requisition = PurchaseRequisition.objects.create(**validated_data)
             for item_data in line_items_data:
-                item_data["line_total"] = self._line_total_from_payload(item_data)
                 PurchaseRequisitionLineItem.objects.create(purchase_requisition=requisition, **item_data)
-            self._calculate_totals(requisition)
 
         return requisition
 
@@ -117,10 +127,7 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
             if line_items_data is not None:
                 instance.line_items.all().delete()
                 for item_data in line_items_data:
-                    item_data["line_total"] = self._line_total_from_payload(item_data)
                     PurchaseRequisitionLineItem.objects.create(purchase_requisition=instance, **item_data)
-
-            self._calculate_totals(instance)
 
         return instance
 
@@ -131,6 +138,7 @@ class PurchaseRequisitionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseRequisition
         fields = [
+            "id",
             "purchase_request_number",
             "priority",
             "created_by_name",

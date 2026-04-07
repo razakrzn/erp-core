@@ -46,33 +46,36 @@ class PurchaseRequisition(models.Model):
         default="Draft",
         help_text="Current status e.g. Draft, Submitted for Approval, Approved, Rejected.",
     )
+    is_approved = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         related_name="purchase_requisitions",
     )
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="updated_purchase_requisitions",
+    )
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="approved_purchase_requisitions",
+    )
+    rejected_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="rejected_purchase_requisitions",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    # Computed totals (stored for performance)
-    estimated_subtotal = models.DecimalField(
-        max_digits=14,
-        decimal_places=2,
-        default=Decimal("0.00"),
-        editable=False,
-    )
-    vat_amount = models.DecimalField(
-        max_digits=14,
-        decimal_places=2,
-        default=Decimal("0.00"),
-        editable=False,
-    )
-    total_value = models.DecimalField(
-        max_digits=14,
-        decimal_places=2,
-        default=Decimal("0.00"),
-        editable=False,
-    )
 
     VAT_RATE = Decimal("0.05")
 
@@ -139,13 +142,6 @@ class PurchaseRequisitionLineItem(models.Model):
         default=Decimal("0.00"),
         editable=False,
         help_text="Net quantity needed after accounting for stock and pending orders.",
-    )
-
-    line_total = models.DecimalField(
-        max_digits=14,
-        decimal_places=2,
-        default=Decimal("0.00"),
-        editable=False,
     )
 
     class Meta:

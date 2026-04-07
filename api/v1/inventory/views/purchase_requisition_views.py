@@ -1,6 +1,9 @@
-from rest_framework import filters
+from rest_framework import filters, status
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 
 from apps.inventory.models import PurchaseRequisition, PurchaseRequisitionLineItem
+from core.utils.responses import APIResponse
 
 from ..serializers import (
     PurchaseRequisitionLineItemSerializer,
@@ -26,9 +29,6 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
         "required_by_date",
         "priority",
         "status",
-        "estimated_subtotal",
-        "vat_amount",
-        "total_value",
         "created_at",
         "updated_at",
     ]
@@ -39,6 +39,95 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
         if self.action == "list":
             return PurchaseRequisitionListSerializer
         return PurchaseRequisitionSerializer
+
+    @staticmethod
+    def _parse_boolean_action_value(raw_value, field_name="value"):
+        if isinstance(raw_value, bool):
+            return raw_value
+        if raw_value is None:
+            raise ValidationError({field_name: "This field is required and must be true or false."})
+        normalized = str(raw_value).strip().lower()
+        if normalized in {"true", "1", "yes"}:
+            return True
+        if normalized in {"false", "0", "no"}:
+            return False
+        raise ValidationError({field_name: "Invalid boolean value. Use true or false."})
+
+    @action(detail=True, methods=["patch"], url_path="approve")
+    def approve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        value = self._parse_boolean_action_value(request.data.get("value", None), "value")
+        user = request.user if request.user and request.user.is_authenticated else None
+
+        instance.is_approved = value
+        if value:
+            instance.is_rejected = False
+            instance.status = "Approved"
+            instance.approved_by = user
+            instance.rejected_by = None
+        else:
+            # Cancel approval only if currently approved.
+            if instance.status == "Approved":
+                instance.status = "Submitted for Approval"
+            instance.approved_by = None
+
+        instance.updated_by = user if user else instance.updated_by
+        instance.save(
+            update_fields=[
+                "is_approved",
+                "is_rejected",
+                "status",
+                "approved_by",
+                "rejected_by",
+                "updated_by",
+                "updated_at",
+            ]
+        )
+
+        message = "Purchase Requisition Approved" if value else "Purchase Requisition Approval Cancelled"
+        return APIResponse.success(
+            data=None,
+            message=message,
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=["patch"], url_path="reject")
+    def reject(self, request, *args, **kwargs):
+        instance = self.get_object()
+        value = self._parse_boolean_action_value(request.data.get("value", None), "value")
+        user = request.user if request.user and request.user.is_authenticated else None
+
+        instance.is_rejected = value
+        if value:
+            instance.is_approved = False
+            instance.status = "Rejected"
+            instance.rejected_by = user
+            instance.approved_by = None
+        else:
+            # Cancel rejection only if currently rejected.
+            if instance.status == "Rejected":
+                instance.status = "Submitted for Approval"
+            instance.rejected_by = None
+
+        instance.updated_by = user if user else instance.updated_by
+        instance.save(
+            update_fields=[
+                "is_approved",
+                "is_rejected",
+                "status",
+                "approved_by",
+                "rejected_by",
+                "updated_by",
+                "updated_at",
+            ]
+        )
+
+        message = "Purchase Requisition Rejected" if value else "Purchase Requisition Rejection Cancelled"
+        return APIResponse.success(
+            data=None,
+            message=message,
+            status_code=status.HTTP_200_OK,
+        )
 
 
 class PurchaseRequisitionLineItemViewSet(BaseInventoryViewSet):
@@ -56,7 +145,6 @@ class PurchaseRequisitionLineItemViewSet(BaseInventoryViewSet):
         "product_id",
         "requested_qty",
         "net_required_qty",
-        "line_total",
     ]
     ordering = ["id"]
     permission_prefix = "procurement.purchase_requisitions"
