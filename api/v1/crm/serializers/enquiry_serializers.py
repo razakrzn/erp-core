@@ -48,11 +48,15 @@ class EnquirySerializerMixin:
                 data["company_name"] = instance.existing_client.company_name
             if "phone_number" in data and not data.get("phone_number"):
                 data["phone_number"] = instance.existing_client.phone_number
+        if "status" in data and data["status"]:
+            data["status"] = data["status"].capitalize()
         return data
 
 
 class EnquiryListSerializer(EnquirySerializerMixin, serializers.ModelSerializer):
     client = serializers.SerializerMethodField()
+    created_by = serializers.SerializerMethodField()
+    updated_by = serializers.SerializerMethodField()
 
     class Meta:
         model = Enquiry
@@ -64,6 +68,10 @@ class EnquiryListSerializer(EnquirySerializerMixin, serializers.ModelSerializer)
             "company_name",
             "client",
             "location",
+            "created_at",
+            "updated_at",
+            "created_by",
+            "updated_by"
         ]
 
 
@@ -101,12 +109,6 @@ class EnquiryDetailSerializer(EnquirySerializerMixin, serializers.ModelSerialize
             "existing_client": {"write_only": True, "required": False, "allow_null": True},
             "new_client_name": {"write_only": True, "required": False, "allow_blank": True},
         }
-
-    def get_created_by(self, obj):
-        return self._get_user_full_name(obj.created_by)
-
-    def get_updated_by(self, obj):
-        return self._get_user_full_name(obj.updated_by)
 
     def get_existing_client_id(self, obj):
         # `existing_client` is a FK and Django also exposes it as `existing_client_id`.

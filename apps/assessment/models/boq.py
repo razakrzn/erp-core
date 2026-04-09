@@ -102,11 +102,6 @@ class Boq(models.Model):
             self.status = "Awaiting Bill of Quantity"
 
         super().save(*args, **kwargs)
-        self._sync_enquiry_status()
-
-    def _sync_enquiry_status(self):
-        if self.enquiry:
-            self.enquiry.sync_status()
 
 
 class BoqItem(models.Model):

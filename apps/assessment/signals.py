@@ -2,7 +2,11 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from .models import Boq, Quote, QuoteItem, QuoteTermsConditions
+from apps.crm.models import Enquiry
 from apps.settings.models import TermsConditions
+
+BOQ_DELETED_ENQUIRY_STATUS = "boq deleted"
+PENDING_ENQUIRY_STATUS = "pending"
 
 
 @receiver(post_save, sender=Boq)
@@ -35,3 +39,12 @@ def refresh_quote_totals_on_item_save(sender, instance, **kwargs):
 def refresh_quote_totals_on_item_delete(sender, instance, **kwargs):
     if instance.quote:
         instance.quote.refresh_totals()
+
+
+@receiver(post_delete, sender=Boq)
+def set_enquiry_status_on_boq_delete(sender, instance, **kwargs):
+    if not instance.enquiry_id:
+        return
+    Enquiry.objects.filter(pk=instance.enquiry_id).exclude(status__iexact=PENDING_ENQUIRY_STATUS).update(
+        status=BOQ_DELETED_ENQUIRY_STATUS
+    )

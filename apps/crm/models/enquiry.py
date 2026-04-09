@@ -17,7 +17,7 @@ class Enquiry(models.Model):
     status = models.CharField(
         _("status"),
         max_length=50,
-        default="Awaiting Bill of Quantity",
+        default="pending",
     )
     email_address = models.EmailField(_("email address"), blank=True)
     company_name = models.CharField(_("company name"), max_length=200, blank=True)
@@ -83,30 +83,6 @@ class Enquiry(models.Model):
             next_number = (last_enquiry.num + 1) if last_enquiry else 1
             self.enquiry_code = f"{prefix}{next_number:05d}"
         super().save(*args, **kwargs)
-
-    def sync_status(self):
-        """
-        Determine the Enquiry status based on child BOQs and Quotations.
-        Priority: Quotation Approved > Quotation Rejected > Boq Approved > Boq Rejected
-        """
-        # Check for Quotations (through BOQ relationship).
-        # We can't import Boq/Quote directly due to circular dependencies,
-        # but we can filter via related name.
-        if self.boqs.filter(quotes__is_approved=True).exists():
-            status_val = "Quotation Approved"
-        elif self.boqs.filter(quotes__is_rejected=True).exists():
-            status_val = "Quotation Rejected"
-        # Check for BOQs.
-        elif self.boqs.filter(is_approved=True).exists():
-            status_val = "Bill of Quantity Approved"
-        elif self.boqs.filter(is_rejected=True).exists():
-            status_val = "Bill of Quantity Rejected"
-        else:
-            status_val = "Awaiting Bill of Quantity"
-
-        if self.status != status_val:
-            self.status = status_val
-            self.save(update_fields=["status"])
 
     def __str__(self):
         return self.project_name

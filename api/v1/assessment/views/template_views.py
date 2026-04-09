@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from apps.assessment.models import Template, TemplateFinish
 
 from ..serializers.template_serializers import (
+    TemplateCategoryListSerializer,
     TemplateDetailSerializer,
     TemplateDropdownSerializer,
     TemplateFinishDropdownSerializer,
@@ -27,6 +28,8 @@ class TemplateViewSet(BaseAssessmentViewSet):
             return TemplateListSerializer
         if self.action == "dropdown":
             return TemplateDropdownSerializer
+        if self.action == "categories":
+            return TemplateCategoryListSerializer
         return TemplateDetailSerializer
 
     @action(detail=False, methods=["get"], url_path="dropdown")
@@ -36,6 +39,16 @@ class TemplateViewSet(BaseAssessmentViewSet):
         return APIResponse.success(
             data=serializer.data,
             message="Template dropdown retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["get"], url_path="categories")
+    def categories(self, request):
+        queryset = self.get_queryset().values("category").distinct().order_by("category")
+        serializer = self.get_serializer(queryset, many=True)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Template categories retrieved successfully.",
             status_code=status.HTTP_200_OK,
         )
 

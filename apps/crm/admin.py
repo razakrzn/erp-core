@@ -1,12 +1,6 @@
 from django.contrib import admin
 
-from .models import LeadManagement, Customer, Enquiry
-
-
-@admin.register(LeadManagement)
-class LeadManagementAdmin(admin.ModelAdmin):
-    list_display = ("contact_name", "company", "email_address", "phone", "lead_source")
-    search_fields = ("contact_name", "company", "email_address", "phone", "lead_source")
+from .models import Customer, Enquiry
 
 
 @admin.register(Customer)

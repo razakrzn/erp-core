@@ -9,6 +9,12 @@ class TemplateDropdownSerializer(serializers.ModelSerializer):
         fields = ["id", "name"]
 
 
+class TemplateCategoryListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Template
+        fields = ["category"]
+
+
 class TemplateFinishDropdownSerializer(serializers.ModelSerializer):
     class Meta:
         model = TemplateFinish

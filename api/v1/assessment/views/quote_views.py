@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models.functions import Lower
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -29,6 +30,33 @@ class QuoteViewSet(BaseAssessmentViewSet):
         if self.action == "list":
             return QuoteListSerializer
         return QuoteDetailSerializer
+
+    def filter_queryset(self, queryset):
+        ordering = self.request.query_params.get("ordering", "")
+        if "quote_number" in ordering:
+            queryset = queryset.annotate(quote_number_lower=Lower("quote_number"))
+
+        queryset = super().filter_queryset(queryset)
+
+        if "quote_number" in ordering:
+            new_order = []
+            for field in queryset.query.order_by:
+                if field == "quote_number":
+                    new_order.append("quote_number_lower")
+                elif field == "-quote_number":
+                    new_order.append("-quote_number_lower")
+                else:
+                    new_order.append(field)
+            queryset = queryset.order_by(*new_order)
+
+        return queryset
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        status_value = (self.request.query_params.get("status") or "").strip()
+        if status_value:
+            queryset = queryset.filter(status__iexact=status_value)
+        return queryset
 
     @staticmethod
     def _parse_boolean_action_value(raw_value, field_name="value"):

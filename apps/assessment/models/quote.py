@@ -121,8 +121,6 @@ class Quote(models.Model):
             self.status = "Awaiting Quotation"
 
         super().save(*args, **kwargs)
-        if self.boq and self.boq.enquiry:
-            self.boq.enquiry.sync_status()
 
     def refresh_totals(self):
         totals = self.items.aggregate(
