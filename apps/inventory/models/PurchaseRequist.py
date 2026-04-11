@@ -3,8 +3,9 @@ from decimal import Decimal
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 
-from .products import Product
+
 
 
 class PurchaseRequisition(models.Model):
@@ -14,21 +15,43 @@ class PurchaseRequisition(models.Model):
         unique=True,
         blank=True,
         editable=False,
-        help_text="Auto-generated unique purchase requisition number.",
+        help_text="Auto-generated unique purchase requisition number (MRF Number).",
+    )
+    requisition_date = models.DateField(
+        default=timezone.localdate,
+        help_text="The creation date of the requisition.",
+    )
+    requisition_type = models.CharField(
+        max_length=50,
+        default="Normal Stock",
+        help_text="Requisition mode: Job (Project), Rework, or Normal Stock.",
     )
     stock_reason_category = models.CharField(
         max_length=150,
-        help_text="Category describing the reason for this stock requisition.",
+        blank=True,
+        default="",
+        help_text="Reason category for normal stock requisitions (e.g., Low Stock, Routine Replenishment).",
+    )
+    project_site = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Job/Project reference for Job or Rework requisitions.",
+    )
+    job_order_ref = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Job order reference used for Rework requisitions.",
     )
     required_by_date = models.DateField()
     priority = models.CharField(
         max_length=50,
         default="Medium",
-        help_text="Priority level e.g. Low, Medium, High, Urgent.",
+        help_text="Priority level: High, Medium, or Low.",
     )
     delivery_location = models.CharField(
         max_length=200,
         blank=True,
+        default="",
         help_text="Destination delivery location.",
     )
     reason_description = models.TextField(
@@ -44,7 +67,7 @@ class PurchaseRequisition(models.Model):
     status = models.CharField(
         max_length=50,
         default="Draft",
-        help_text="Current status e.g. Draft, Submitted for Approval, Approved, Rejected.",
+        help_text="Current status: Draft, Submitted for Approval, Approved, Rejected.",
     )
     is_approved = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
@@ -103,11 +126,10 @@ class PurchaseRequisitionLineItem(models.Model):
         on_delete=models.CASCADE,
         related_name="line_items",
     )
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.PROTECT,
-        related_name="requisition_line_items",
-    )
+    product_code = models.CharField(max_length=100, blank=True, default="")
+    product_name = models.CharField(max_length=255, blank=True, default="")
+    product_category = models.CharField(max_length=100, blank=True, default="")
+    unit = models.CharField(max_length=50, blank=True, default="")
 
     # Stock snapshot at time of requisition
     stock_on_hand = models.DecimalField(
@@ -144,9 +166,15 @@ class PurchaseRequisitionLineItem(models.Model):
         help_text="Net quantity needed after accounting for stock and pending orders.",
     )
 
+
     class Meta:
         verbose_name = "Purchase Requisition Line Item"
         verbose_name_plural = "Purchase Requisition Line Items"
 
+    def save(self, *args, **kwargs):
+        calculated_net = self.requested_qty - (self.stock_on_hand + self.pending_po_qty)
+        self.net_required_qty = max(Decimal("0.00"), calculated_net)
+        super().save(*args, **kwargs)
+
     def __str__(self) -> str:
-        return f"{self.purchase_requisition_id} - {self.product_id}"
+        return f"{self.purchase_requisition_id} - {self.product_name}"

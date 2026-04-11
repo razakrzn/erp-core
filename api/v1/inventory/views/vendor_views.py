@@ -1,3 +1,4 @@
+from django.db.models.deletion import ProtectedError
 from rest_framework import filters, status
 from rest_framework.decorators import action
 
@@ -13,23 +14,43 @@ class VendorViewSet(BaseInventoryViewSet):
     queryset = Vendor.objects.all()
     serializer_class = VendorSerializer
     search_fields = [
-        "legal_trade_name",
-        "trade_license_number",
-        "tax_registration_number",
-        "phone_number",
-        "email_address",
-        "business_activity",
+        "trade_name",
+        "license_no",
+        "trn_number",
+        "phone",
+        "email",
+        "primary_activity",
         "status",
     ]
     ordering_fields = [
         "id",
-        "legal_trade_name",
-        "trade_license_number",
-        "tax_registration_number",
+        "trade_name",
+        "license_no",
+        "trn_number",
         "status",
     ]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "procurement.vendors"
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            self.perform_destroy(instance)
+        except ProtectedError:
+            linked_po_numbers = list(
+                instance.purchase_orders.exclude(po_number__isnull=True).values_list("po_number", flat=True)[:5]
+            )
+            reference_text = ", ".join(linked_po_numbers) if linked_po_numbers else "existing purchase orders"
+            return APIResponse.error(
+                message=f"Cannot delete vendor because it is linked to purchase order(s): {reference_text}.",
+                status_code=status.HTTP_409_CONFLICT,
+            )
+
+        return APIResponse.success(
+            data=None,
+            message="Vendor deleted successfully.",
+            status_code=status.HTTP_200_OK,
+        )
 
     @action(detail=False, methods=["get"], url_path="dropdown")
     def dropdown(self, request, *args, **kwargs):

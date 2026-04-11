@@ -1,10 +1,11 @@
 from .products import Brand, Category, Finish, Grade, Material, Product, Size, Thickness, Unit
 from .PurchaseRequist import PurchaseRequisition, PurchaseRequisitionLineItem
 from .purchaseorder import PurchaseOrder, PurchaseOrderLineItem
-from .vendor import Vendor
+from .vendor import Vendor, VendorContact
 
 __all__ = [
     "Vendor",
+    "VendorContact",
     "Product",
     "PurchaseOrder",
     "PurchaseOrderLineItem",
