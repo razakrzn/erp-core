@@ -52,81 +52,20 @@
           "name": "Create Purchase Requisition",
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "requisition_date",
-                  "value": "2026-04-11",
-                  "type": "text"
-                },
-                {
-                  "key": "requisition_type",
-                  "value": "Normal Stock",
-                  "type": "text"
-                },
-                {
-                  "key": "stock_reason_category",
-                  "value": "Low Stock",
-                  "type": "text"
-                },
-                {
-                  "key": "project_site",
-                  "value": "",
-                  "type": "text"
-                },
-                {
-                  "key": "job_order_ref",
-                  "value": "",
-                  "type": "text"
-                },
-                {
-                  "key": "required_by_date",
-                  "value": "2026-04-20",
-                  "type": "text"
-                },
-                {
-                  "key": "priority",
-                  "value": "Medium",
-                  "type": "text"
-                },
-                {
-                  "key": "delivery_location",
-                  "value": "Main Warehouse",
-                  "type": "text"
-                },
-                {
-                  "key": "reason_description",
-                  "value": "Monthly replenishment for fast-moving items.",
-                  "type": "text"
-                },
-                {
-                  "key": "notes_to_purchase_team",
-                  "value": "Please prioritize common consumables.",
-                  "type": "text"
-                },
-                {
-                  "key": "status",
-                  "value": "Submitted for Approval",
-                  "type": "text"
-                },
-                {
-                  "key": "is_approved",
-                  "value": "false",
-                  "type": "text"
-                },
-                {
-                  "key": "is_rejected",
-                  "value": "false",
-                  "type": "text"
-                },
-                {
-                  "key": "line_items",
-                  "value": "[{\"product_name\":\"Steel Angle 50x50\",\"product_code\":\"ST-AN-5050\",\"product_category\":\"Steel\",\"unit\":\"pcs\",\"stock_on_hand\":\"12.00\",\"pending_pr_qty\":\"5.00\",\"pending_po_qty\":\"3.00\",\"requested_qty\":\"40.00\"},{\"product_name\":\"Welding Rod E6013\",\"product_code\":\"WR-E6013\",\"product_category\":\"Consumables\",\"unit\":\"box\",\"stock_on_hand\":\"6.00\",\"pending_pr_qty\":\"0.00\",\"pending_po_qty\":\"2.00\",\"requested_qty\":\"20.00\"}]",
-                  "type": "text"
+              "mode": "raw",
+              "raw": "{\n  \"requisition_date\": \"2026-04-11\",\n  \"requisition_type\": \"Normal Stock\",\n  \"stock_reason_category\": \"Low Stock\",\n  \"job_order_ref\": \"\",\n  \"rework_notes\": \"\",\n  \"required_by_date\": \"2026-04-20\",\n  \"priority\": \"Medium\",\n  \"delivery_location\": \"Main Warehouse\",\n  \"reason_description\": \"Monthly replenishment for fast-moving items.\",\n  \"notes_to_purchase_team\": \"Please prioritize common consumables.\",\n  \"status\": \"Submitted for Approval\",\n  \"is_approved\": false,\n  \"is_rejected\": false,\n  \"line_items\": [\n    {\n      \"product_name\": \"Steel Angle 50x50\",\n      \"product_code\": \"ST-AN-5050\",\n      \"product_category\": \"Steel\",\n      \"unit\": \"pcs\",\n      \"stock_on_hand\": \"12.00\",\n      \"pending_pr_qty\": \"5.00\",\n      \"pending_po_qty\": \"3.00\",\n      \"requested_qty\": \"40.00\"\n    },\n    {\n      \"product_name\": \"Welding Rod E6013\",\n      \"product_code\": \"WR-E6013\",\n      \"product_category\": \"Consumables\",\n      \"unit\": \"box\",\n      \"stock_on_hand\": \"6.00\",\n      \"pending_pr_qty\": \"0.00\",\n      \"pending_po_qty\": \"2.00\",\n      \"requested_qty\": \"20.00\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
-              ]
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/v1/inventory/purchase-requisitions/",
@@ -141,7 +80,7 @@
                 ""
               ]
             },
-            "description": "Create a new purchase requisition with nested line items in one request. line_items is sent as a JSON string in form-data."
+            "description": "Create a new purchase requisition with optional nested line items."
           },
           "response": []
         },
@@ -180,7 +119,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requisition_date\": \"2026-04-11\",\n  \"requisition_type\": \"Normal Stock\",\n  \"stock_reason_category\": \"Routine Replenishment\",\n  \"project_site\": \"\",\n  \"job_order_ref\": \"\",\n  \"required_by_date\": \"2026-04-25\",\n  \"priority\": \"High\",\n  \"delivery_location\": \"Yard 2\",\n  \"reason_description\": \"Urgent replenishment due to increased consumption.\",\n  \"notes_to_purchase_team\": \"Need confirmation from at least two vendors.\",\n  \"status\": \"Submitted for Approval\",\n  \"is_approved\": false,\n  \"is_rejected\": false,\n  \"line_items\": [\n    {\n      \"product_name\": \"Steel Angle 50x50\",\n      \"product_code\": \"ST-AN-5050\",\n      \"product_category\": \"Steel\",\n      \"unit\": \"pcs\",\n      \"stock_on_hand\": \"10.00\",\n      \"pending_pr_qty\": \"2.00\",\n      \"pending_po_qty\": \"4.00\",\n      \"requested_qty\": \"60.00\"\n    }\n  ]\n}",
+              "raw": "{\n  \"requisition_date\": \"2026-04-11\",\n  \"requisition_type\": \"Normal Stock\",\n  \"stock_reason_category\": \"Routine Replenishment\",\n  \"job_order_ref\": \"\",\n  \"rework_notes\": \"\",\n  \"required_by_date\": \"2026-04-25\",\n  \"priority\": \"High\",\n  \"delivery_location\": \"Yard 2\",\n  \"reason_description\": \"Urgent replenishment due to increased consumption.\",\n  \"notes_to_purchase_team\": \"Need confirmation from at least two vendors.\",\n  \"status\": \"Submitted for Approval\",\n  \"is_approved\": false,\n  \"is_rejected\": false,\n  \"line_items\": [\n    {\n      \"product_name\": \"Steel Angle 50x50\",\n      \"product_code\": \"ST-AN-5050\",\n      \"product_category\": \"Steel\",\n      \"unit\": \"pcs\",\n      \"stock_on_hand\": \"10.00\",\n      \"pending_pr_qty\": \"2.00\",\n      \"pending_po_qty\": \"4.00\",\n      \"requested_qty\": \"60.00\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"

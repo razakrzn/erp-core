@@ -85,6 +85,12 @@ class Product(models.Model):
     max_stock_level = models.PositiveIntegerField(_("max stock level"), blank=True, null=True)
     moq = models.PositiveIntegerField(_("MOQ (min order)"), default=1, blank=True, null=True)
     opening_stock = models.PositiveIntegerField(_("opening stock"), default=0, blank=True, null=True)
+    stock_on_hand = models.DecimalField(_("stock on hand"), max_digits=12, decimal_places=2, default=0, blank=True, null=True)
+    reserved = models.DecimalField(_("reserved"), max_digits=12, decimal_places=2, default=0, blank=True, null=True)
+    available = models.DecimalField(_("available"), max_digits=12, decimal_places=2, default=0, blank=True, null=True)
+    stock_value_aed = models.DecimalField(
+        _("stock value (AED)"), max_digits=14, decimal_places=2, default=0, blank=True, null=True
+    )
     opening_stock_date = models.DateField(_("opening stock date"), blank=True, null=True)
     hsn_sac_code = models.CharField(_("HSN / SAC code"), max_length=50, blank=True, null=True)
     admin_notes = models.TextField(_("administrative notes"), blank=True, null=True)

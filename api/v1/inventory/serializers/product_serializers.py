@@ -1,6 +1,21 @@
+from decimal import Decimal
+
+from django.db.models import Sum
 from rest_framework import serializers
 
-from apps.inventory.models import Brand, Category, Finish, Grade, Material, Product, Size, Thickness, Unit
+from apps.inventory.models import (
+    Brand,
+    Category,
+    Finish,
+    Grade,
+    Material,
+    Product,
+    PurchaseOrderLineItem,
+    PurchaseRequisitionLineItem,
+    Size,
+    Thickness,
+    Unit,
+)
 
 
 class InventoryLookupSerializer(serializers.ModelSerializer):
@@ -81,6 +96,10 @@ class ProductSerializer(serializers.ModelSerializer):
             "max_stock_level",
             "moq",
             "opening_stock",
+            "stock_on_hand",
+            "reserved",
+            "available",
+            "stock_value_aed",
             "opening_stock_date",
             "hsn_sac_code",
             "admin_notes",
@@ -103,6 +122,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+        read_only_fields = ["stock_on_hand"]
 
     def _get_related_name(self, obj, field_name):
         related_obj = getattr(obj, field_name, None)
@@ -134,11 +154,20 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_preferred_supplier_name(self, obj):
         related_obj = getattr(obj, "preferred_supplier", None)
-        return related_obj.legal_trade_name if related_obj else None
+        return related_obj.trade_name if related_obj else None
+
+    def create(self, validated_data):
+        if ("stock_on_hand" not in validated_data or validated_data.get("stock_on_hand") is None) and (
+            validated_data.get("opening_stock") is not None
+        ):
+            validated_data["stock_on_hand"] = validated_data["opening_stock"]
+        return super().create(validated_data)
 
 
 class ProductListSerializer(serializers.ModelSerializer):
+    category_name = serializers.SerializerMethodField()
     brand_name = serializers.SerializerMethodField()
+    unit_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -146,18 +175,66 @@ class ProductListSerializer(serializers.ModelSerializer):
             "id",
             "product_code",
             "name",
+            "category_name",
             "brand_name",
+            "unit_name",
             "status",
+            "stock_on_hand",
+            "reserved",
+            "available",
+            "reorder_level",
+            "stock_value_aed",
         ]
+
+    def get_category_name(self, obj):
+        return obj.category.name if obj.category else None
 
     def get_brand_name(self, obj):
         return obj.brand.name if obj.brand else None
 
+    def get_unit_name(self, obj):
+        return obj.unit.name if obj.unit else None
+
 
 class ProductDropdownSerializer(serializers.ModelSerializer):
+    produc_code = serializers.CharField(source="product_code", read_only=True)
+    pend_pr = serializers.SerializerMethodField()
+    pend_po = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
         fields = [
             "id",
             "name",
+            "produc_code",
+            "category",
+            "unit",
+            "stock_on_hand",
+            "pend_pr",
+            "pend_po",
         ]
+
+    def get_pend_pr(self, obj):
+        if not obj.product_code:
+            return Decimal("0.00")
+        pending_statuses = ["Draft", "Submitted for Approval", "Approved"]
+        total = (
+            PurchaseRequisitionLineItem.objects.filter(
+                product_code=obj.product_code,
+                purchase_requisition__status__in=pending_statuses,
+            ).aggregate(total=Sum("requested_qty"))["total"]
+            or Decimal("0.00")
+        )
+        return total
+
+    def get_pend_po(self, obj):
+        total = (
+            PurchaseOrderLineItem.objects.filter(
+                product=obj,
+                purchase_order__is_closed=False,
+            )
+            .exclude(purchase_order__status__in=["Closed", "Cancelled"])
+            .aggregate(total=Sum("qty"))["total"]
+            or Decimal("0.00")
+        )
+        return total

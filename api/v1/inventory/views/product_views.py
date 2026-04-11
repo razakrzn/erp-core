@@ -88,7 +88,7 @@ class ProductViewSet(BaseInventoryViewSet):
         "sku",
         "product_code",
         "status",
-        "preferred_supplier__legal_trade_name",
+        "preferred_supplier__trade_name",
         "hsn_sac_code",
         "category__name",
         "brand__name",
