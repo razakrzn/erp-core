@@ -1,3 +1,5 @@
+import json
+
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -14,11 +16,15 @@ from .shared import BaseInventoryViewSet
 
 
 class PurchaseRequisitionViewSet(BaseInventoryViewSet):
-    queryset = PurchaseRequisition.objects.select_related("created_by").prefetch_related("line_items__product")
+    queryset = PurchaseRequisition.objects.select_related("created_by").prefetch_related("line_items")
     serializer_class = PurchaseRequisitionSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = [
+        "purchase_request_number",
+        "requisition_type",
         "stock_reason_category",
+        "project_site",
+        "job_order_ref",
         "priority",
         "status",
         "delivery_location",
@@ -26,6 +32,7 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
     ]
     ordering_fields = [
         "id",
+        "requisition_date",
         "required_by_date",
         "priority",
         "status",
@@ -35,10 +42,42 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
     ordering = ["-created_at"]
     permission_prefix = "procurement.purchase_requisitions"
 
+    @staticmethod
+    def _normalize_payload(request):
+        payload = request.data.copy()
+        line_items_raw = payload.get("line_items", None)
+
+        if isinstance(line_items_raw, str):
+            normalized = line_items_raw.strip()
+            if normalized:
+                payload["line_items"] = json.loads(normalized)
+            else:
+                payload["line_items"] = []
+
+        return payload
+
     def get_serializer_class(self):
         if self.action == "list":
             return PurchaseRequisitionListSerializer
         return PurchaseRequisitionSerializer
+
+    def create(self, request, *args, **kwargs):
+        try:
+            payload = self._normalize_payload(request)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return APIResponse.error(
+                message="Invalid line_items. Send a valid JSON array for line_items.",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = self.get_serializer(data=payload)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Purchase Requisition created successfully.",
+            status_code=status.HTTP_201_CREATED,
+        )
 
     @staticmethod
     def _parse_boolean_action_value(raw_value, field_name="value"):
@@ -131,18 +170,20 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
 
 
 class PurchaseRequisitionLineItemViewSet(BaseInventoryViewSet):
-    queryset = PurchaseRequisitionLineItem.objects.select_related("purchase_requisition", "product")
+    queryset = PurchaseRequisitionLineItem.objects.select_related("purchase_requisition")
     serializer_class = PurchaseRequisitionLineItemSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = [
         "purchase_requisition__id",
-        "product__name",
-        "product__sku",
+        "product_name",
+        "product_code",
+        "product_category",
     ]
     ordering_fields = [
         "id",
         "purchase_requisition_id",
-        "product_id",
+        "product_name",
+        "product_code",
         "requested_qty",
         "net_required_qty",
     ]

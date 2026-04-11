@@ -28,15 +28,17 @@ class VendorContactInline(admin.TabularInline):
 class VendorAdmin(admin.ModelAdmin):
     list_display = (
         "trade_name",
+        "category",
         "license_no",
         "trn_number",
         "phone",
         "email",
         "status",
     )
-    list_filter = ("status", "vendor_type", "city_emirate")
+    list_filter = ("status", "category", "vendor_type", "city_emirate")
     search_fields = (
         "trade_name",
+        "category",
         "license_no",
         "trn_number",
         "email",
@@ -116,6 +118,17 @@ class ProductAdmin(admin.ModelAdmin):
 class PurchaseRequisitionLineItemInline(admin.TabularInline):
     model = PurchaseRequisitionLineItem
     extra = 0
+    fields = (
+        "product_code",
+        "product_name",
+        "product_category",
+        "unit",
+        "stock_on_hand",
+        "pending_pr_qty",
+        "pending_po_qty",
+        "requested_qty",
+        "net_required_qty",
+    )
     readonly_fields = ("net_required_qty",)
 
 
@@ -137,6 +150,8 @@ class PurchaseRequisitionAdmin(admin.ModelAdmin):
     )
     list_filter = (
         "status",
+        "is_approved",
+        "is_rejected",
         "requisition_type",
         "priority",
         "delivery_location",
@@ -150,10 +165,16 @@ class PurchaseRequisitionAdmin(admin.ModelAdmin):
         "project_site",
         "job_order_ref",
         "delivery_location",
+        "reason_description",
+        "notes_to_purchase_team",
         "created_by__username",
     )
     readonly_fields = (
         "purchase_request_number",
+        "created_by",
+        "updated_by",
+        "approved_by",
+        "rejected_by",
         "created_at",
         "updated_at",
     )
@@ -167,6 +188,8 @@ class PurchaseRequisitionLineItemAdmin(admin.ModelAdmin):
         "purchase_requisition",
         "product_name",
         "product_code",
+        "product_category",
+        "unit",
         "requested_qty",
         "net_required_qty",
     )

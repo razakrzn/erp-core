@@ -5,10 +5,11 @@ from django.utils.translation import gettext_lazy as _
 class Vendor(models.Model):
     # General / Info
     trade_name = models.CharField(_("trade name (legal)"), max_length=255, null=True, blank=True)
+    category = models.CharField(_("category"), max_length=100, null=True, blank=True)
     vendor_type = models.CharField(_("vendor type"), max_length=100, null=True, blank=True)
     primary_activity = models.CharField(_("primary activity"), max_length=255, null=True, blank=True)
     trn_number = models.CharField(_("TRN number"), max_length=15, null=True, blank=True)
-    website = models.URLField(_("website"), null=True, blank=True)
+    website = models.CharField(_("website"), max_length=500, null=True, blank=True)
 
     # General / Contact
     phone = models.CharField(_("phone (mobile)"), max_length=30, null=True, blank=True)
@@ -38,8 +39,8 @@ class Vendor(models.Model):
     trn_certificate = models.FileField(
         _("TRN certificate"), upload_to="inventory/vendors/trn/", null=True, blank=True
     )
-    power_of_attorney = models.FileField(
-        _("power of attorney"), upload_to="inventory/vendors/poa/", null=True, blank=True
+    bank_documant = models.FileField(
+        _("bank document"), upload_to="inventory/vendors/poa/", null=True, blank=True
     )
 
     # Financial / Terms

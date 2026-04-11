@@ -5,24 +5,15 @@ from apps.inventory.models import PurchaseRequisition, PurchaseRequisitionLineIt
 
 
 class PurchaseRequisitionLineItemSerializer(serializers.ModelSerializer):
-    product_name = serializers.SerializerMethodField(read_only=True)
-    product_code = serializers.SerializerMethodField(read_only=True)
-    standard_cost = serializers.SerializerMethodField(read_only=True)
-    category_name = serializers.SerializerMethodField(read_only=True)
-    unit_name = serializers.SerializerMethodField(read_only=True)
-    
-
     class Meta:
         model = PurchaseRequisitionLineItem
         fields = [
             "id",
             "purchase_requisition",
-            "product",
             "product_name",
             "product_code",
-            "standard_cost",
-            "category_name",
-            "unit_name",
+            "product_category",
+            "unit",
             "stock_on_hand",
             "pending_pr_qty",
             "pending_po_qty",
@@ -33,25 +24,6 @@ class PurchaseRequisitionLineItemSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "purchase_requisition": {"required": False},
         }
-
-    def get_product_name(self, obj):
-        return obj.product.name if obj.product else None
-
-    def get_product_code(self, obj):
-        return obj.product.product_code if obj.product else None
-
-    def get_standard_cost(self, obj):
-        return obj.product.standard_cost if obj.product else None
-
-    def get_category_name(self, obj):
-        if not obj.product or not obj.product.category:
-            return None
-        return obj.product.category.name
-
-    def get_unit_name(self, obj):
-        if not obj.product or not obj.product.unit:
-            return None
-        return obj.product.unit.name
 
 
 class PurchaseRequisitionSerializer(serializers.ModelSerializer):
@@ -65,7 +37,11 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "purchase_request_number",
+            "requisition_date",
+            "requisition_type",
             "stock_reason_category",
+            "project_site",
+            "job_order_ref",
             "required_by_date",
             "priority",
             "delivery_location",
@@ -80,6 +56,7 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
             "approved_by_name",
             "rejected_by",
             "rejected_by_name",
+            "updated_by",
             "created_at",
             "updated_at",
             "line_items",
@@ -87,6 +64,9 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "purchase_request_number",
             "created_by",
+            "approved_by",
+            "rejected_by",
+            "updated_by",
             "created_at",
             "updated_at",
         ]
@@ -140,6 +120,8 @@ class PurchaseRequisitionListSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "purchase_request_number",
+            "requisition_date",
+            "requisition_type",
             "priority",
             "created_by_name",
             "status",
