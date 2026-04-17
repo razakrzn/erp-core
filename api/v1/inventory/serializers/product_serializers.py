@@ -198,6 +198,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 class ProductDropdownSerializer(serializers.ModelSerializer):
     produc_code = serializers.CharField(source="product_code", read_only=True)
+    unit = serializers.CharField(source="unit.name", read_only=True)
     pend_pr = serializers.SerializerMethodField()
     pend_po = serializers.SerializerMethodField()
 
