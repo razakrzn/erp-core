@@ -2,8 +2,6 @@ services:
   db:
     image: postgres:16
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
@@ -31,11 +29,7 @@ services:
   web:
     build:
       context: .
-      ssh:
-        - default
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       - APP_ROLE=web
       - DJANGO_SETTINGS_MODULE=config.settings.prod
@@ -59,11 +53,7 @@ services:
   celery:
     build:
       context: .
-      ssh:
-        - default
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       - APP_ROLE=worker
       - DJANGO_SETTINGS_MODULE=config.settings.prod
