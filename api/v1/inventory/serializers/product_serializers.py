@@ -197,25 +197,32 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 
 class ProductDropdownSerializer(serializers.ModelSerializer):
-    produc_code = serializers.CharField(source="product_code", read_only=True)
+    product_id = serializers.IntegerField(source="id", read_only=True)
+    product_name = serializers.CharField(source="name", read_only=True)
+    product_code = serializers.CharField(read_only=True)
+    product_category = serializers.CharField(source="category.name", read_only=True)
+    product_brand = serializers.CharField(source="brand.name", read_only=True)
+    product_size = serializers.CharField(source="size.name", read_only=True)
     unit = serializers.CharField(source="unit.name", read_only=True)
-    pend_pr = serializers.SerializerMethodField()
-    pend_po = serializers.SerializerMethodField()
+    pending_pr_qty = serializers.SerializerMethodField()
+    pending_po_qty = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = [
-            "id",
-            "name",
-            "produc_code",
-            "category",
+            "product_id",
+            "product_name",
+            "product_code",
+            "product_category",
+            "product_brand",
+            "product_size",
             "unit",
             "stock_on_hand",
-            "pend_pr",
-            "pend_po",
+            "pending_pr_qty",
+            "pending_po_qty",
         ]
 
-    def get_pend_pr(self, obj):
+    def get_pending_pr_qty(self, obj):
         if not obj.product_code:
             return Decimal("0.00")
         pending_statuses = ["Draft", "Submitted for Approval", "Approved"]
@@ -228,14 +235,16 @@ class ProductDropdownSerializer(serializers.ModelSerializer):
         )
         return total
 
-    def get_pend_po(self, obj):
+    def get_pending_po_qty(self, obj):
+        if not obj.product_code:
+            return Decimal("0.00")
         total = (
             PurchaseOrderLineItem.objects.filter(
-                product=obj,
+                product_code=obj.product_code,
                 purchase_order__is_closed=False,
             )
             .exclude(purchase_order__status__in=["Closed", "Cancelled"])
-            .aggregate(total=Sum("qty"))["total"]
+            .aggregate(total=Sum("requested_qty"))["total"]
             or Decimal("0.00")
         )
         return total

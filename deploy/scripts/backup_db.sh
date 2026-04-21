@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-COMPOSE_FILE="${COMPOSE_FILE:-$ROOT_DIR/docker-compose.prod.yml}"
+COMPOSE_FILE="${COMPOSE_FILE:-$ROOT_DIR/docker-compose.yml}"
 ENV_FILE="${ENV_FILE:-$ROOT_DIR/.env}"
 BACKUP_DIR="${BACKUP_DIR:-$ROOT_DIR/deploy/backups/db}"
 RETENTION_DAYS="${RETENTION_DAYS:-14}"

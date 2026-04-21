@@ -10,6 +10,7 @@ class PurchaseRequisitionLineItemSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "purchase_requisition",
+            "product_id",
             "product_name",
             "product_code",
             "product_category",
@@ -50,6 +51,7 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
             "status",
             "is_approved",
             "is_rejected",
+            "reject_note",
             "created_by",
             "created_by_name",
             "approved_by",
@@ -132,3 +134,10 @@ class PurchaseRequisitionListSerializer(serializers.ModelSerializer):
         if not obj.created_by:
             return None
         return obj.created_by.get_full_name() or obj.created_by.get_username()
+
+
+class PurchaseRequisitionProductNameListSerializer(serializers.Serializer):
+    product_name = serializers.ListField(
+        child=serializers.CharField(),
+        read_only=True,
+    )

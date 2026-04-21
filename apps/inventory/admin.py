@@ -119,6 +119,7 @@ class PurchaseRequisitionLineItemInline(admin.TabularInline):
     model = PurchaseRequisitionLineItem
     extra = 0
     fields = (
+        "product_id",
         "product_code",
         "product_name",
         "product_category",
@@ -186,6 +187,7 @@ class PurchaseRequisitionLineItemAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "purchase_requisition",
+        "product_id",
         "product_name",
         "product_code",
         "product_category",
@@ -194,7 +196,7 @@ class PurchaseRequisitionLineItemAdmin(admin.ModelAdmin):
         "net_required_qty",
     )
     list_filter = ("purchase_requisition__status",)
-    search_fields = ("purchase_requisition__id", "product_name", "product_code")
+    search_fields = ("purchase_requisition__id", "product_id", "product_name", "product_code")
     readonly_fields = ("net_required_qty",)
 
 
@@ -222,17 +224,23 @@ class PurchaseOrderLineItemAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "purchase_order",
-        "product",
-        "qty",
+        "product_code",
+        "purchase_requisition",
+        "description",
+        "unit",
+        "requested_qty",
+        "required_by_date",
+        "delivery_location",
+        "last_purchase_rate",
         "negotiated_price",
         "line_total",
-        "required_by",
     )
-    list_filter = ("required_by", "purchase_order__status")
+    list_filter = ("required_by_date", "purchase_order__status")
     search_fields = (
         "purchase_order__po_number",
-        "product__name",
-        "product__sku",
+        "product_code",
+        "description",
+        "purchase_requisition__purchase_request_number",
         "delivery_location",
         "unit",
     )

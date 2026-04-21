@@ -8,6 +8,9 @@ from .views import (
     MaterialViewSet,
     ProductViewSet,
     PurchaseRequisitionLineItemViewSet,
+    PurchaseRequisitionProductCategoryViewSet,
+    PurchaseRequisitionProductNameViewSet,
+    PurchaseRequisitionPreferredVendorNameViewSet,
     PurchaseRequisitionViewSet,
     SizeViewSet,
     ThicknessViewSet,
@@ -31,6 +34,21 @@ router.register(
     r"purchase-requisition-line-items",
     PurchaseRequisitionLineItemViewSet,
     basename="inventory-purchase-requisition-line-item",
+)
+router.register(
+    r"purchase-requisition-product-names",
+    PurchaseRequisitionProductNameViewSet,
+    basename="inventory-purchase-requisition-product-name",
+)
+router.register(
+    r"purchase-requisition-product-categories",
+    PurchaseRequisitionProductCategoryViewSet,
+    basename="inventory-purchase-requisition-product-category",
+)
+router.register(
+    r"purchase-requisition-preferred-vendor-names",
+    PurchaseRequisitionPreferredVendorNameViewSet,
+    basename="inventory-purchase-requisition-preferred-vendor-name",
 )
 
 urlpatterns = router.urls

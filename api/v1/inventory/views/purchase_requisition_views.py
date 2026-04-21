@@ -3,9 +3,12 @@ import json
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets
 
-from apps.inventory.models import PurchaseRequisition, PurchaseRequisitionLineItem
-from core.utils.responses import APIResponse
+from apps.inventory.models import Product, PurchaseRequisition, PurchaseRequisitionLineItem
+from core.permissions.rbac_permission import RBACPermission
+from core.utils.responses import APIResponse, build_actions
 
 from ..serializers import (
     PurchaseRequisitionLineItemSerializer,
@@ -61,6 +64,13 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
             return PurchaseRequisitionListSerializer
         return PurchaseRequisitionSerializer
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        status_value = (self.request.query_params.get("status") or "").strip()
+        if status_value:
+            queryset = queryset.filter(status__iexact=status_value)
+        return queryset
+
     def create(self, request, *args, **kwargs):
         try:
             payload = self._normalize_payload(request)
@@ -77,6 +87,26 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
             data=serializer.data,
             message="Purchase Requisition created successfully.",
             status_code=status.HTTP_201_CREATED,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+
+        computed_actions = build_actions(request.user, self.permission_prefix)
+        detail_actions = {
+            "canApprove": bool(computed_actions.get("canApprove", False)),
+            "canReject": bool(computed_actions.get("canReject", False)),
+        }
+
+        if isinstance(data, dict):
+            data = {**data, "actions": detail_actions}
+
+        return APIResponse.success(
+            data=data,
+            message=f"{self.queryset.model._meta.verbose_name.title()} retrieved successfully.",
+            status_code=status.HTTP_200_OK,
         )
 
     @staticmethod
@@ -104,6 +134,7 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
             instance.status = "Approved"
             instance.approved_by = user
             instance.rejected_by = None
+            instance.reject_note = ""
         else:
             # Cancel approval only if currently approved.
             if instance.status == "Approved":
@@ -118,6 +149,7 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
                 "status",
                 "approved_by",
                 "rejected_by",
+                "reject_note",
                 "updated_by",
                 "updated_at",
             ]
@@ -134,6 +166,9 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
     def reject(self, request, *args, **kwargs):
         instance = self.get_object()
         value = self._parse_boolean_action_value(request.data.get("value", None), "value")
+        reject_note = (request.data.get("reject_note", "") or "").strip()
+        if value and not reject_note:
+            raise ValidationError({"reject_note": "This field is required when rejecting Purchase Requisition."})
         user = request.user if request.user and request.user.is_authenticated else None
 
         instance.is_rejected = value
@@ -141,12 +176,14 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
             instance.is_approved = False
             instance.status = "Rejected"
             instance.rejected_by = user
+            instance.reject_note = reject_note
             instance.approved_by = None
         else:
             # Cancel rejection only if currently rejected.
             if instance.status == "Rejected":
                 instance.status = "Submitted for Approval"
             instance.rejected_by = None
+            instance.reject_note = ""
 
         instance.updated_by = user if user else instance.updated_by
         instance.save(
@@ -156,6 +193,7 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
                 "status",
                 "approved_by",
                 "rejected_by",
+                "reject_note",
                 "updated_by",
                 "updated_at",
             ]
@@ -165,6 +203,58 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
         return APIResponse.success(
             data=None,
             message=message,
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["get"], url_path="product-names")
+    def product_names(self, request, *args, **kwargs):
+        product_names = (
+            PurchaseRequisitionLineItem.objects.exclude(product_name__isnull=True)
+            .exclude(product_name__exact="")
+            .order_by("product_name")
+            .values_list("product_name", flat=True)
+            .distinct()
+        )
+        return APIResponse.success(
+            data=list(product_names),
+            message="Product names retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["get"], url_path="product-categories")
+    def product_categories(self, request, *args, **kwargs):
+        product_categories = (
+            PurchaseRequisitionLineItem.objects.exclude(product_category__isnull=True)
+            .exclude(product_category__exact="")
+            .order_by("product_category")
+            .values_list("product_category", flat=True)
+            .distinct()
+        )
+        return APIResponse.success(
+            data=list(product_categories),
+            message="Product categories retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["get"], url_path="preferred-vendor-names")
+    def preferred_vendor_names(self, request, *args, **kwargs):
+        product_ids = (
+            PurchaseRequisitionLineItem.objects.exclude(product_id__isnull=True)
+            .values_list("product_id", flat=True)
+            .distinct()
+        )
+        preferred_vendor_names = (
+            Product.objects.filter(id__in=product_ids)
+            .exclude(preferred_supplier__isnull=True)
+            .exclude(preferred_supplier__trade_name__isnull=True)
+            .exclude(preferred_supplier__trade_name__exact="")
+            .order_by("preferred_supplier__trade_name")
+            .values_list("preferred_supplier__trade_name", flat=True)
+            .distinct()
+        )
+        return APIResponse.success(
+            data=list(preferred_vendor_names),
+            message="Preferred vendor names retrieved successfully.",
             status_code=status.HTTP_200_OK,
         )
 
@@ -189,3 +279,67 @@ class PurchaseRequisitionLineItemViewSet(BaseInventoryViewSet):
     ]
     ordering = ["id"]
     permission_prefix = "procurement.purchase_requisitions"
+
+
+class PurchaseRequisitionProductNameViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated, RBACPermission]
+    permission_prefix = "procurement.purchase_requisitions"
+
+    def list(self, request, *args, **kwargs):
+        product_names = (
+            PurchaseRequisitionLineItem.objects.exclude(product_name__isnull=True)
+            .exclude(product_name__exact="")
+            .order_by("product_name")
+            .values_list("product_name", flat=True)
+            .distinct()
+        )
+        return APIResponse.success(
+            data=list(product_names),
+            message="Product names retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class PurchaseRequisitionProductCategoryViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated, RBACPermission]
+    permission_prefix = "procurement.purchase_requisitions"
+
+    def list(self, request, *args, **kwargs):
+        product_categories = (
+            PurchaseRequisitionLineItem.objects.exclude(product_category__isnull=True)
+            .exclude(product_category__exact="")
+            .order_by("product_category")
+            .values_list("product_category", flat=True)
+            .distinct()
+        )
+        return APIResponse.success(
+            data=list(product_categories),
+            message="Product categories retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+
+class PurchaseRequisitionPreferredVendorNameViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated, RBACPermission]
+    permission_prefix = "procurement.purchase_requisitions"
+
+    def list(self, request, *args, **kwargs):
+        product_ids = (
+            PurchaseRequisitionLineItem.objects.exclude(product_id__isnull=True)
+            .values_list("product_id", flat=True)
+            .distinct()
+        )
+        preferred_vendor_names = (
+            Product.objects.filter(id__in=product_ids)
+            .exclude(preferred_supplier__isnull=True)
+            .exclude(preferred_supplier__trade_name__isnull=True)
+            .exclude(preferred_supplier__trade_name__exact="")
+            .order_by("preferred_supplier__trade_name")
+            .values_list("preferred_supplier__trade_name", flat=True)
+            .distinct()
+        )
+        return APIResponse.success(
+            data=list(preferred_vendor_names),
+            message="Preferred vendor names retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )

@@ -9,7 +9,13 @@ from .product_views import (
     ThicknessViewSet,
     UnitViewSet,
 )
-from .purchase_requisition_views import PurchaseRequisitionLineItemViewSet, PurchaseRequisitionViewSet
+from .purchase_requisition_views import (
+    PurchaseRequisitionProductCategoryViewSet,
+    PurchaseRequisitionLineItemViewSet,
+    PurchaseRequisitionProductNameViewSet,
+    PurchaseRequisitionPreferredVendorNameViewSet,
+    PurchaseRequisitionViewSet,
+)
 from .vendor_views import VendorViewSet
 
 __all__ = [
@@ -25,4 +31,7 @@ __all__ = [
     "VendorViewSet",
     "PurchaseRequisitionViewSet",
     "PurchaseRequisitionLineItemViewSet",
+    "PurchaseRequisitionProductNameViewSet",
+    "PurchaseRequisitionProductCategoryViewSet",
+    "PurchaseRequisitionPreferredVendorNameViewSet",
 ]

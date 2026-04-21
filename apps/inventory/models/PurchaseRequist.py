@@ -85,6 +85,12 @@ class PurchaseRequisition(models.Model):
     )
     is_approved = models.BooleanField(default=False, null=True, blank=True)
     is_rejected = models.BooleanField(default=False, null=True, blank=True)
+    reject_note = models.TextField(
+        null=True,
+        blank=True,
+        default="",
+        help_text="Reason for rejecting this purchase requisition.",
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -144,6 +150,7 @@ class PurchaseRequisitionLineItem(models.Model):
         blank=True,
         related_name="line_items",
     )
+    product_id = models.PositiveBigIntegerField(null=True, blank=True)
     product_code = models.CharField(max_length=100, null=True, blank=True, default="")
     product_name = models.CharField(max_length=255, null=True, blank=True, default="")
     product_category = models.CharField(max_length=100, null=True, blank=True, default="")

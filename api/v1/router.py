@@ -11,6 +11,11 @@ from rest_framework.routers import DefaultRouter
 
 from .company import CompanyViewSet
 from .accounts import UserViewSet, CheckUsernameAPIView
+from .inventory.views import (
+    PurchaseRequisitionPreferredVendorNameViewSet,
+    PurchaseRequisitionProductCategoryViewSet,
+    PurchaseRequisitionProductNameViewSet,
+)
 
 # Create a shared router instance for v1
 router = DefaultRouter()
@@ -23,6 +28,21 @@ router.register(r"users", UserViewSet, basename="user")
 
 urlpatterns = [
     path("check-username/", CheckUsernameAPIView.as_view(), name="check-username"),
+    path(
+        "purchase-requisitions/product-names/",
+        PurchaseRequisitionProductNameViewSet.as_view({"get": "list"}),
+        name="purchase-requisition-product-names",
+    ),
+    path(
+        "purchase-requisitions/product-categories/",
+        PurchaseRequisitionProductCategoryViewSet.as_view({"get": "list"}),
+        name="purchase-requisition-product-categories",
+    ),
+    path(
+        "purchase-requisitions/preferred-vendor-names/",
+        PurchaseRequisitionPreferredVendorNameViewSet.as_view({"get": "list"}),
+        name="purchase-requisition-preferred-vendor-names",
+    ),
     path("auth/", include("api.v1.auth.urls")),
     path("navigation/", include("api.v1.navigation.urls")),
     path("access-control/", include("api.v1.access_control.urls")),

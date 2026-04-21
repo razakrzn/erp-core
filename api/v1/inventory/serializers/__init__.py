@@ -14,6 +14,7 @@ from .product_serializers import (
 from .purchase_requisition_serializers import (
     PurchaseRequisitionLineItemSerializer,
     PurchaseRequisitionListSerializer,
+    PurchaseRequisitionProductNameListSerializer,
     PurchaseRequisitionSerializer,
 )
 from .vendor_serializers import VendorDropdownSerializer, VendorSerializer
@@ -33,6 +34,7 @@ __all__ = [
     "PurchaseRequisitionListSerializer",
     "PurchaseRequisitionSerializer",
     "PurchaseRequisitionLineItemSerializer",
+    "PurchaseRequisitionProductNameListSerializer",
     "VendorSerializer",
     "VendorDropdownSerializer",
 ]

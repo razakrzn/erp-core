@@ -4,8 +4,7 @@ from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from .products import Product
-from .PurchaseRequist import PurchaseRequisition, PurchaseRequisitionLineItem
+from .PurchaseRequist import PurchaseRequisition
 from .vendor import Vendor
 
 
@@ -139,42 +138,45 @@ class PurchaseOrderLineItem(models.Model):
         on_delete=models.CASCADE,
         related_name="po_line_items",
     )
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.PROTECT,
-        related_name="po_line_items",
-    )
-
-    # Link back to the originating PR line item (nullable for manually added lines)
-    pr_line_item = models.ForeignKey(
-        PurchaseRequisitionLineItem,
+    product_code = models.CharField(max_length=100, null=True, blank=True, default="")
+    purchase_requisition = models.ForeignKey(
+        PurchaseRequisition,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="po_line_items",
-        help_text="The PR line item this PO line was synced from.",
+        help_text="The purchase requisition associated with this PO line.",
     )
-
-    # Snapshot columns (synced from PR line item)
-    unit = models.CharField(
-        max_length=50,
-        help_text="Unit of measure.",
-    )
-    qty = models.DecimalField(
+    description = models.CharField(max_length=255, null=True, blank=True, default="")
+    unit = models.CharField(max_length=50, null=True, blank=True, default="")
+    requested_qty = models.DecimalField(
         max_digits=12,
         decimal_places=2,
+        null=True,
+        blank=True,
         validators=[MinValueValidator(Decimal("0.01"))],
-        help_text="Ordered quantity.",
+        help_text="Requested quantity.",
     )
-    required_by = models.DateField(
+    required_by_date = models.DateField(
         null=True,
         blank=True,
         help_text="Date by which this item is required.",
     )
     delivery_location = models.CharField(
         max_length=200,
+        null=True,
         blank=True,
+        default="",
         help_text="Delivery location for this line item.",
+    )
+    last_purchase_rate = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        default=Decimal("0.00"),
+        validators=[MinValueValidator(Decimal("0.00"))],
+        help_text="Last purchase rate for this item.",
     )
 
     # Editable pricing
@@ -197,8 +199,10 @@ class PurchaseOrderLineItem(models.Model):
         verbose_name_plural = "Purchase Order Line Items"
 
     def save(self, *args, **kwargs):
-        self.line_total = self.qty * self.negotiated_price
+        requested_qty = self.requested_qty or Decimal("0.00")
+        negotiated_price = self.negotiated_price or Decimal("0.00")
+        self.line_total = requested_qty * negotiated_price
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
-        return f"{self.purchase_order_id} - {self.product_id}"
+        return f"{self.purchase_order_id} - {self.product_code}"

@@ -71,7 +71,7 @@ Production stack in this repo
 
 Use:
 
-- docker-compose.prod.yml
+- docker-compose.yml
 - deploy/nginx.conf
 
 Services included:
@@ -90,7 +90,7 @@ Shared volumes:
 Required environment variables
 ------------------------------
 
-Set these in .env on the server:
+Set these in `.env` on the server (you can start from `.env.production.example`):
 
 DJANGO_SETTINGS_MODULE=config.settings.prod
 SECRET_KEY=replace-me
@@ -101,25 +101,69 @@ CSRF_TRUSTED_ORIGINS=https://api.example.com,https://app.example.com
 DB_NAME=erp_core
 DB_USER=erp_core
 DB_PASSWORD=strong-password
+DB_HOST=db
+DB_PORT=5432
+REDIS_URL=redis://redis:6379/0
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
 SESSION_COOKIE_SECURE=True
+SESSION_COOKIE_HTTPONLY=True
+SESSION_COOKIE_SAMESITE=Lax
 CSRF_COOKIE_SECURE=True
-SECURE_SSL_REDIRECT=False
-SECURE_HSTS_SECONDS=0
+CSRF_COOKIE_HTTPONLY=True
+CSRF_COOKIE_SAMESITE=Lax
+SECURE_SSL_REDIRECT=True
+SECURE_HSTS_SECONDS=31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS=True
+SECURE_HSTS_PRELOAD=True
+USE_X_FORWARDED_HOST=True
+SECURE_REFERRER_POLICY=strict-origin-when-cross-origin
+X_FRAME_OPTIONS=DENY
+SECURE_CROSS_ORIGIN_OPENER_POLICY=same-origin
+LOG_LEVEL=INFO
 
 Notes:
 
-- DB_HOST and DB_PORT are injected by docker-compose.prod.yml
-- turn SECURE_SSL_REDIRECT=True on once TLS is terminating at the proxy/load balancer
+- DB_HOST and DB_PORT default to `db:5432` when omitted.
+- if using a managed DB, set `DATABASE_URL` (optionally `DB_SSLMODE=require`) and it will override `DB_*`
+- if your TLS terminates at a reverse proxy/load balancer, keep `SECURE_PROXY_SSL_HEADER` support and forward `X-Forwarded-Proto`
 - if you place the app behind Cloudflare, Caddy, or another TLS proxy, keep CSRF_TRUSTED_ORIGINS aligned with the public HTTPS origins
+
+Repository access for Docker deploy (SSH only)
+----------------------------------------------
+
+Use SSH-based Git access on the deployment host instead of HTTPS.
+
+Initial server setup:
+
+```bash
+# 1) Generate a deploy key on the server (or reuse existing key)
+ssh-keygen -t ed25519 -C "deploy@erp-core" -f ~/.ssh/id_ed25519 -N ""
+
+# 2) Add ~/.ssh/id_ed25519.pub to GitHub (repo deploy key with read access)
+# 3) Validate SSH auth
+ssh -T git@github.com
+```
+
+Clone/update using SSH:
+
+```bash
+# Fresh clone
+git clone git@github.com:razakrzn/erp-core.git
+
+# If repo already exists and origin was HTTPS, switch it to SSH
+git remote set-url origin git@github.com:razakrzn/erp-core.git
+git pull origin main
+```
 
 Deploy steps
 ------------
 
 python manage.py migrate
-docker compose -f docker-compose.prod.yml up -d --build
-docker compose -f docker-compose.prod.yml ps
-docker compose -f docker-compose.prod.yml logs -f web
-docker compose -f docker-compose.prod.yml logs -f celery
+docker compose -f docker-compose.yml up -d --build
+docker compose -f docker-compose.yml ps
+docker compose -f docker-compose.yml logs -f web
+docker compose -f docker-compose.yml logs -f celery
 
 Schema cleanup migration note:
 
@@ -131,12 +175,12 @@ Post-deploy verification
 
 Run these checks after deployment:
 
-docker compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.yml ps
 curl -fsS http://127.0.0.1/healthz
-docker compose -f docker-compose.prod.yml logs --tail=100 web
-docker compose -f docker-compose.prod.yml logs --tail=100 celery
-docker compose -f docker-compose.prod.yml exec redis redis-cli ping
-docker compose -f docker-compose.prod.yml exec db pg_isready -U ${DB_USER} -d ${DB_NAME}
+docker compose -f docker-compose.yml logs --tail=100 web
+docker compose -f docker-compose.yml logs --tail=100 celery
+docker compose -f docker-compose.yml exec redis redis-cli ping
+docker compose -f docker-compose.yml exec db pg_isready -U ${DB_USER} -d ${DB_NAME}
 
 Expected:
 
@@ -209,7 +253,7 @@ Database backup policy (PostgreSQL):
 Redis policy:
 
 - Redis is treated as cache/queue and is not a source of truth.
-- Keep AOF enabled (already enabled in docker-compose.prod.yml) for faster recovery.
+- Keep AOF enabled (already enabled in docker-compose.yml) for faster recovery.
 - No long-term retention required for Redis data.
 
 Docker/log retention:
@@ -251,9 +295,9 @@ Usage:
 
 Script behavior:
 
-- Scripts read `.env` and `docker-compose.prod.yml` by default.
+- Scripts read `.env` and `docker-compose.yml` by default.
 - Optional overrides:
-  - `COMPOSE_FILE=/path/to/docker-compose.prod.yml`
+  - `COMPOSE_FILE=/path/to/docker-compose.yml`
   - `ENV_FILE=/path/to/.env`
   - `BACKUP_DIR=/custom/backup/path`
   - `RETENTION_DAYS=14` (DB default) / `RETENTION_DAYS=30` (media default)
@@ -294,7 +338,7 @@ Pre-checks (before cutover day):
 
 On VPS, check versions:
 
-`docker compose -f docker-compose.prod.yml exec db psql -U ${DB_USER} -d ${DB_NAME} -c "select version();"`
+`docker compose -f docker-compose.yml exec db psql -U ${DB_USER} -d ${DB_NAME} -c "select version();"`
 
 Migration steps (recommended):
 
@@ -327,7 +371,7 @@ export DST_DB_PORT="5432"
 export DUMP_FILE="/tmp/erp_core_cutover.dump"
 
 # 1) Stop app writes (maintenance window)
-docker compose -f docker-compose.prod.yml stop web celery
+docker compose -f docker-compose.yml stop web celery
 
 # 2) Final backup from source VPS DB
 PGPASSWORD="$SRC_DB_PASSWORD" pg_dump \
@@ -347,15 +391,15 @@ PGPASSWORD="$DST_DB_PASSWORD" pg_restore \
 # DATABASE_URL=postgresql://managed_user:managed_password@managed-db-host:5432/erp_core
 
 # 5) Apply migrations using the new DB
-docker compose -f docker-compose.prod.yml run --rm web python manage.py migrate
+docker compose -f docker-compose.yml run --rm web python manage.py migrate
 
 # 6) Start app again
-docker compose -f docker-compose.prod.yml up -d web celery nginx redis
+docker compose -f docker-compose.yml up -d web celery nginx redis
 
 # 7) Verify health
 curl -fsS http://127.0.0.1/healthz
-docker compose -f docker-compose.prod.yml logs --tail=100 web
-docker compose -f docker-compose.prod.yml logs --tail=100 celery
+docker compose -f docker-compose.yml logs --tail=100 web
+docker compose -f docker-compose.yml logs --tail=100 celery
 ```
 
 Post-cutover verification:
@@ -380,7 +424,7 @@ Yes, this project can safely start with PostgreSQL on VPS local storage and migr
 
 Phase 1 (initial, lower cost):
 
-- Run PostgreSQL in `docker-compose.prod.yml` using local volume `postgres_data`.
+- Run PostgreSQL in `docker-compose.yml` using local volume `postgres_data`.
 - Keep Redis, web, celery, and nginx on the same VPS.
 - Apply strict backup policy from day 1:
   - daily DB dumps off-server

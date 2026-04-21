@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Load environment variables from .env (useful for local dev; in Docker they
 # are also provided via the env file configured in docker-compose).
-load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env.dev")
 
 
 # Quick-start development settings - unsuitable for production
