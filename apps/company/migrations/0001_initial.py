@@ -31,11 +31,7 @@ class Migration(migrations.Migration):
                 "verbose_name": "company",
                 "verbose_name_plural": "companies",
                 "ordering": ["-created_at"],
-                "indexes": [
-                    models.Index(
-                        fields=["code", "is_active"], name="company_com_code_59946e_idx"
-                    )
-                ],
+                "indexes": [models.Index(fields=["code", "is_active"], name="company_com_code_59946e_idx")],
             },
         ),
     ]

@@ -1,0 +1,394 @@
+{
+	"info": {
+		"_postman_id": "8a3b8d62-4e5c-4f1a-b0d5-d2c6e7a8b9f0",
+		"name": "Vendor Management API",
+		"description": "API collection for managing Vendors in the ERP system.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Vendor",
+			"item": [
+				{
+					"name": "List Vendors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/inventory/vendors/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"inventory",
+								"vendors",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "trade name",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Retrieve a paginated list of all vendors."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Vendor Dropdown",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/inventory/vendors/dropdown/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"inventory",
+								"vendors",
+								"dropdown",
+								""
+							]
+						},
+						"description": "Get a simplified list of vendors for dropdown menus."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Vendor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "trade_name",
+									"value": "Advanced Steel Solutions LLC",
+									"type": "text"
+								},
+								{
+									"key": "vendor_type",
+									"value": "local",
+									"type": "text"
+								},
+								{
+									"key": "primary_activity",
+									"value": "Metal Fabrication",
+									"type": "text"
+								},
+								{
+									"key": "trn_number",
+									"value": "100234567890003",
+									"type": "text"
+								},
+								{
+									"key": "website",
+									"value": "https://example.com",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "+971501234567",
+									"type": "text"
+								},
+								{
+									"key": "office_phone",
+									"value": "+97141234567",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "info@example.com",
+									"type": "text"
+								},
+								{
+									"key": "primary_contact_person",
+									"value": "John Doe",
+									"type": "text"
+								},
+								{
+									"key": "store_office_no",
+									"value": "Wh 4",
+									"type": "text"
+								},
+								{
+									"key": "building_name",
+									"value": "Industrial Park B",
+									"type": "text"
+								},
+								{
+									"key": "street_area",
+									"value": "Al Quoz",
+									"type": "text"
+								},
+								{
+									"key": "city_emirate",
+									"value": "dubai",
+									"type": "text"
+								},
+								{
+									"key": "license_no",
+									"value": "L-556677",
+									"type": "text"
+								},
+								{
+									"key": "license_expiry",
+									"value": "2027-01-01",
+									"type": "text"
+								},
+								{
+									"key": "authorized_signatory",
+									"value": "John Doe",
+									"type": "text"
+								},
+								{
+									"key": "trade_license_pdf",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "trn_certificate",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "power_of_attorney",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "credit_period",
+									"value": "30_days",
+									"type": "text"
+								},
+								{
+									"key": "credit_limit",
+									"value": "50000.00",
+									"type": "text"
+								},
+								{
+									"key": "payment_method",
+									"value": "bank_transfer",
+									"type": "text"
+								},
+								{
+									"key": "bank_name",
+									"value": "Emirates NBD",
+									"type": "text"
+								},
+								{
+									"key": "account_number",
+									"value": "101122334455",
+									"type": "text"
+								},
+								{
+									"key": "iban",
+									"value": "AE000000000000000000000",
+									"type": "text"
+								},
+								{
+									"key": "swift_bic",
+									"value": "ENBD AEAD",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "active",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/inventory/vendors/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"inventory",
+								"vendors",
+								""
+							]
+						},
+						"description": "Create a new vendor with multipart/form-data support for file uploads."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Vendor Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/inventory/vendors/{{vendor_id}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"inventory",
+								"vendors",
+								"{{vendor_id}}",
+								""
+							]
+						},
+						"description": "Retrieve detailed information about a specific vendor."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Vendor",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "trade_name",
+									"value": "Advanced Steel Solutions LLC (Updated)",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "active",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/inventory/vendors/{{vendor_id}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"inventory",
+								"vendors",
+								"{{vendor_id}}",
+								""
+							]
+						},
+						"description": "Update all fields of an existing vendor."
+					},
+					"response": []
+				},
+				{
+					"name": "Partial Update Vendor",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"inactive\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/inventory/vendors/{{vendor_id}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"inventory",
+								"vendors",
+								"{{vendor_id}}",
+								""
+							]
+						},
+						"description": "Update specific fields of an existing vendor."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Vendor",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/inventory/vendors/{{vendor_id}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"inventory",
+								"vendors",
+								"{{vendor_id}}",
+								""
+							]
+						},
+						"description": "Remove a vendor from the system."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "vendor_id",
+			"value": "1"
+		}
+	]
+}

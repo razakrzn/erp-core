@@ -1,0 +1,534 @@
+{
+  "info": {
+    "_postman_id": "f5a9a6f0-a73d-4f9c-9c17-4d9be40b8a4a",
+    "name": "Purchase Requisition API",
+    "description": "API collection for managing Purchase Requisitions and Purchase Requisition Line Items in the ERP inventory module.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Purchase Requisition",
+      "item": [
+        {
+          "name": "List Purchase Requisitions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisitions/?page=1&search=&ordering=-created_at",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisitions",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "PR-000001",
+                  "disabled": true
+                },
+                {
+                  "key": "ordering",
+                  "value": "-created_at",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retrieve a paginated list of purchase requisitions. Supports search and ordering."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Purchase Requisition",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requisition_date\": \"2026-04-11\",\n  \"requisition_type\": \"Normal Stock\",\n  \"stock_reason_category\": \"Low Stock\",\n  \"job_order_ref\": \"\",\n  \"rework_notes\": \"\",\n  \"required_by_date\": \"2026-04-20\",\n  \"priority\": \"Medium\",\n  \"delivery_location\": \"Main Warehouse\",\n  \"reason_description\": \"Monthly replenishment for fast-moving items.\",\n  \"notes_to_purchase_team\": \"Please prioritize common consumables.\",\n  \"status\": \"Submitted for Approval\",\n  \"is_approved\": false,\n  \"is_rejected\": false,\n  \"line_items\": [\n    {\n      \"product_name\": \"Steel Angle 50x50\",\n      \"product_code\": \"ST-AN-5050\",\n      \"product_category\": \"Steel\",\n      \"unit\": \"pcs\",\n      \"stock_on_hand\": \"12.00\",\n      \"pending_pr_qty\": \"5.00\",\n      \"pending_po_qty\": \"3.00\",\n      \"requested_qty\": \"40.00\"\n    },\n    {\n      \"product_name\": \"Welding Rod E6013\",\n      \"product_code\": \"WR-E6013\",\n      \"product_category\": \"Consumables\",\n      \"unit\": \"box\",\n      \"stock_on_hand\": \"6.00\",\n      \"pending_pr_qty\": \"0.00\",\n      \"pending_po_qty\": \"2.00\",\n      \"requested_qty\": \"20.00\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisitions/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisitions",
+                ""
+              ]
+            },
+            "description": "Create a new purchase requisition with optional nested line items."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Purchase Requisition Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisitions/{{purchase_requisition_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisitions",
+                "{{purchase_requisition_id}}",
+                ""
+              ]
+            },
+            "description": "Retrieve full details for a specific purchase requisition, including line items."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Purchase Requisition",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requisition_date\": \"2026-04-11\",\n  \"requisition_type\": \"Normal Stock\",\n  \"stock_reason_category\": \"Routine Replenishment\",\n  \"job_order_ref\": \"\",\n  \"rework_notes\": \"\",\n  \"required_by_date\": \"2026-04-25\",\n  \"priority\": \"High\",\n  \"delivery_location\": \"Yard 2\",\n  \"reason_description\": \"Urgent replenishment due to increased consumption.\",\n  \"notes_to_purchase_team\": \"Need confirmation from at least two vendors.\",\n  \"status\": \"Submitted for Approval\",\n  \"is_approved\": false,\n  \"is_rejected\": false,\n  \"line_items\": [\n    {\n      \"product_name\": \"Steel Angle 50x50\",\n      \"product_code\": \"ST-AN-5050\",\n      \"product_category\": \"Steel\",\n      \"unit\": \"pcs\",\n      \"stock_on_hand\": \"10.00\",\n      \"pending_pr_qty\": \"2.00\",\n      \"pending_po_qty\": \"4.00\",\n      \"requested_qty\": \"60.00\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisitions/{{purchase_requisition_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisitions",
+                "{{purchase_requisition_id}}",
+                ""
+              ]
+            },
+            "description": "Replace a purchase requisition. If line_items is provided, existing line items are replaced."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Purchase Requisition",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priority\": \"High\",\n  \"required_by_date\": \"2026-04-22\",\n  \"notes_to_purchase_team\": \"Expedite if possible.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisitions/{{purchase_requisition_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisitions",
+                "{{purchase_requisition_id}}",
+                ""
+              ]
+            },
+            "description": "Update specific fields of a purchase requisition."
+          },
+          "response": []
+        },
+        {
+          "name": "Approve Purchase Requisition",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisitions/{{purchase_requisition_id}}/approve/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisitions",
+                "{{purchase_requisition_id}}",
+                "approve",
+                ""
+              ]
+            },
+            "description": "Approve (value=true) or cancel approval (value=false) for a purchase requisition."
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Purchase Requisition",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisitions/{{purchase_requisition_id}}/reject/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisitions",
+                "{{purchase_requisition_id}}",
+                "reject",
+                ""
+              ]
+            },
+            "description": "Reject (value=true) or cancel rejection (value=false) for a purchase requisition."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Purchase Requisition",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisitions/{{purchase_requisition_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisitions",
+                "{{purchase_requisition_id}}",
+                ""
+              ]
+            },
+            "description": "Delete a purchase requisition and its line items."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Purchase Requisition Line Item",
+      "item": [
+        {
+          "name": "List Purchase Requisition Line Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisition-line-items/?page=1&search=&ordering=id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisition-line-items",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "ST-AN-5050",
+                  "disabled": true
+                },
+                {
+                  "key": "ordering",
+                  "value": "id",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retrieve purchase requisition line items. Supports search and ordering."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Purchase Requisition Line Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"purchase_requisition\": {{purchase_requisition_id}},\n  \"product_name\": \"Hex Bolt M10\",\n  \"product_code\": \"HB-M10\",\n  \"product_category\": \"Fasteners\",\n  \"unit\": \"box\",\n  \"stock_on_hand\": \"4.00\",\n  \"pending_pr_qty\": \"1.00\",\n  \"pending_po_qty\": \"0.00\",\n  \"requested_qty\": \"12.00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisition-line-items/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisition-line-items",
+                ""
+              ]
+            },
+            "description": "Create a line item for a purchase requisition."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Purchase Requisition Line Item Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisition-line-items/{{purchase_requisition_line_item_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisition-line-items",
+                "{{purchase_requisition_line_item_id}}",
+                ""
+              ]
+            },
+            "description": "Retrieve details for a specific purchase requisition line item."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Purchase Requisition Line Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"purchase_requisition\": {{purchase_requisition_id}},\n  \"product_name\": \"Hex Bolt M10\",\n  \"product_code\": \"HB-M10\",\n  \"product_category\": \"Fasteners\",\n  \"unit\": \"box\",\n  \"stock_on_hand\": \"3.00\",\n  \"pending_pr_qty\": \"1.00\",\n  \"pending_po_qty\": \"2.00\",\n  \"requested_qty\": \"15.00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisition-line-items/{{purchase_requisition_line_item_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisition-line-items",
+                "{{purchase_requisition_line_item_id}}",
+                ""
+              ]
+            },
+            "description": "Replace all editable fields of a purchase requisition line item."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Purchase Requisition Line Item",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requested_qty\": \"18.00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisition-line-items/{{purchase_requisition_line_item_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisition-line-items",
+                "{{purchase_requisition_line_item_id}}",
+                ""
+              ]
+            },
+            "description": "Update specific fields of a purchase requisition line item."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Purchase Requisition Line Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-requisition-line-items/{{purchase_requisition_line_item_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-requisition-line-items",
+                "{{purchase_requisition_line_item_id}}",
+                ""
+              ]
+            },
+            "description": "Delete a purchase requisition line item."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "purchase_requisition_id",
+      "value": "1"
+    },
+    {
+      "key": "purchase_requisition_line_item_id",
+      "value": "1"
+    }
+  ]
+}

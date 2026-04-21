@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Load environment variables from .env (useful for local dev; in Docker they
 # are also provided via the env file configured in docker-compose).
-load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env.dev")
 
 
 # Quick-start development settings - unsuitable for production
@@ -32,16 +32,21 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
 raw_allowed_hosts = os.getenv("ALLOWED_HOSTS", "")
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in raw_allowed_hosts.split(",")
-    if host.strip()
-]
+ALLOWED_HOSTS = [host.strip() for host in raw_allowed_hosts.split(",") if host.strip()]
+
+# CORS: from .env — use "*" to allow all origins, or comma-separated list
+_raw_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
+if _raw_cors_origins.upper() == "*" or _raw_cors_origins.lower() == "true":
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _raw_cors_origins.split(",") if origin.strip()]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    "apps.accounts",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -52,28 +57,43 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "django_filters",
+    "django_redis",
     # Domain apps (under the `apps` package)
-    "apps.core",
-    "apps.accounts",
     "apps.company",
+    "apps.navigation",
+    "apps.access_control",
     "apps.rbac",
-    "apps.menu",
+    "apps.hrm",
+    "apps.crm.apps.CrmConfig",
+    "apps.Projects.apps.ProjectsConfig",
+    "apps.inventory",
+    "apps.production",
+    "apps.assessment.apps.AssessmentConfig",
+    "apps.settings.apps.SettingsConfig",
 ]
 
 REST_FRAMEWORK = {
     # Use the custom pagination by default
-    "DEFAULT_PAGINATION_CLASS": "utils.pagination.IndustrialPagination",
+    "DEFAULT_PAGINATION_CLASS": "core.utils.pagination.IndustrialPagination",
     # Global exception handler
-    "EXCEPTION_HANDLER": "utils.exceptions.custom_exception_handler",
+    "EXCEPTION_HANDLER": "core.utils.responses.custom_exception_handler",
     # Use standard JSON rendering
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
+    # Authentication: use JWT by default (plus session for browsable API)
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": ["core.permissions.rbac_permission.RBACPermission"],
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "config.middleware.company_context.CompanyContextMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -81,6 +101,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "core.middleware.tenant_middleware.TenantMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -119,6 +140,11 @@ if database_url:
             "PASSWORD": parsed_url.password,
             "HOST": parsed_url.hostname,
             "PORT": parsed_url.port or 5432,
+            "OPTIONS": {
+                "connect_timeout": 10,
+            },
+            "DISABLE_SERVER_SIDE_CURSORS": True,
+            "CONN_MAX_AGE": 60,
         }
     }
 else:
@@ -131,21 +157,29 @@ else:
     }
 
 
+# Caching
+# https://docs.djangoproject.com/en/6.0/topics/cache/
+
+redis_url = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1")
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": redis_url,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
+
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "OPTIONS": {"min_length": 6},
     },
 ]
 
@@ -166,4 +200,52 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
+# Celery / background jobs
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0"))
+CELERY_RESULT_BACKEND = os.getenv(
+    "CELERY_RESULT_BACKEND",
+    os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0"),
+)
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
+
+AUTH_USER_MODEL = "accounts.User"
+
+
+# Logging
+# Use LOG_LEVEL=DEBUG in environment to see debug logs (including BOQ audit traces).
+LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG" if DEBUG else "INFO").upper()
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
+            "format": "%(asctime)s %(levelname)s [%(name)s] %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": LOG_LEVEL,
+    },
+    "loggers": {
+        # Keep explicit module logger to ensure BOQ debug traces are visible.
+        "api.v1.assessment": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+    },
+}

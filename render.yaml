@@ -1,0 +1,33 @@
+services:
+  - type: web
+    runtime: docker
+    name: erp-core
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: "config.settings.prod"
+      
+      # Set these in your Render Dashboard → Web Service → Environment tab
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "*"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "*"
+
+
+      # Optional: add more env vars in Render Dashboard (e.g. REDIS_URL if you add Redis)

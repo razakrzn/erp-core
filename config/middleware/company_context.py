@@ -68,4 +68,3 @@ class CompanyContextMiddleware(MiddlewareMixin):
         if hasattr(_storage, "company_id"):
             delattr(_storage, "company_id")
         return response
-

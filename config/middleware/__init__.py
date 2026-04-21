@@ -9,4 +9,3 @@ Currently exposes:
 from .company_context import CompanyContextMiddleware, get_current_company_id
 
 __all__ = ["CompanyContextMiddleware", "get_current_company_id"]
-
