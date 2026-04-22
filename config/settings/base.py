@@ -32,15 +32,28 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
 raw_allowed_hosts = os.getenv("ALLOWED_HOSTS", "")
-ALLOWED_HOSTS = [host.strip() for host in raw_allowed_hosts.split(",") if host.strip()]
+# ALLOWED_HOSTS = [host.strip() for host in raw_allowed_hosts.split(",") if host.strip()]
 
-# CORS: from .env — use "*" to allow all origins, or comma-separated list
-_raw_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
-if _raw_cors_origins.upper() == "*" or _raw_cors_origins.lower() == "true":
-    CORS_ALLOW_ALL_ORIGINS = True
-else:
-    CORS_ALLOW_ALL_ORIGINS = False
-    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _raw_cors_origins.split(",") if origin.strip()]
+# # CORS: from .env — use "*" to allow all origins, or comma-separated list
+# _raw_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
+# if _raw_cors_origins.upper() == "*" or _raw_cors_origins.lower() == "true":
+#     CORS_ALLOW_ALL_ORIGINS = True
+# else:
+#     CORS_ALLOW_ALL_ORIGINS = False
+#     CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _raw_cors_origins.split(",") if origin.strip()]
+
+ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = [
+    "http://erp.emeraldinterior.com",
+    "https://erp.emeraldinterior.com"
+]
+APPEND_SLASH = True
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+FORCE_SCRIPT_NAME = '/'
+
+USE_X_FORWARDED_HOST = True
 
 
 # Application definition
