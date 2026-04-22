@@ -3,13 +3,13 @@ services:
     image: postgres:16
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_NAME:?DB_NAME is required}
-      POSTGRES_USER: ${DB_USER:?DB_USER is required}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_DB: ${DB_NAME:-erp_core}
+      POSTGRES_USER: ${DB_USER:-erp_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-erp_password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-erp_user} -d ${DB_NAME:-erp_core}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -32,6 +32,9 @@ services:
     environment:
       APP_ROLE: web
       DJANGO_SETTINGS_MODULE: config.settings.prod
+      DB_NAME: ${DB_NAME:-erp_core}
+      DB_USER: ${DB_USER:-erp_user}
+      DB_PASSWORD: ${DB_PASSWORD:-erp_password}
       DB_HOST: db
       DB_PORT: 5432
       REDIS_URL: redis://redis:6379/0
@@ -55,6 +58,9 @@ services:
     environment:
       APP_ROLE: worker
       DJANGO_SETTINGS_MODULE: config.settings.prod
+      DB_NAME: ${DB_NAME:-erp_core}
+      DB_USER: ${DB_USER:-erp_user}
+      DB_PASSWORD: ${DB_PASSWORD:-erp_password}
       DB_HOST: db
       DB_PORT: 5432
       REDIS_URL: redis://redis:6379/0

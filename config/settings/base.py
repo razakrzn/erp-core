@@ -142,7 +142,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 database_url = None #os.getenv("DATABASE_URL")
 
-if database_url:
+if database_url != None:
     parsed_url = urlparse(database_url)
 
     DATABASES = {

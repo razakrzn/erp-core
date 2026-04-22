@@ -2,6 +2,7 @@
 set -e
 
 APP_ROLE="${APP_ROLE:-web}"
+DB_SOURCE="env"
 
 # Database host/port: use INTERNAL_DATABASE_URL or DATABASE_URL (Render), else DB_HOST/DB_PORT (local Docker)
 if [ -n "${INTERNAL_DATABASE_URL:-$DATABASE_URL}" ]; then
@@ -13,14 +14,16 @@ u = urlparse(url)
 print('DB_HOST=%s' % (u.hostname or ''))
 print('DB_PORT=%s' % (u.port or 5432))
 " 2>/dev/null) && eval "$_out" || true
+  DB_SOURCE="url"
 fi
 if [ -z "$DB_HOST" ]; then
   : "${DB_HOST:=db}"
   : "${DB_PORT:=5432}"
-  echo "DATABASE_URL not set; using ${DB_HOST}:${DB_PORT} (local Docker)."
+  DB_SOURCE="default"
+  echo "DATABASE_URL not set; using ${DB_HOST}:${DB_PORT} (local Docker defaults)."
 else
   : "${DB_PORT:=5432}"
-  echo "Using database from DATABASE_URL: host=${DB_HOST} port=${DB_PORT}"
+  echo "Using database from ${DB_SOURCE}: host=${DB_HOST} port=${DB_PORT}"
 fi
 
 # Default command if none is provided (matches Dockerfile CMD - gunicorn for production)
@@ -30,7 +33,7 @@ fi
 
 # Wait for the database to be reachable
 if [ -n "$DB_HOST" ]; then
-  if [ "$DB_HOST" = "db" ] && [ -n "${PORT:-}" ]; then
+  if [ "$DB_HOST" = "db" ] && [ -n "${PORT:-}" ] && [ -n "${RENDER:-}" ]; then
     echo "WARNING: DATABASE_URL is not set but PORT is (likely Render). Link the PostgreSQL database to this service and set DATABASE_URL."
   fi
   echo "Waiting for database at ${DB_HOST}:${DB_PORT}..."
