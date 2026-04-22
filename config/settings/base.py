@@ -140,7 +140,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-database_url = os.getenv("DATABASE_URL")
+database_url = None #os.getenv("DATABASE_URL")
 
 if database_url:
     parsed_url = urlparse(database_url)
