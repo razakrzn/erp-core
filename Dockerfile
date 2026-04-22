@@ -20,7 +20,7 @@ COPY . /app/
 
 RUN chmod +x /app/entrypoint.sh
 
-EXPOSE 8000
+EXPOSE 3001
 
 ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:8000", "--workers", "2", "--timeout", "120", "--log-file", "-"]
+CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:3001", "--workers", "2", "--timeout", "120", "--log-file", "-"]
