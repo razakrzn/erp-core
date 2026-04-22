@@ -140,7 +140,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-database_url = None #os.getenv("DATABASE_URL")
+database_url = "postgres://postgres:8RYJzFQhsahXT8yFf2cwXJNEnz4XaraHuYozCY7SzrLMKHiZLWrDPHVjdoBEx5zl@rep3r6lahyx3q604yrywez6e:5432/postgres"
 
 if database_url != None:
     parsed_url = urlparse(database_url)
