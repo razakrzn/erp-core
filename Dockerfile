@@ -8,6 +8,8 @@ WORKDIR /app
 # System deps for Python packages and entrypoint DB readiness checks.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    pkg-config \
+    default-libmysqlclient-dev \
     libpq-dev \
     postgresql-client \
     netcat-traditional \
