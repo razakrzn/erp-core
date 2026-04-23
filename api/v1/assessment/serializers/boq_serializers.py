@@ -124,6 +124,11 @@ class BoqDetailSerializer(serializers.ModelSerializer):
     def get_enquiry(self, obj):
         if not obj.enquiry:
             return None
+        attachment_url = None
+        if obj.enquiry.attachment:
+            relative_url = obj.enquiry.attachment.url
+            request = self.context.get("request")
+            attachment_url = request.build_absolute_uri(relative_url) if request else relative_url
         client_name = ""
         if obj.enquiry.existing_client:
             client_name = obj.enquiry.existing_client.customer_name
@@ -140,7 +145,7 @@ class BoqDetailSerializer(serializers.ModelSerializer):
             "project_description": obj.enquiry.project_description,
             "client": client_name,
             "location": obj.enquiry.location,
-            "attachment": obj.enquiry.attachment.url if obj.enquiry.attachment else None,
+            "attachment": attachment_url,
         }
 
     def to_internal_value(self, data):
