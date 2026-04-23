@@ -2,6 +2,7 @@
 Django settings for config project.
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -204,26 +205,10 @@ STORAGES = {
 }
 MEDIA_URL = "/media/"
 
-
-def _pick_media_root() -> Path:
-    """
-    Prefer Coolify mount (/app/media) when writable; otherwise fall back to local repo media dir.
-    """
-    candidates = [Path("/app/media"), BASE_DIR / "media"]
-    for candidate in candidates:
-        try:
-            candidate.mkdir(parents=True, exist_ok=True)
-            probe = candidate / ".write_probe"
-            probe.write_text("ok", encoding="utf-8")
-            probe.unlink(missing_ok=True)
-            return candidate
-        except OSError:
-            continue
-    # Final fallback to keep Django startup deterministic even if both probes fail.
-    return BASE_DIR / "media"
-
-
-MEDIA_ROOT = _pick_media_root()
+# Keep media storage deterministic across restarts.
+# Override with MEDIA_ROOT=/absolute/path in environment when needed.
+MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", "/var/www/media"))
+MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Celery / background jobs
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
