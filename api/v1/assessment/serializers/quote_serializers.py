@@ -237,52 +237,60 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
         return self.add_completeness_flags(instance, representation)
 
     def get_quote_items(self, obj):
+        request = self.context.get("request")
         items = obj.items.all().order_by("-created_at")
-        return [
-            {
-                "id": item.id,
-                "boq_item": item.boq_item.id if item.boq_item else None,
-                "is_template": item.boq_item.is_template if item.boq_item else False,
-                "image": item.image.url if item.image else None,
-                "name": item.name,
-                "width": item.width,
-                "height": item.height,
-                "depth": item.depth,
-                "accessories": [
-                    {
-                        "id": accessory.id,
-                        "accessory_id": accessory.accessory_id,
-                        "accessory_name": accessory.accessory_name,
-                        "accessory_price": accessory.accessory_price,
-                        "accessory_qty": accessory.accessory_qty,
-                    }
-                    for accessory in item.accessories.all().order_by("-id")
-                ],
-                "category": item.category,
-                "quantity": item.quantity,
-                "unit_price": item.unit_price,
-                "amount": item.amount,
-                "finish": [
-                    {
-                        "id": finish.id,
-                        "quote_item": finish.quote_item_id,
-                        "finish_name": finish.finish_name,
-                        "finish_type": finish.finish_type,
-                        "material": finish.material,
-                        "design": finish.design,
-                        "unit_price": finish.unit_price,
-                        "quantity": finish.quantity,
-                        "total_price": finish.total_price,
-                        "unit": finish.unit,
-                        "template": finish.template,
-                    }
-                    for finish in sorted(item.finishes.all(), key=lambda finish: finish.id, reverse=True)
-                ],
-                "created_at": item.created_at,
-                "updated_at": item.updated_at,
-            }
-            for item in items
-        ]
+        quote_items = []
+        for item in items:
+            image_url = item.image.url if item.image else None
+            if image_url and request is not None:
+                image_url = request.build_absolute_uri(image_url)
+
+            quote_items.append(
+                {
+                    "id": item.id,
+                    "boq_item": item.boq_item.id if item.boq_item else None,
+                    "is_template": item.boq_item.is_template if item.boq_item else False,
+                    "image": image_url,
+                    "name": item.name,
+                    "width": item.width,
+                    "height": item.height,
+                    "depth": item.depth,
+                    "accessories": [
+                        {
+                            "id": accessory.id,
+                            "accessory_id": accessory.accessory_id,
+                            "accessory_name": accessory.accessory_name,
+                            "accessory_price": accessory.accessory_price,
+                            "accessory_qty": accessory.accessory_qty,
+                        }
+                        for accessory in item.accessories.all().order_by("-id")
+                    ],
+                    "category": item.category,
+                    "quantity": item.quantity,
+                    "unit_price": item.unit_price,
+                    "amount": item.amount,
+                    "finish": [
+                        {
+                            "id": finish.id,
+                            "quote_item": finish.quote_item_id,
+                            "finish_name": finish.finish_name,
+                            "finish_type": finish.finish_type,
+                            "material": finish.material,
+                            "design": finish.design,
+                            "unit_price": finish.unit_price,
+                            "quantity": finish.quantity,
+                            "total_price": finish.total_price,
+                            "unit": finish.unit,
+                            "template": finish.template,
+                        }
+                        for finish in sorted(item.finishes.all(), key=lambda finish: finish.id, reverse=True)
+                    ],
+                    "created_at": item.created_at,
+                    "updated_at": item.updated_at,
+                }
+            )
+
+        return quote_items
 
 
 class QuotationDetailsSerializer(QuoteDetailSerializer):
