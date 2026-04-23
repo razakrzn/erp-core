@@ -34,17 +34,16 @@ DEFAULT_CORS_ORIGINS = [
     "https://erp.emeraldinterior.com",
 ]
 
+# TEMP TEST MODE: allow every origin to verify whether failures are CORS-policy related.
+CORS_ALLOW_ALL_ORIGINS = True
+
 _raw_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
-if _raw_cors_origins.upper() == "*" or _raw_cors_origins.lower() == "true":
-    CORS_ALLOW_ALL_ORIGINS = True
-else:
-    CORS_ALLOW_ALL_ORIGINS = False
-    _env_cors_origins = [
-        origin.strip()
-        for origin in _raw_cors_origins.split(",")
-        if origin.strip()
-    ]
-    CORS_ALLOWED_ORIGINS = list(dict.fromkeys(DEFAULT_CORS_ORIGINS + _env_cors_origins))
+_env_cors_origins = [
+    origin.strip()
+    for origin in _raw_cors_origins.split(",")
+    if origin.strip()
+]
+CORS_ALLOWED_ORIGINS = list(dict.fromkeys(DEFAULT_CORS_ORIGINS + _env_cors_origins))
 
 _raw_cors_allow_credentials = os.getenv("CORS_ALLOW_CREDENTIALS", "True").strip().lower()
 CORS_ALLOW_CREDENTIALS = _raw_cors_allow_credentials in {"1", "true", "yes", "on"}
