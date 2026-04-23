@@ -290,8 +290,12 @@ class QuoteItemViewSet(BaseAssessmentViewSet):
     def _parse_form_payload(self, request):
         """
         Support multipart/form-data payloads:
-        - data: JSON string containing {"quote": <id>, "items": [...]}
-        - image: uploaded file attached to first item
+        - data: JSON string containing either:
+          - {"quote": <id>, "items": [...]}
+          - {"name": "...", ...} (single item payload)
+        - image: uploaded file attached to:
+          - first item when payload has items[]
+          - payload itself for single item payload
         """
         raw_data = request.data.get("data")
         if raw_data in (None, ""):
@@ -309,11 +313,14 @@ class QuoteItemViewSet(BaseAssessmentViewSet):
         image_file = request.FILES.get("image")
         if image_file is not None:
             items = payload.get("items")
-            if not isinstance(items, list) or not items:
-                raise ValidationError({"items": "At least one item is required when sending image."})
-            first_item = dict(items[0])
-            first_item["image"] = image_file
-            payload["items"] = [first_item, *items[1:]]
+            if isinstance(items, list):
+                if not items:
+                    raise ValidationError({"items": "At least one item is required when sending image."})
+                first_item = dict(items[0])
+                first_item["image"] = image_file
+                payload["items"] = [first_item, *items[1:]]
+            else:
+                payload["image"] = image_file
 
         return payload
 
@@ -372,7 +379,8 @@ class QuoteItemViewSet(BaseAssessmentViewSet):
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        normalized_payload = self._normalize_single_update_payload(request.data, partial=False)
+        payload = self._parse_form_payload(request) or request.data
+        normalized_payload = self._normalize_single_update_payload(payload, partial=False)
         serializer = self.get_serializer(instance, data=normalized_payload, partial=False)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
@@ -384,7 +392,8 @@ class QuoteItemViewSet(BaseAssessmentViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        normalized_payload = self._normalize_single_update_payload(request.data, partial=True)
+        payload = self._parse_form_payload(request) or request.data
+        normalized_payload = self._normalize_single_update_payload(payload, partial=True)
         serializer = self.get_serializer(instance, data=normalized_payload, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
