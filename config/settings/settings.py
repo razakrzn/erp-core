@@ -14,8 +14,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-23cn5avp2f!&88oio-5e$a90d^h!-8)uo@4$e^3@j@da0i0&_m"
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# SECURITY WARNING: keep disabled on deployed environments.
+DEBUG = False
 
 # CORS: hardcoded values only for test.
 DEFAULT_CORS_ORIGINS = [
@@ -41,6 +41,10 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 FORCE_SCRIPT_NAME = '/'
 
 USE_X_FORWARDED_HOST = True
+
+# Coolify test mode: serve uploaded media through Django URLs even with DEBUG=False.
+# Keep this True only while no dedicated reverse-proxy/static server is configured.
+SERVE_MEDIA_WITH_DJANGO = True
 
 
 # Application definition
@@ -185,10 +189,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+# Coolify persistent storage mount path.
+MEDIA_ROOT = Path("/app/media")
 
 # Celery / background jobs
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
