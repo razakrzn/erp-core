@@ -182,6 +182,7 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
         return {
             "id": enquiry.id,
             "project_name": enquiry.project_name,
+            "trn": enquiry.trn,
             "company_name": enquiry.company_name,
             "phone_number": enquiry.phone_number,
             "client": client_name,
