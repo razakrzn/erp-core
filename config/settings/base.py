@@ -5,6 +5,7 @@ This module was split out from the original `config/settings.py` to support
 environment-specific settings modules such as `dev` and `prod`.
 """
 
+from logging import root
 from pathlib import Path
 import os
 from urllib.parse import urlparse
@@ -140,34 +141,20 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-database_url = "postgres://postgres:8RYJzFQhsahXT8yFf2cwXJNEnz4XaraHuYozCY7SzrLMKHiZLWrDPHVjdoBEx5zl@rep3r6lahyx3q604yrywez6e:5432/postgres"
-
-if database_url != None:
-    parsed_url = urlparse(database_url)
-
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": parsed_url.path.lstrip("/") or None,
-            "USER": parsed_url.username,
-            "PASSWORD": parsed_url.password,
-            "HOST": parsed_url.hostname,
-            "PORT": parsed_url.port or 5432,
-            "OPTIONS": {
-                "connect_timeout": 10,
-            },
-            "DISABLE_SERVER_SIDE_CURSORS": True,
-            "CONN_MAX_AGE": 60,
-        }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "emrdb",
+        "USER": "root",
+        "PASSWORD": "zF2XKic8xBOiRAjA482g12LfHZyiDSpon1MSyNfWGznKNzI290OWkNnAG0D6YgBT",
+        "HOST": "72.62.254.95",
+        "PORT": 3307,
+        "OPTIONS": {
+            "connect_timeout": 10,
+        },
+        "CONN_MAX_AGE": 60,
     }
-else:
-    # Fallback to local SQLite for development if no DATABASE_URL is provided.
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+}
 
 
 # Caching
