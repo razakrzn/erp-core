@@ -12,6 +12,7 @@ from rest_framework.routers import DefaultRouter
 from .company import CompanyViewSet
 from .accounts import UserViewSet, CheckUsernameAPIView
 from .inventory.views import (
+    ProductViewSet,
     PurchaseRequisitionPreferredVendorNameViewSet,
     PurchaseRequisitionProductCategoryViewSet,
     PurchaseRequisitionProductNameViewSet,
@@ -42,6 +43,16 @@ urlpatterns = [
         "purchase-requisitions/preferred-vendor-names/",
         PurchaseRequisitionPreferredVendorNameViewSet.as_view({"get": "list"}),
         name="purchase-requisition-preferred-vendor-names",
+    ),
+    path(
+        "products/accessories-dropdown/",
+        ProductViewSet.as_view({"get": "accessories_dropdown"}),
+        name="products-accessories-dropdown",
+    ),
+    path(
+        "products/accesories-dropdown/",
+        ProductViewSet.as_view({"get": "accesories_dropdown"}),
+        name="products-accesories-dropdown",
     ),
     path("auth/", include("api.v1.auth.urls")),
     path("navigation/", include("api.v1.navigation.urls")),

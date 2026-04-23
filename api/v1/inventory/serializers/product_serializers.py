@@ -1,6 +1,3 @@
-from decimal import Decimal
-
-from django.db.models import Sum
 from rest_framework import serializers
 
 from apps.inventory.models import (
@@ -10,8 +7,6 @@ from apps.inventory.models import (
     Grade,
     Material,
     Product,
-    PurchaseOrderLineItem,
-    PurchaseRequisitionLineItem,
     Size,
     Thickness,
     Unit,
@@ -199,52 +194,16 @@ class ProductListSerializer(serializers.ModelSerializer):
 class ProductDropdownSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(source="id", read_only=True)
     product_name = serializers.CharField(source="name", read_only=True)
-    product_code = serializers.CharField(read_only=True)
-    product_category = serializers.CharField(source="category.name", read_only=True)
+    product_price = serializers.DecimalField(source="price", max_digits=12, decimal_places=2, read_only=True)
     product_brand = serializers.CharField(source="brand.name", read_only=True)
     product_size = serializers.CharField(source="size.name", read_only=True)
-    unit = serializers.CharField(source="unit.name", read_only=True)
-    pending_pr_qty = serializers.SerializerMethodField()
-    pending_po_qty = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = [
             "product_id",
             "product_name",
-            "product_code",
-            "product_category",
+            "product_price",
             "product_brand",
             "product_size",
-            "unit",
-            "stock_on_hand",
-            "pending_pr_qty",
-            "pending_po_qty",
         ]
-
-    def get_pending_pr_qty(self, obj):
-        if not obj.product_code:
-            return Decimal("0.00")
-        pending_statuses = ["Draft", "Submitted for Approval", "Approved"]
-        total = (
-            PurchaseRequisitionLineItem.objects.filter(
-                product_code=obj.product_code,
-                purchase_requisition__status__in=pending_statuses,
-            ).aggregate(total=Sum("requested_qty"))["total"]
-            or Decimal("0.00")
-        )
-        return total
-
-    def get_pending_po_qty(self, obj):
-        if not obj.product_code:
-            return Decimal("0.00")
-        total = (
-            PurchaseOrderLineItem.objects.filter(
-                product_code=obj.product_code,
-                purchase_order__is_closed=False,
-            )
-            .exclude(purchase_order__status__in=["Closed", "Cancelled"])
-            .aggregate(total=Sum("requested_qty"))["total"]
-            or Decimal("0.00")
-        )
-        return total

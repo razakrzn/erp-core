@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import filters, status
 from rest_framework.decorators import action
 
@@ -124,14 +125,37 @@ class ProductViewSet(BaseInventoryViewSet):
             return ProductListSerializer
         return ProductSerializer
 
-    @action(detail=False, methods=["get"], url_path="dropdown")
-    def dropdown(self, request, *args, **kwargs):
-        query = (request.query_params.get("search") or request.query_params.get("query") or "").strip()
+    def _build_category_filter(self, category_name):
+        normalized = (category_name or "").strip().lower()
+        if not normalized:
+            return Q()
+
+        # Keep accessories lookup resilient to existing typo variants in master data.
+        if normalized == "accessories":
+            accessories_variants = [
+                "accessories",
+                "accessory",
+                "accesories",
+                "accesory",
+                "accesorries",
+            ]
+            category_q = Q()
+            for variant in accessories_variants:
+                category_q |= Q(category__name__iexact=variant)
+            return category_q
+
+        return Q(category__name__iexact=normalized)
+
+    def _get_dropdown_queryset(self, query="", category_name=None):
         queryset = self.get_queryset().order_by("name")
+        if category_name:
+            queryset = queryset.filter(self._build_category_filter(category_name))
         if query:
             queryset = queryset.filter(name__icontains=query) | queryset.filter(product_code__icontains=query)
             queryset = queryset.distinct().order_by("name")
+        return queryset
 
+    def _parse_dropdown_pagination(self, request):
         page_size_raw = request.query_params.get("page_size", "10")
         page_raw = request.query_params.get("page", "1")
         try:
@@ -142,6 +166,13 @@ class ProductViewSet(BaseInventoryViewSet):
             page = max(1, int(page_raw))
         except (TypeError, ValueError):
             page = 1
+        return page, page_size
+
+    @action(detail=False, methods=["get"], url_path="dropdown")
+    def dropdown(self, request, *args, **kwargs):
+        query = (request.query_params.get("search") or request.query_params.get("query") or "").strip()
+        queryset = self._get_dropdown_queryset(query=query)
+        page, page_size = self._parse_dropdown_pagination(request)
 
         start = (page - 1) * page_size
         end = start + page_size
@@ -151,3 +182,22 @@ class ProductViewSet(BaseInventoryViewSet):
             message="Products retrieved successfully.",
             status_code=status.HTTP_200_OK,
         )
+
+    @action(detail=False, methods=["get"], url_path="accessories-dropdown")
+    def accessories_dropdown(self, request, *args, **kwargs):
+        query = (request.query_params.get("search") or request.query_params.get("query") or "").strip()
+        queryset = self._get_dropdown_queryset(query=query, category_name="accessories")
+        page, page_size = self._parse_dropdown_pagination(request)
+
+        start = (page - 1) * page_size
+        end = start + page_size
+        serializer = ProductDropdownSerializer(queryset[start:end], many=True)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Products retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["get"], url_path="accesories-dropdown")
+    def accesories_dropdown(self, request, *args, **kwargs):
+        return self.accessories_dropdown(request, *args, **kwargs)
