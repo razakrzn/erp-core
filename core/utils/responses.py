@@ -56,13 +56,15 @@ def _get_user_permission_codes(user, prefix):
         for item in prefixes:
             query |= Q(permission__permission_code__startswith=f"{item}.")
 
-        role_permissions = (
+        # Use values_list(...).distinct() to stay DB-agnostic.
+        # distinct("field") is PostgreSQL-only and returns no actions on other backends.
+        permission_codes = (
             RolePermission.objects.filter(role_id__in=user_role_ids)
             .filter(query)
-            .select_related("permission")
-            .distinct("permission__permission_code")
+            .values_list("permission__permission_code", flat=True)
+            .distinct()
         )
-        return [rp.permission.permission_code.lower() for rp in role_permissions if rp.permission.permission_code]
+        return [code.lower() for code in permission_codes if code]
     except Exception:
         return []
 
