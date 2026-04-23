@@ -192,9 +192,15 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_MANIFEST_FILE = STATIC_ROOT / "staticfiles.json"
+
+_staticfiles_backend = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+if not STATICFILES_MANIFEST_FILE.exists():
+    _staticfiles_backend = "whitenoise.storage.CompressedStaticFilesStorage"
+
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    "staticfiles": {"BACKEND": _staticfiles_backend},
 }
 MEDIA_URL = "/media/"
 

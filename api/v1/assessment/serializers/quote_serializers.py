@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.assessment.models import Finish, Quote, QuoteItem, QuoteTermsConditions
+from apps.assessment.models import Accessory, Finish, Quote, QuoteItem, QuoteTermsConditions
 
 
 class QuoteCompletenessMixin:
@@ -51,6 +51,14 @@ class QuoteItemFinishInputSerializer(serializers.Serializer):
     unit = serializers.CharField(max_length=50, required=False, allow_blank=True, allow_null=True)
     template = serializers.CharField(max_length=200, required=False, allow_blank=True, allow_null=True)
     quote_item = serializers.IntegerField(required=False)
+
+
+class QuoteItemAccessoryInputSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    accessory_id = serializers.CharField(max_length=100)
+    accessory_name = serializers.CharField(max_length=200)
+    accessory_price = serializers.DecimalField(max_digits=14, decimal_places=2, required=False, default=0)
+    accessory_qty = serializers.DecimalField(max_digits=14, decimal_places=3, required=False, default=0)
 
 
 class QuoteListSerializer(QuoteCompletenessMixin, serializers.ModelSerializer):
@@ -241,7 +249,16 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
                 "width": item.width,
                 "height": item.height,
                 "depth": item.depth,
-                "accessories": item.accessories,
+                "accessories": [
+                    {
+                        "id": accessory.id,
+                        "accessory_id": accessory.accessory_id,
+                        "accessory_name": accessory.accessory_name,
+                        "accessory_price": accessory.accessory_price,
+                        "accessory_qty": accessory.accessory_qty,
+                    }
+                    for accessory in item.accessories.all().order_by("-id")
+                ],
                 "category": item.category,
                 "quantity": item.quantity,
                 "unit_price": item.unit_price,
@@ -310,6 +327,7 @@ class QuotationDetailsSerializer(QuoteDetailSerializer):
 class QuoteItemSerializer(serializers.ModelSerializer):
     finish = serializers.SerializerMethodField(read_only=True)
     finishes = QuoteItemFinishInputSerializer(many=True, write_only=True, required=False)
+    accessories = QuoteItemAccessoryInputSerializer(many=True, required=False)
     quote_id = serializers.PrimaryKeyRelatedField(
         source="quote",
         queryset=Quote.objects.all(),
@@ -370,18 +388,24 @@ class QuoteItemSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         finishes_data = validated_data.pop("finishes", [])
+        accessories_data = validated_data.pop("accessories", [])
         instance = super().create(validated_data)
         self._create_finishes(instance, finishes_data)
+        self._create_accessories(instance, accessories_data)
         instance.refresh_price()
         return instance
 
     def update(self, instance, validated_data):
         finishes_data = validated_data.pop("finishes", None)
+        accessories_data = validated_data.pop("accessories", None)
         instance = super().update(instance, validated_data)
         if finishes_data is not None:
             instance.finishes.all().delete()
             self._create_finishes(instance, finishes_data)
             instance.refresh_price()
+        if accessories_data is not None:
+            instance.accessories.all().delete()
+            self._create_accessories(instance, accessories_data)
         return instance
 
     def _create_finishes(self, quote_item, finishes_data):
@@ -401,6 +425,22 @@ class QuoteItemSerializer(serializers.ModelSerializer):
                     template=finish_data.get("template"),
                 )
                 for finish_data in finishes_data
+            ]
+        )
+
+    def _create_accessories(self, quote_item, accessories_data):
+        if not accessories_data:
+            return
+        Accessory.objects.bulk_create(
+            [
+                Accessory(
+                    quote_item=quote_item,
+                    accessory_id=accessory_data.get("accessory_id"),
+                    accessory_name=accessory_data.get("accessory_name"),
+                    accessory_price=accessory_data.get("accessory_price", 0),
+                    accessory_qty=accessory_data.get("accessory_qty", 0),
+                )
+                for accessory_data in accessories_data
             ]
         )
 

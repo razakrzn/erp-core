@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Boq, BoqItem, Finish, Quote, QuoteItem, QuoteTermsConditions, Template, TemplateFinish
+from .models import Accessory, Boq, BoqItem, Finish, Quote, QuoteItem, QuoteTermsConditions, Template, TemplateFinish
 
 
 class BoqItemInline(admin.TabularInline):
@@ -36,6 +36,11 @@ class QuoteItemInline(admin.TabularInline):
 
 class FinishInline(admin.TabularInline):
     model = Finish
+    extra = 0
+
+
+class AccessoryInline(admin.TabularInline):
+    model = Accessory
     extra = 0
 
 
@@ -207,7 +212,7 @@ class QuoteItemAdmin(admin.ModelAdmin):
     list_display = ("name", "quote", "boq_item", "category", "quantity", "unit_price", "amount", "updated_at")
     search_fields = ("name", "quote__quote_number", "boq_item__item_code", "category")
     list_filter = ("category", "created_at", "updated_at")
-    inlines = [FinishInline]
+    inlines = [FinishInline, AccessoryInline]
 
 
 @admin.register(Finish)
@@ -215,6 +220,12 @@ class FinishAdmin(admin.ModelAdmin):
     list_display = ("finish_name", "finish_type", "material", "quantity", "unit_price", "total_price", "quote_item")
     search_fields = ("finish_name", "finish_type", "material", "quote_item__name", "quote_item__quote__quote_number")
     list_filter = ("finish_type", "material")
+
+
+@admin.register(Accessory)
+class AccessoryAdmin(admin.ModelAdmin):
+    list_display = ("accessory_id", "accessory_name", "accessory_price", "accessory_qty", "quote_item")
+    search_fields = ("accessory_id", "accessory_name", "quote_item__name", "quote_item__quote__quote_number")
 
 
 @admin.register(QuoteTermsConditions)

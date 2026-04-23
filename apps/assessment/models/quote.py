@@ -153,7 +153,6 @@ class QuoteItem(models.Model):
     width = models.DecimalField(_("width"), max_digits=14, decimal_places=3, default=0)
     height = models.DecimalField(_("height"), max_digits=14, decimal_places=3, default=0)
     depth = models.DecimalField(_("depth"), max_digits=14, decimal_places=3, default=0)
-    accessories = models.TextField(_("accessories"), blank=True)
     category = models.CharField(_("category"), max_length=100, blank=True)
     quantity = models.DecimalField(_("quantity"), max_digits=14, decimal_places=3, default=0)
     unit_price = models.DecimalField(_("unit price"), max_digits=14, decimal_places=2, default=0)
@@ -214,6 +213,27 @@ class Finish(models.Model):
         quote_item = self.quote_item
         super().delete(*args, **kwargs)
         quote_item.refresh_price()
+
+
+class Accessory(models.Model):
+    quote_item = models.ForeignKey(
+        "assessment.QuoteItem",
+        on_delete=models.CASCADE,
+        related_name="accessories",
+        verbose_name=_("quote item"),
+    )
+    accessory_id = models.CharField(_("accessory id"), max_length=100)
+    accessory_name = models.CharField(_("accessory name"), max_length=200)
+    accessory_price = models.DecimalField(_("accessory price"), max_digits=14, decimal_places=2, default=0)
+    accessory_qty = models.DecimalField(_("accessory qty"), max_digits=14, decimal_places=3, default=0)
+
+    class Meta:
+        ordering = ["-id"]
+        verbose_name = _("accessory")
+        verbose_name_plural = _("accessories")
+
+    def __str__(self):
+        return f"{self.accessory_id} - {self.accessory_name}"
 
 
 class QuoteTermsConditions(models.Model):
