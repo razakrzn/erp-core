@@ -3,33 +3,21 @@ Django settings for config project.
 """
 
 from pathlib import Path
-import os
-
-from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
-# Load environment variables from .env (useful for local dev; in Docker they
-# are also provided via the env file configured in docker-compose).
-load_dotenv(BASE_DIR / ".env.dev")
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    "django-insecure-23cn5avp2f!&88oio-5e$a90d^h!-8)uo@4$e^3@j@da0i0&_m",
-)
+SECRET_KEY = "django-insecure-23cn5avp2f!&88oio-5e$a90d^h!-8)uo@4$e^3@j@da0i0&_m"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "True") == "True"
+DEBUG = True
 
-raw_allowed_hosts = os.getenv("ALLOWED_HOSTS", "")
-# CORS: from .env — use "*" to allow all origins, or comma-separated list.
-# Always include production frontend as a safe fallback.
+# CORS: hardcoded values only for test.
 DEFAULT_CORS_ORIGINS = [
     "https://erp.emeraldinterior.com",
 ]
@@ -37,18 +25,9 @@ DEFAULT_CORS_ORIGINS = [
 # TEMP TEST MODE: allow every origin to verify whether failures are CORS-policy related.
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_ALL = CORS_ALLOW_ALL_ORIGINS  # Backward compatibility (older django-cors-headers).
-
-_raw_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
-_env_cors_origins = [
-    origin.strip()
-    for origin in _raw_cors_origins.split(",")
-    if origin.strip()
-]
-CORS_ALLOWED_ORIGINS = list(dict.fromkeys(DEFAULT_CORS_ORIGINS + _env_cors_origins))
+CORS_ALLOWED_ORIGINS = DEFAULT_CORS_ORIGINS
 CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS  # Backward compatibility (older django-cors-headers).
-
-_raw_cors_allow_credentials = os.getenv("CORS_ALLOW_CREDENTIALS", "True").strip().lower()
-CORS_ALLOW_CREDENTIALS = _raw_cors_allow_credentials in {"1", "true", "yes", "on"}
+CORS_ALLOW_CREDENTIALS = True
 
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = [
@@ -167,7 +146,7 @@ DATABASES = {
 # Caching
 # https://docs.djangoproject.com/en/6.0/topics/cache/
 
-redis_url = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1")
+redis_url = "redis://127.0.0.1:6379/1"
 
 CACHES = {
     "default": {
@@ -212,11 +191,8 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Celery / background jobs
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0"))
-CELERY_RESULT_BACKEND = os.getenv(
-    "CELERY_RESULT_BACKEND",
-    os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0"),
-)
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -226,8 +202,8 @@ AUTH_USER_MODEL = "accounts.User"
 
 
 # Logging
-# Use LOG_LEVEL=DEBUG in environment to see debug logs (including BOQ audit traces).
-LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG" if DEBUG else "INFO").upper()
+# Hardcoded log level for test.
+LOG_LEVEL = "DEBUG"
 
 LOGGING = {
     "version": 1,
