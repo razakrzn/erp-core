@@ -29,18 +29,25 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 
 raw_allowed_hosts = os.getenv("ALLOWED_HOSTS", "")
 # CORS: from .env — use "*" to allow all origins, or comma-separated list.
+# Always include production frontend as a safe fallback.
+DEFAULT_CORS_ORIGINS = [
+    "https://erp.emeraldinterior.com",
+]
+
 _raw_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
 if _raw_cors_origins.upper() == "*" or _raw_cors_origins.lower() == "true":
     CORS_ALLOW_ALL_ORIGINS = True
 else:
     CORS_ALLOW_ALL_ORIGINS = False
-    CORS_ALLOWED_ORIGINS = [
+    _env_cors_origins = [
         origin.strip()
         for origin in _raw_cors_origins.split(",")
         if origin.strip()
-    ] or [
-        "https://erp.emeraldinterior.com",
     ]
+    CORS_ALLOWED_ORIGINS = list(dict.fromkeys(DEFAULT_CORS_ORIGINS + _env_cors_origins))
+
+_raw_cors_allow_credentials = os.getenv("CORS_ALLOW_CREDENTIALS", "True").strip().lower()
+CORS_ALLOW_CREDENTIALS = _raw_cors_allow_credentials in {"1", "true", "yes", "on"}
 
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = [
