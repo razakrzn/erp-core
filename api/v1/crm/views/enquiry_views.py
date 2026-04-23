@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.conf import settings
 from django.db.models.functions import Lower
+import socket
 
 from apps.crm.models import Enquiry
 
@@ -86,6 +87,10 @@ class EnquiryViewSet(BaseCRMViewSet):
             physical_path = attachment.path
         except Exception:
             physical_path = None
+        try:
+            file_size = attachment.size if exists else None
+        except Exception:
+            file_size = None
 
         return Response(
             {
@@ -94,7 +99,9 @@ class EnquiryViewSet(BaseCRMViewSet):
                 "relative_url": relative_url,
                 "absolute_url": absolute_url,
                 "storage_exists": exists,
+                "file_size": file_size,
                 "physical_path": physical_path,
                 "media_root": str(settings.MEDIA_ROOT),
+                "server_hostname": socket.gethostname(),
             }
         )
