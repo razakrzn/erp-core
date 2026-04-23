@@ -1,8 +1,11 @@
+import json
+
 from django.db import transaction
 from django.db.models.functions import Lower
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 
 from apps.assessment.models import Finish, Quote, QuoteItem, QuoteTermsConditions
 from core.utils.responses import APIResponse, build_actions
@@ -278,13 +281,44 @@ class QuotationDetailsViewSet(BaseAssessmentViewSet):
 class QuoteItemViewSet(BaseAssessmentViewSet):
     queryset = QuoteItem.objects.select_related("quote", "boq_item").prefetch_related("finishes")
     serializer_class = QuoteItemSerializer
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
     search_fields = ["name", "category", "quote__quote_number", "boq_item__item_code"]
     ordering_fields = ["name", "category", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     permission_prefix = "estimation.quotations"
 
+    def _parse_form_payload(self, request):
+        """
+        Support multipart/form-data payloads:
+        - data: JSON string containing {"quote": <id>, "items": [...]}
+        - image: uploaded file attached to first item
+        """
+        raw_data = request.data.get("data")
+        if raw_data in (None, ""):
+            return None
+        if isinstance(raw_data, (dict, list)):
+            payload = raw_data
+        else:
+            try:
+                payload = json.loads(raw_data)
+            except (TypeError, ValueError):
+                raise ValidationError({"data": "Invalid JSON payload. Send a valid JSON string."})
+        if not isinstance(payload, dict):
+            raise ValidationError({"data": "Payload must be a JSON object with 'quote' and 'items'."})
+
+        image_file = request.FILES.get("image")
+        if image_file is not None:
+            items = payload.get("items")
+            if not isinstance(items, list) or not items:
+                raise ValidationError({"items": "At least one item is required when sending image."})
+            first_item = dict(items[0])
+            first_item["image"] = image_file
+            payload["items"] = [first_item, *items[1:]]
+
+        return payload
+
     def create(self, request, *args, **kwargs):
-        payload = request.data
+        payload = self._parse_form_payload(request) or request.data
 
         if not isinstance(payload, dict):
             raise ValidationError({"payload": "Payload must be an object with 'quote' and 'items'."})
