@@ -33,20 +33,35 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
 raw_allowed_hosts = os.getenv("ALLOWED_HOSTS", "")
-# ALLOWED_HOSTS = [host.strip() for host in raw_allowed_hosts.split(",") if host.strip()]
+if raw_allowed_hosts.strip() == "*":
+    ALLOWED_HOSTS = ["*"]
+else:
+    ALLOWED_HOSTS = [host.strip() for host in raw_allowed_hosts.split(",") if host.strip()]
+    if not ALLOWED_HOSTS:
+        ALLOWED_HOSTS = ["*"]
 
-# # CORS: from .env — use "*" to allow all origins, or comma-separated list
-# _raw_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
-# if _raw_cors_origins.upper() == "*" or _raw_cors_origins.lower() == "true":
-#     CORS_ALLOW_ALL_ORIGINS = True
-# else:
-#     CORS_ALLOW_ALL_ORIGINS = False
-#     CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _raw_cors_origins.split(",") if origin.strip()]
+# CORS: from env — use "*" / "true" to allow all, or comma-separated origins
+_raw_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
+if _raw_cors_origins.upper() == "*" or _raw_cors_origins.lower() == "true":
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
+        origin.strip() for origin in _raw_cors_origins.split(",") if origin.strip()
+    ]
 
-ALLOWED_HOSTS = ['*']
+CORS_ALLOW_CREDENTIALS = os.getenv("CORS_ALLOW_CREDENTIALS", "true").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+
+raw_csrf_trusted_origins = os.getenv("CSRF_TRUSTED_ORIGINS", "").strip()
 CSRF_TRUSTED_ORIGINS = [
-    "http://erp.emeraldinterior.com",
-    "https://erp.emeraldinterior.com"
+    origin.strip()
+    for origin in raw_csrf_trusted_origins.split(",")
+    if origin.strip()
 ]
 APPEND_SLASH = True
 
