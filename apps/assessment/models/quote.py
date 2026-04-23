@@ -147,6 +147,7 @@ class QuoteItem(models.Model):
         related_name="quote_items",
         verbose_name=_("boq item"),
     )
+    sku = models.CharField(_("SKU"), max_length=100, null=True, blank=True)
     image = models.ImageField(_("image"), upload_to="assessment/quote_items/", blank=True, null=True)
     name = models.CharField(_("name"), max_length=200)
     width = models.DecimalField(_("width"), max_digits=14, decimal_places=3, default=0)
