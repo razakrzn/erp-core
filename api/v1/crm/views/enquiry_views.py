@@ -1,5 +1,6 @@
 from rest_framework import filters
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from django.conf import settings
 from django.db.models.functions import Lower
@@ -60,6 +61,36 @@ class EnquiryViewSet(BaseCRMViewSet):
         if self.action == "list":
             return EnquiryListSerializer
         return EnquiryDetailSerializer
+
+    def _validate_attachment_payload(self, request):
+        """
+        Ensure attachment writes include an actual uploaded file stream.
+        Prevents saving only a filename/path string, which produces broken media URLs.
+        """
+        if "attachment" not in request.data:
+            return
+
+        has_uploaded_file = "attachment" in request.FILES
+        raw_value = request.data.get("attachment")
+        is_clear_request = raw_value in (None, "", "null")
+
+        if not has_uploaded_file and not is_clear_request:
+            raise ValidationError(
+                {
+                    "attachment": (
+                        "Invalid attachment payload. Send attachment as multipart/form-data "
+                        "with a real file stream."
+                    )
+                }
+            )
+
+    def create(self, request, *args, **kwargs):
+        self._validate_attachment_payload(request)
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        self._validate_attachment_payload(request)
+        return super().update(request, *args, **kwargs)
 
     @action(detail=True, methods=["get"], url_path="attachment-debug")
     def attachment_debug(self, request, pk=None):
