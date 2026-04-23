@@ -34,12 +34,17 @@ def mark_boq_creation_on_enquiry_confirmation(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Enquiry)
 def create_boq_for_enquiry(sender, instance, created, **kwargs):
-    if created:
-        return
     if getattr(instance, "_should_delete_boq", False):
         Boq.objects.filter(enquiry=instance).delete()
         sender.objects.filter(pk=instance.pk).update(status=PENDING_ENQUIRY_STATUS)
         return
-    if not getattr(instance, "_should_create_boq", False):
-        return
-    Boq.objects.get_or_create(enquiry=instance)
+    normalized_status = (instance.status or "").strip().lower()
+    should_create_on_create = created and normalized_status == CONFIRMED_ENQUIRY_STATUS_NORMALIZED
+    should_create_on_transition = getattr(instance, "_should_create_boq", False)
+    should_backfill_missing_confirmed_boq = (
+        normalized_status == CONFIRMED_ENQUIRY_STATUS_NORMALIZED
+        and not Boq.objects.filter(enquiry=instance).exists()
+    )
+
+    if should_create_on_create or should_create_on_transition or should_backfill_missing_confirmed_boq:
+        Boq.objects.get_or_create(enquiry=instance)
