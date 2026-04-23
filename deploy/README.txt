@@ -92,7 +92,7 @@ Required environment variables
 
 Set these in `.env` on the server (you can start from `.env.production.example`):
 
-DJANGO_SETTINGS_MODULE=config.settings.prod
+DJANGO_SETTINGS_MODULE=config.settings
 SECRET_KEY=replace-me
 DEBUG=False
 ALLOWED_HOSTS=api.example.com

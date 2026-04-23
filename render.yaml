@@ -4,7 +4,7 @@ services:
     name: erp-core
     envVars:
       - key: DJANGO_SETTINGS_MODULE
-        value: "config.settings.prod"
+        value: "config.settings"
       
       # Set these in your Render Dashboard → Web Service → Environment tab
       - key: DATABASE_URL

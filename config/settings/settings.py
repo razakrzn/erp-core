@@ -1,13 +1,9 @@
 """
-Base Django settings for config project.
-
-This module was split out from the original `config/settings.py` to support
-environment-specific settings modules such as `dev` and `prod`.
+Django settings for config project.
 """
 
 from pathlib import Path
 import os
-from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -32,15 +28,28 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
 raw_allowed_hosts = os.getenv("ALLOWED_HOSTS", "")
-ALLOWED_HOSTS = [host.strip() for host in raw_allowed_hosts.split(",") if host.strip()]
+# ALLOWED_HOSTS = [host.strip() for host in raw_allowed_hosts.split(",") if host.strip()]
 
-# CORS: from .env — use "*" to allow all origins, or comma-separated list
-_raw_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
-if _raw_cors_origins.upper() == "*" or _raw_cors_origins.lower() == "true":
-    CORS_ALLOW_ALL_ORIGINS = True
-else:
-    CORS_ALLOW_ALL_ORIGINS = False
-    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _raw_cors_origins.split(",") if origin.strip()]
+# # CORS: from .env — use "*" to allow all origins, or comma-separated list
+# _raw_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
+# if _raw_cors_origins.upper() == "*" or _raw_cors_origins.lower() == "true":
+#     CORS_ALLOW_ALL_ORIGINS = True
+# else:
+#     CORS_ALLOW_ALL_ORIGINS = False
+#     CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _raw_cors_origins.split(",") if origin.strip()]
+
+ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = [
+    "http://erp.emeraldinterior.com",
+    "https://erp.emeraldinterior.com"
+]
+APPEND_SLASH = True
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+FORCE_SCRIPT_NAME = '/'
+
+USE_X_FORWARDED_HOST = True
 
 
 # Application definition
@@ -127,34 +136,20 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-database_url = os.getenv("DATABASE_URL")
-
-if database_url:
-    parsed_url = urlparse(database_url)
-
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": parsed_url.path.lstrip("/") or None,
-            "USER": parsed_url.username,
-            "PASSWORD": parsed_url.password,
-            "HOST": parsed_url.hostname,
-            "PORT": parsed_url.port or 5432,
-            "OPTIONS": {
-                "connect_timeout": 10,
-            },
-            "DISABLE_SERVER_SIDE_CURSORS": True,
-            "CONN_MAX_AGE": 60,
-        }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "emrdb",
+        "USER": "root",
+        "PASSWORD": "zF2XKic8xBOiRAjA482g12LfHZyiDSpon1MSyNfWGznKNzI290OWkNnAG0D6YgBT",
+        "HOST": "72.62.254.95",
+        "PORT": 3307,
+        "OPTIONS": {
+            "connect_timeout": 10,
+        },
+        "CONN_MAX_AGE": 60,
     }
-else:
-    # Fallback to local SQLite for development if no DATABASE_URL is provided.
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+}
 
 
 # Caching
