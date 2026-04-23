@@ -65,7 +65,7 @@ class Unit(InventoryLookupModel):
 
 class Product(models.Model):
     name = models.CharField(_("name"), max_length=255)
-    sku = models.CharField(_("SKU"), max_length=100)
+    sku = models.CharField(_("SKU"), max_length=100, blank=True, null=True)
     product_code = models.CharField(_("product code"), max_length=100, unique=True, blank=True, null=True)
     status = models.CharField(_("status"), max_length=20, blank=True, null=True)
     price = models.DecimalField(_("price"), max_digits=12, decimal_places=2, default=0)
