@@ -53,4 +53,4 @@ uritemplate==4.2.0
 vine==5.1.0
 wcwidth==0.6.0
 whitenoise==6.7.0
-# ezdxf==1.4.3
+ezdxf==1.4.3
