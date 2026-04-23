@@ -36,6 +36,7 @@ DEFAULT_CORS_ORIGINS = [
 
 # TEMP TEST MODE: allow every origin to verify whether failures are CORS-policy related.
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ORIGIN_ALLOW_ALL = CORS_ALLOW_ALL_ORIGINS  # Backward compatibility (older django-cors-headers).
 
 _raw_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
 _env_cors_origins = [
@@ -44,6 +45,7 @@ _env_cors_origins = [
     if origin.strip()
 ]
 CORS_ALLOWED_ORIGINS = list(dict.fromkeys(DEFAULT_CORS_ORIGINS + _env_cors_origins))
+CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS  # Backward compatibility (older django-cors-headers).
 
 _raw_cors_allow_credentials = os.getenv("CORS_ALLOW_CREDENTIALS", "True").strip().lower()
 CORS_ALLOW_CREDENTIALS = _raw_cors_allow_credentials in {"1", "true", "yes", "on"}
