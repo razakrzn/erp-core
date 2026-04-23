@@ -192,8 +192,8 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
-# Coolify persistent storage mount path.
-MEDIA_ROOT = Path("/app/media")
+# Use Coolify mount when app is running from /app; otherwise keep local writable media dir.
+MEDIA_ROOT = Path("/app/media") if str(BASE_DIR).startswith("/app") else (BASE_DIR / "media")
 
 # Celery / background jobs
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"

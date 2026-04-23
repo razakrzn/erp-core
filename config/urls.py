@@ -25,6 +25,8 @@ urlpatterns = [
     path("api/v1/", include("api.v1.router")),
 ]
 
-if settings.DEBUG or getattr(settings, "SERVE_MEDIA_WITH_DJANGO", False):
+if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Test/deploy convenience: always expose uploaded media through Django.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
