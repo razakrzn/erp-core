@@ -79,6 +79,20 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
+# CORS origins (comma-separated) or wildcard via "*" / "true"
+raw_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "").strip()
+if raw_cors_origins.upper() == "*" or raw_cors_origins.lower() == "true":
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
+        origin.strip()
+        for origin in raw_cors_origins.split(",")
+        if origin.strip()
+    ]
+
+CORS_ALLOW_CREDENTIALS = _env_bool("CORS_ALLOW_CREDENTIALS", True)
+
 # Production logging default
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 LOGGING["root"]["level"] = LOG_LEVEL
