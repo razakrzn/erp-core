@@ -1,4 +1,7 @@
 from rest_framework import filters
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.conf import settings
 from django.db.models.functions import Lower
 
 from apps.crm.models import Enquiry
@@ -56,3 +59,42 @@ class EnquiryViewSet(BaseCRMViewSet):
         if self.action == "list":
             return EnquiryListSerializer
         return EnquiryDetailSerializer
+
+    @action(detail=True, methods=["get"], url_path="attachment-debug")
+    def attachment_debug(self, request, pk=None):
+        """
+        Diagnose attachment resolution for a single enquiry.
+        Helps identify whether failures are due to DB value, file storage, or URL routing.
+        """
+        enquiry = self.get_object()
+        attachment = enquiry.attachment
+
+        if not attachment:
+            return Response(
+                {
+                    "has_attachment": False,
+                    "message": "No attachment is set on this enquiry.",
+                }
+            )
+
+        # Build absolute URL exactly as serializers do when request context is present.
+        relative_url = attachment.url
+        absolute_url = request.build_absolute_uri(relative_url)
+
+        exists = attachment.storage.exists(attachment.name)
+        try:
+            physical_path = attachment.path
+        except Exception:
+            physical_path = None
+
+        return Response(
+            {
+                "has_attachment": True,
+                "attachment_name": attachment.name,
+                "relative_url": relative_url,
+                "absolute_url": absolute_url,
+                "storage_exists": exists,
+                "physical_path": physical_path,
+                "media_root": str(settings.MEDIA_ROOT),
+            }
+        )
