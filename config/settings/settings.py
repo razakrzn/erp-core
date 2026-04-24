@@ -205,10 +205,7 @@ STORAGES = {
 }
 MEDIA_URL = "/media/"
 
-# Keep media storage deterministic across restarts.
-# Override with MEDIA_ROOT=/absolute/path in environment when needed.
-# Local development defaults to repo media directory to avoid permission issues.
-MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT") or (BASE_DIR / "media"))
+MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Celery / background jobs

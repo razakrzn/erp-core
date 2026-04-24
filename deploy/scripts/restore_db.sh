@@ -2,8 +2,9 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-COMPOSE_FILE="${COMPOSE_FILE:-$ROOT_DIR/docker-compose.yml}"
-ENV_FILE="${ENV_FILE:-$ROOT_DIR/.env}"
+COMPOSE_FILE="$ROOT_DIR/docker-compose.yml"
+DB_NAME="emrdb"
+DB_USER="root"
 
 if [[ $# -lt 1 ]]; then
   echo "Usage: $0 <backup_file.dump>" >&2
@@ -17,9 +18,9 @@ if [[ ! -f "$BACKUP_FILE" ]]; then
   exit 1
 fi
 
-if [[ "${FORCE_RESTORE:-}" != "YES" ]]; then
+if [[ "${2:-}" != "--force" ]]; then
   echo "Refusing to restore without confirmation." >&2
-  echo "Run with: FORCE_RESTORE=YES $0 <backup_file.dump>" >&2
+  echo "Run with: $0 <backup_file.dump> --force" >&2
   exit 1
 fi
 
@@ -27,18 +28,6 @@ if [[ ! -f "$COMPOSE_FILE" ]]; then
   echo "Compose file not found: $COMPOSE_FILE" >&2
   exit 1
 fi
-
-if [[ ! -f "$ENV_FILE" ]]; then
-  echo ".env file not found: $ENV_FILE" >&2
-  exit 1
-fi
-
-set -a
-source "$ENV_FILE"
-set +a
-
-: "${DB_NAME:?DB_NAME is required in .env}"
-: "${DB_USER:?DB_USER is required in .env}"
 
 echo "Stopping web and celery to avoid writes during restore..."
 docker compose -f "$COMPOSE_FILE" stop web celery

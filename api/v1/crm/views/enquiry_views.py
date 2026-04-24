@@ -66,20 +66,31 @@ class EnquiryViewSet(BaseCRMViewSet):
         """
         Ensure attachment writes include an actual uploaded file stream.
         Prevents saving only a filename/path string, which produces broken media URLs.
+        Also prevents accidental clears when clients send empty attachment values.
         """
         if "attachment" not in request.data:
             return
 
         has_uploaded_file = "attachment" in request.FILES
         raw_value = request.data.get("attachment")
-        is_clear_request = raw_value in (None, "", "null")
+        is_empty_value = raw_value in (None, "", "null")
 
-        if not has_uploaded_file and not is_clear_request:
+        if not has_uploaded_file and not is_empty_value:
             raise ValidationError(
                 {
                     "attachment": (
                         "Invalid attachment payload. Send attachment as multipart/form-data "
                         "with a real file stream."
+                    )
+                }
+            )
+
+        if not has_uploaded_file and is_empty_value:
+            raise ValidationError(
+                {
+                    "attachment": (
+                        "Empty attachment value is not allowed. "
+                        "To keep existing file, omit the attachment key."
                     )
                 }
             )

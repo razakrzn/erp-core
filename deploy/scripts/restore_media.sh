@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-COMPOSE_FILE="${COMPOSE_FILE:-$ROOT_DIR/docker-compose.yml}"
+COMPOSE_FILE="$ROOT_DIR/docker-compose.yml"
 
 if [[ $# -lt 1 ]]; then
   echo "Usage: $0 <media_backup.tar.gz>" >&2
@@ -16,9 +16,9 @@ if [[ ! -f "$ARCHIVE_FILE" ]]; then
   exit 1
 fi
 
-if [[ "${FORCE_RESTORE:-}" != "YES" ]]; then
+if [[ "${2:-}" != "--force" ]]; then
   echo "Refusing to restore media without confirmation." >&2
-  echo "Run with: FORCE_RESTORE=YES $0 <media_backup.tar.gz>" >&2
+  echo "Run with: $0 <media_backup.tar.gz> --force" >&2
   exit 1
 fi
 

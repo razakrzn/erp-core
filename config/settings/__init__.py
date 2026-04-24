@@ -1,8 +1,7 @@
 """
 Settings package for the Django project.
 
-By default this exports everything from `settings` so that
-`DJANGO_SETTINGS_MODULE="config.settings"` continues to work.
+This exports everything from `settings`.
 """
 
 from .settings import *  # noqa

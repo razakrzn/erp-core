@@ -50,6 +50,17 @@ class EnquirySerializerMixin:
                 data["phone_number"] = instance.existing_client.phone_number
         if "status" in data and data["status"]:
             data["status"] = data["status"].capitalize()
+        if "attachment" in data:
+            attachment = getattr(instance, "attachment", None)
+            if not attachment:
+                data["attachment"] = None
+            else:
+                try:
+                    exists = bool(attachment.name) and attachment.storage.exists(attachment.name)
+                except Exception:
+                    exists = False
+                if not exists:
+                    data["attachment"] = None
         return data
 
 
