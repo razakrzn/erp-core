@@ -205,9 +205,16 @@ STORAGES = {
 }
 MEDIA_URL = "/media/"
 
-# Persist uploads outside app code path so deploys do not wipe media.
-MEDIA_ROOT = Path("/var/www/media")
-MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
+# Persist uploads outside app code path on server.
+# Fallback to repo-local media path when /var/www is not writable (e.g. local macOS dev).
+_preferred_media_root = Path("/var/www/media")
+_fallback_media_root = BASE_DIR / "media"
+try:
+    _preferred_media_root.mkdir(parents=True, exist_ok=True)
+    MEDIA_ROOT = _preferred_media_root
+except (PermissionError, OSError):
+    _fallback_media_root.mkdir(parents=True, exist_ok=True)
+    MEDIA_ROOT = _fallback_media_root
 
 # Celery / background jobs
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
