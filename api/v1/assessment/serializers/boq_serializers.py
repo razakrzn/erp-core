@@ -126,9 +126,16 @@ class BoqDetailSerializer(serializers.ModelSerializer):
             return None
         attachment_url = None
         if obj.enquiry.attachment:
-            relative_url = obj.enquiry.attachment.url
-            request = self.context.get("request")
-            attachment_url = request.build_absolute_uri(relative_url) if request else relative_url
+            try:
+                exists = bool(obj.enquiry.attachment.name) and obj.enquiry.attachment.storage.exists(
+                    obj.enquiry.attachment.name
+                )
+            except Exception:
+                exists = False
+            if exists:
+                relative_url = obj.enquiry.attachment.url
+                request = self.context.get("request")
+                attachment_url = request.build_absolute_uri(relative_url) if request else relative_url
         client_name = ""
         if obj.enquiry.existing_client:
             client_name = obj.enquiry.existing_client.customer_name
