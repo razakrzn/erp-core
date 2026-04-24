@@ -4,7 +4,6 @@ Django settings for config project.
 
 import os
 from pathlib import Path
-from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -209,48 +208,6 @@ MEDIA_URL = "/media/"
 # Persist uploads outside app code path so deploys do not wipe media.
 MEDIA_ROOT = Path("/var/www/media")
 MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
-(MEDIA_ROOT / ".erp_media_keep").touch(exist_ok=True)
-
-
-def _is_path_on_dedicated_mount(path: Path) -> bool:
-    """
-    Return True when `path` is backed by an explicit mount point (not `/` root overlay).
-    """
-    try:
-        target = path.resolve()
-        mounts = []
-        with open("/proc/mounts", "r", encoding="utf-8") as fh:
-            for line in fh:
-                parts = line.split()
-                if len(parts) < 2:
-                    continue
-                mount_point = parts[1].replace("\\040", " ")
-                mounts.append(Path(mount_point))
-        mounts.sort(key=lambda p: len(str(p)), reverse=True)
-        best_match = next((m for m in mounts if str(target).startswith(str(m))), Path("/"))
-        return str(best_match) != "/"
-    except Exception:
-        return False
-
-
-def _enforce_media_persistence(media_root: Path) -> None:
-    """
-    In Docker + DEBUG=False, require MEDIA_ROOT to be on a mounted volume.
-    This prevents silent media loss after redeploy.
-    """
-    if DEBUG:
-        return
-    if not Path("/.dockerenv").exists():
-        return
-    if _is_path_on_dedicated_mount(media_root):
-        return
-    raise ImproperlyConfigured(
-        f"MEDIA_ROOT '{media_root}' is not on a mounted persistent volume. "
-        "Mount persistent storage to /var/www/media before starting the app."
-    )
-
-
-_enforce_media_persistence(MEDIA_ROOT)
 
 # Celery / background jobs
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
