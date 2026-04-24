@@ -88,7 +88,7 @@ class EnquiryListSerializer(EnquirySerializerMixin, serializers.ModelSerializer)
 
 class EnquiryDetailSerializer(EnquirySerializerMixin, serializers.ModelSerializer):
     client = serializers.SerializerMethodField()
-    existing_client_id = serializers.SerializerMethodField()
+    existing_client = serializers.SerializerMethodField()
     created_by = serializers.SerializerMethodField()
     updated_by = serializers.SerializerMethodField()
 
@@ -104,7 +104,6 @@ class EnquiryDetailSerializer(EnquirySerializerMixin, serializers.ModelSerialize
             "trn",
             "phone_number",
             "existing_client",
-            "existing_client_id",
             "new_client_name",
             "client",
             "project_description",
@@ -121,7 +120,7 @@ class EnquiryDetailSerializer(EnquirySerializerMixin, serializers.ModelSerialize
             "new_client_name": {"write_only": True, "required": False, "allow_blank": True},
         }
 
-    def get_existing_client_id(self, obj):
+    def get_existing_client(self, obj):
         # `existing_client` is a FK and Django also exposes it as `existing_client_id`.
         # EnquiryDetailSerializer keeps `existing_client` write-only, so we expose the ID instead.
         return getattr(obj, "existing_client_id", None)
