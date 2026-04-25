@@ -72,13 +72,17 @@ class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMViewSet):
         "passport_copy",
         "visa_document",
         "cv_document",
-        "permits_document",
     }
     multi_file_upload_field = "educational_certificates_document"
     previous_employment_certificate_patterns = (
         re.compile(r"^previous_employments\[(\d+)\]\[experience_certificate\]$"),
         re.compile(r"^previous_employments\[(\d+)\]\.experience_certificate$"),
         re.compile(r"^previous_employments\.(\d+)\.experience_certificate$"),
+    )
+    permit_document_patterns = (
+        re.compile(r"^permits\[(\d+)\]\[permits_document\]$"),
+        re.compile(r"^permits\[(\d+)\]\.permits_document$"),
+        re.compile(r"^permits\.(\d+)\.permits_document$"),
     )
 
     def _save_educational_certificate_files(self, files):
@@ -93,6 +97,13 @@ class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMViewSet):
 
     def _extract_previous_employment_index(self, key):
         for pattern in self.previous_employment_certificate_patterns:
+            match = pattern.match(key)
+            if match:
+                return int(match.group(1))
+        return None
+
+    def _extract_permit_index(self, key):
+        for pattern in self.permit_document_patterns:
             match = pattern.match(key)
             if match:
                 return int(match.group(1))
@@ -136,6 +147,44 @@ class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMViewSet):
             previous_employments[index]["experience_certificate"] = file
         return None
 
+    def _inject_permit_files(self, payload, request):
+        indexed_files = []
+        for key, file in request.FILES.items():
+            index = self._extract_permit_index(key)
+            if index is None:
+                continue
+            indexed_files.append((index, file))
+
+        if not indexed_files:
+            return None
+
+        permits = payload.get("permits")
+        if permits is None:
+            return APIResponse.error(
+                errors={"permits": ["Required in data JSON when sending permits_document files."]},
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not isinstance(permits, list):
+            return APIResponse.error(
+                errors={"permits": ["Expected a list in data JSON."]},
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        for index, file in indexed_files:
+            if index >= len(permits):
+                return APIResponse.error(
+                    errors={"permits": [f"Invalid index {index} for permits_document file."]},
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                )
+            if not isinstance(permits[index], dict):
+                return APIResponse.error(
+                    errors={"permits": [f"Item at index {index} must be an object."]},
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                )
+            permits[index]["permits_document"] = file
+        return None
+
     def _build_employee_payload(self, request):
         content_type = request.content_type or ""
         if "multipart/form-data" not in content_type:
@@ -167,11 +216,16 @@ class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMViewSet):
                 continue
             if self._extract_previous_employment_index(key) is not None:
                 continue
+            if self._extract_permit_index(key) is not None:
+                continue
             payload[key] = file
         multi_files = request.FILES.getlist(self.multi_file_upload_field)
         if multi_files:
             payload[self.multi_file_upload_field] = self._save_educational_certificate_files(multi_files)
         error_response = self._inject_previous_employment_files(payload, request)
+        if error_response is not None:
+            return None, error_response
+        error_response = self._inject_permit_files(payload, request)
         if error_response is not None:
             return None, error_response
         return payload, None

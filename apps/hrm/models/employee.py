@@ -60,7 +60,6 @@ class Employee(models.Model):
     )
     visa_document = models.FileField(_("visa"), upload_to="employees/documents/visa/", null=True, blank=True)
     cv_document = models.FileField(_("CV"), upload_to="employees/documents/cv/", null=True, blank=True)
-    permits_document = models.FileField(_("permits"), upload_to="employees/documents/permits/", null=True, blank=True)
     educational_certificates_document = models.JSONField(_("educational certificates"), default=list, blank=True)
 
     # Employment Details
@@ -185,3 +184,13 @@ class PreviousEmployment(models.Model):
     class Meta:
         verbose_name = _("previous employment")
         verbose_name_plural = _("previous employments")
+
+
+class Permit(models.Model):
+    employee = models.ForeignKey(Employee, verbose_name=_("employee"), on_delete=models.CASCADE, related_name="permits")
+    title = models.CharField(_("title"), max_length=255)
+    permits_document = models.FileField(_("permits"), upload_to="employees/documents/permits/", null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("permit")
+        verbose_name_plural = _("permits")

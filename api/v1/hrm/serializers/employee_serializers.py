@@ -7,7 +7,7 @@ from django.core.files.storage import default_storage
 from django.db import transaction
 from rest_framework import serializers
 
-from apps.hrm.models.employee import Employee, PreviousEmployment
+from apps.hrm.models.employee import Employee, Permit, PreviousEmployment
 from apps.rbac.models import Role, UserRole
 
 User = get_user_model()
@@ -56,6 +56,34 @@ class PreviousEmploymentSerializer(serializers.ModelSerializer):
         if not exists:
             ret["experience_certificate"] = None
             ret["experience_certificate_attached"] = False
+        return ret
+
+
+class PermitSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        permits_document = attrs.get("permits_document")
+        if permits_document and not (hasattr(permits_document, "read") or hasattr(permits_document, "file")):
+            raise serializers.ValidationError(
+                {"permits_document": "Invalid file payload. Send as multipart/form-data file."}
+            )
+        return attrs
+
+    class Meta:
+        model = Permit
+        fields = ["id", "title", "permits_document"]
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        permits_document = getattr(instance, "permits_document", None)
+        if not permits_document:
+            ret["permits_document"] = None
+            return ret
+        try:
+            exists = bool(permits_document.name) and permits_document.storage.exists(permits_document.name)
+        except Exception:
+            exists = False
+        if not exists:
+            ret["permits_document"] = None
         return ret
 
 
@@ -115,6 +143,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
     designation_name = serializers.SerializerMethodField()
     user_details = serializers.SerializerMethodField()
     previous_employments = PreviousEmploymentSerializer(many=True, required=False)
+    permits = PermitSerializer(many=True, required=False)
 
     # Fields for User creation
     create_user = serializers.BooleanField(write_only=True, required=False, default=False)
@@ -128,7 +157,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
         "passport_copy",
         "visa_document",
         "cv_document",
-        "permits_document",
     )
 
     class Meta:
@@ -178,7 +206,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "passport_copy",
             "visa_document",
             "cv_document",
-            "permits_document",
             "educational_certificates_document",
             # Employment
             "employment_type",
@@ -224,6 +251,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "hr_signature",
             # Nested
             "previous_employments",
+            "permits",
         ]
         read_only_fields = ["created_at"]
 
@@ -267,6 +295,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         previous_employments_data = validated_data.pop("previous_employments", [])
+        permits_data = validated_data.pop("permits", [])
         create_user = validated_data.pop("create_user", False)
         username = validated_data.pop("username", None)
         password = validated_data.pop("password", None)
@@ -300,11 +329,14 @@ class EmployeeSerializer(serializers.ModelSerializer):
                     previous_employment_payload.get("experience_certificate")
                 )
                 PreviousEmployment.objects.create(employee=employee, **previous_employment_payload)
+            for permit_data in permits_data:
+                Permit.objects.create(employee=employee, **permit_data)
 
         return employee
 
     def update(self, instance, validated_data):
         previous_employments_data = validated_data.pop("previous_employments", None)
+        permits_data = validated_data.pop("permits", None)
         company = self._get_request_company()
 
         with transaction.atomic():
@@ -329,6 +361,11 @@ class EmployeeSerializer(serializers.ModelSerializer):
                         previous_employment_payload.get("experience_certificate")
                     )
                     PreviousEmployment.objects.create(employee=instance, **previous_employment_payload)
+
+            if permits_data is not None:
+                instance.permits.all().delete()
+                for permit_data in permits_data:
+                    Permit.objects.create(employee=instance, **permit_data)
 
         return instance
 

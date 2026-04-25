@@ -5,6 +5,7 @@ from .employee_serializers import (
     EmployeeLightweightSerializer,
     EmployeeListSerializer,
     EmployeeSerializer,
+    PermitSerializer,
     PreviousEmploymentSerializer,
 )
 
@@ -19,5 +20,6 @@ __all__ = [
     "EmployeeLightweightSerializer",
     "EmployeeListSerializer",
     "EmployeeSerializer",
+    "PermitSerializer",
     "PreviousEmploymentSerializer",
 ]
