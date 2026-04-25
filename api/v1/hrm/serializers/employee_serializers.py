@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from django.contrib.auth import get_user_model
+from django.core.files.storage import default_storage
 from django.db import transaction
 from rest_framework import serializers
 
@@ -13,6 +14,20 @@ User = get_user_model()
 
 
 class PreviousEmploymentSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        start_date = attrs.get("start_date")
+        end_date = attrs.get("end_date")
+        if start_date and end_date and end_date < start_date:
+            raise serializers.ValidationError({"end_date": "End date cannot be before start date."})
+        experience_certificate = attrs.get("experience_certificate")
+        if experience_certificate and not (
+            hasattr(experience_certificate, "read") or hasattr(experience_certificate, "file")
+        ):
+            raise serializers.ValidationError(
+                {"experience_certificate": "Invalid file payload. Send as multipart/form-data file."}
+            )
+        return attrs
+
     class Meta:
         model = PreviousEmployment
         fields = [
@@ -22,8 +37,26 @@ class PreviousEmploymentSerializer(serializers.ModelSerializer):
             "start_date",
             "end_date",
             "reason_for_leaving",
+            "experience_certificate",
             "experience_certificate_attached",
         ]
+        read_only_fields = ["experience_certificate_attached"]
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        experience_certificate = getattr(instance, "experience_certificate", None)
+        if not experience_certificate:
+            ret["experience_certificate"] = None
+            ret["experience_certificate_attached"] = False
+            return ret
+        try:
+            exists = bool(experience_certificate.name) and experience_certificate.storage.exists(experience_certificate.name)
+        except Exception:
+            exists = False
+        if not exists:
+            ret["experience_certificate"] = None
+            ret["experience_certificate_attached"] = False
+        return ret
 
 
 class EmployeeListSerializer(serializers.ModelSerializer):
@@ -88,6 +121,15 @@ class EmployeeSerializer(serializers.ModelSerializer):
     username = serializers.CharField(write_only=True, required=False)
     password = serializers.CharField(write_only=True, required=False, style={"input_type": "password"})
     role = serializers.PrimaryKeyRelatedField(queryset=Role.objects.all(), write_only=True, required=False)
+    media_fields = (
+        "profile_photo",
+        "employee_signature",
+        "hr_signature",
+        "passport_copy",
+        "visa_document",
+        "cv_document",
+        "permits_document",
+    )
 
     class Meta:
         model = Employee
@@ -133,6 +175,11 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "emirates_id_number",
             "emirates_id_expiry_date",
             "labor_card_number",
+            "passport_copy",
+            "visa_document",
+            "cv_document",
+            "permits_document",
+            "educational_certificates_document",
             # Employment
             "employment_type",
             "offer_letter_reference_number",
@@ -180,8 +227,27 @@ class EmployeeSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["created_at"]
 
+    def _get_request_company(self):
+        request = self.context.get("request")
+        if request and hasattr(request.user, "company"):
+            return request.user.company
+        return None
+
+    def validate_educational_certificates_document(self, value):
+        if value in (None, ""):
+            return []
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Educational certificates must be a list.")
+        for item in value:
+            if not isinstance(item, str):
+                raise serializers.ValidationError("Each educational certificate entry must be a file path string.")
+        return value
+
     def validate(self, attrs):
-        create_user = attrs.get("create_user")
+        create_user = attrs.get("create_user", False)
+        if create_user and self.instance:
+            raise serializers.ValidationError({"create_user": "create_user can only be used while creating employee."})
+
         if create_user:
             if not attrs.get("username"):
                 raise serializers.ValidationError({"username": "Username is required when creating a user."})
@@ -206,10 +272,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
         password = validated_data.pop("password", None)
         role = validated_data.pop("role", None)
 
-        request = self.context.get("request")
-        company = None
-        if request and hasattr(request.user, "company"):
-            company = request.user.company
+        company = self._get_request_company()
 
         validated_data["company"] = company
 
@@ -232,35 +295,40 @@ class EmployeeSerializer(serializers.ModelSerializer):
                 employee = Employee.objects.create(**validated_data)
 
             for pe_data in previous_employments_data:
-                PreviousEmployment.objects.create(employee=employee, **pe_data)
+                previous_employment_payload = dict(pe_data)
+                previous_employment_payload["experience_certificate_attached"] = bool(
+                    previous_employment_payload.get("experience_certificate")
+                )
+                PreviousEmployment.objects.create(employee=employee, **previous_employment_payload)
 
         return employee
 
     def update(self, instance, validated_data):
         previous_employments_data = validated_data.pop("previous_employments", None)
+        company = self._get_request_company()
 
-        request = self.context.get("request")
-        company = None
-        if request and hasattr(request.user, "company"):
-            company = request.user.company
+        with transaction.atomic():
+            instance.company = company
 
-        instance.company = company
+            if instance.user:
+                user = instance.user
+                user.first_name = validated_data.get("first_name", user.first_name)
+                user.last_name = validated_data.get("last_name", user.last_name)
+                user.email = validated_data.get("email", user.email)
+                user.save()
 
-        if instance.user:
-            user = instance.user
-            user.first_name = validated_data.get("first_name", user.first_name)
-            user.last_name = validated_data.get("last_name", user.last_name)
-            user.email = validated_data.get("email", user.email)
-            user.save()
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save()
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-
-        if previous_employments_data is not None:
-            instance.previous_employments.all().delete()
-            for pe_data in previous_employments_data:
-                PreviousEmployment.objects.create(employee=instance, **pe_data)
+            if previous_employments_data is not None:
+                instance.previous_employments.all().delete()
+                for pe_data in previous_employments_data:
+                    previous_employment_payload = dict(pe_data)
+                    previous_employment_payload["experience_certificate_attached"] = bool(
+                        previous_employment_payload.get("experience_certificate")
+                    )
+                    PreviousEmployment.objects.create(employee=instance, **previous_employment_payload)
 
         return instance
 
@@ -281,6 +349,37 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
+        for field in self.media_fields:
+            if field not in ret:
+                continue
+            media_file = getattr(instance, field, None)
+            if not media_file:
+                ret[field] = None
+                continue
+            try:
+                exists = bool(media_file.name) and media_file.storage.exists(media_file.name)
+            except Exception:
+                exists = False
+            if not exists:
+                ret[field] = None
+        certificate_paths = getattr(instance, "educational_certificates_document", []) or []
+        if isinstance(certificate_paths, str):
+            certificate_paths = [certificate_paths]
+        certificate_urls = []
+        request = self.context.get("request")
+        for path in certificate_paths:
+            if not path:
+                continue
+            try:
+                if not default_storage.exists(path):
+                    continue
+                url = default_storage.url(path)
+                if request:
+                    url = request.build_absolute_uri(url)
+                certificate_urls.append(url)
+            except Exception:
+                continue
+        ret["educational_certificates_document"] = certificate_urls
         if instance.user:
             ret.pop("first_name", None)
             ret.pop("last_name", None)

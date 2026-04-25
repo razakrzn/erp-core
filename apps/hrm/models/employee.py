@@ -47,47 +47,7 @@ class Employee(models.Model):
     passport_expiry_date = models.DateField(_("passport expiry date"), null=True, blank=True)
     passport_place_of_issue = models.CharField(_("place of issue"), max_length=100, null=True, blank=True)
 
-    class VisaType(models.TextChoices):
-        TOURIST_30_SINGLE = "TOURIST_30_SINGLE", _("Tourist Visa - 30 Days (Single Entry)")
-        TOURIST_30_MULTI = "TOURIST_30_MULTI", _("Tourist Visa - 30 Days (Multiple Entry)")
-
-        TOURIST_60_SINGLE = "TOURIST_60_SINGLE", _("Tourist Visa - 60 Days (Single Entry)")
-        TOURIST_60_MULTI = "TOURIST_60_MULTI", _("Tourist Visa - 60 Days (Multiple Entry)")
-
-        TOURIST_5_YEAR_MULTI = "TOURIST_5_YEAR_MULTI", _("5-Year Multiple Entry Tourist Visa")
-
-        TRANSIT_48 = "TRANSIT_48", _("Transit Visa - 48 Hours")
-        TRANSIT_96 = "TRANSIT_96", _("Transit Visa - 96 Hours")
-
-        VISIT_FAMILY = "VISIT_FAMILY", _("Visit Visa for Family/Friends")
-        VISA_ON_ARRIVAL = "VISA_ON_ARRIVAL", _("Visa on Arrival")
-
-        # =========================
-        # Residence Visas
-        # =========================
-        EMPLOYMENT = "EMPLOYMENT", _("Employment Visa (Work Visa)")
-        INVESTOR = "INVESTOR", _("Investor Visa")
-        PARTNER = "PARTNER", _("Partner Visa")
-        FREELANCER = "FREELANCER", _("Freelancer Visa")
-        REMOTE_WORK = "REMOTE_WORK", _("Remote Work Visa")
-        GREEN = "GREEN", _("Green Visa")
-        GOLDEN = "GOLDEN", _("Golden Visa")
-        PROPERTY_OWNER = "PROPERTY_OWNER", _("Property Owner Visa")
-        RETIREMENT = "RETIREMENT", _("Retirement Visa")
-        STUDENT = "STUDENT", _("Student Visa")
-        DEPENDENT = "DEPENDENT", _("Dependent Visa (Spouse/Children/Parents)")
-        DOMESTIC_WORKER = "DOMESTIC_WORKER", _("Domestic Worker Visa")
-
-        # =========================
-        # Special Visas
-        # =========================
-        MEDICAL = "MEDICAL", _("Medical Treatment Visa")
-        PATIENT_COMPANION = "PATIENT_COMPANION", _("Patient Companion Visa")
-        CONFERENCE = "CONFERENCE", _("Conference / Event Visa")
-        MISSION = "MISSION", _("Mission Visa (Short-term Work Permit)")
-        CREW = "CREW", _("Crew Visa")
-
-    uae_visa_type = models.CharField(_("UAE visa type"), max_length=50, choices=VisaType.choices, null=True, blank=True)
+    uae_visa_type = models.CharField(_("UAE visa type"), max_length=50, null=True, blank=True)
     visa_number = models.CharField(_("visa number"), max_length=50, null=True, blank=True)
     uid_number = models.CharField(_("UID number"), max_length=50, null=True, blank=True)
     visa_issue_date = models.DateField(_("visa issue date"), null=True, blank=True)
@@ -95,6 +55,13 @@ class Employee(models.Model):
     emirates_id_number = models.CharField(_("Emirates ID number"), max_length=50, null=True, blank=True)
     emirates_id_expiry_date = models.DateField(_("Emirates ID expiry date"), null=True, blank=True)
     labor_card_number = models.CharField(_("labor card number"), max_length=50, null=True, blank=True)
+    passport_copy = models.FileField(
+        _("passport copy"), upload_to="employees/documents/passport/", null=True, blank=True
+    )
+    visa_document = models.FileField(_("visa"), upload_to="employees/documents/visa/", null=True, blank=True)
+    cv_document = models.FileField(_("CV"), upload_to="employees/documents/cv/", null=True, blank=True)
+    permits_document = models.FileField(_("permits"), upload_to="employees/documents/permits/", null=True, blank=True)
+    educational_certificates_document = models.JSONField(_("educational certificates"), default=list, blank=True)
 
     # Employment Details
     department = models.ForeignKey(
@@ -114,67 +81,14 @@ class Employee(models.Model):
         related_name="employees",
     )
 
-    class EmploymentType(models.TextChoices):
-        FULL_TIME = "FULL_TIME", _("Full-time")
-        PART_TIME = "PART_TIME", _("Part-time")
-        TEMPORARY = "TEMPORARY", _("Temporary")
-        FLEXIBLE = "FLEXIBLE", _("Flexible Working")
-        REMOTE = "REMOTE", _("Remote Work")
-        JOB_SHARE = "JOB_SHARE", _("Job Sharing")
-
-    employment_type = models.CharField(
-        _("employment type"), max_length=50, choices=EmploymentType.choices, null=True, blank=True
-    )
+    employment_type = models.CharField(_("employment type"), max_length=50, null=True, blank=True)
     offer_letter_reference_number = models.CharField(_("offer letter reference"), max_length=50, null=True, blank=True)
 
-    class ContractType(models.TextChoices):
-
-        # =========================
-        # MOHRE Contracts (Mainland UAE)
-        # =========================
-        MOHRE_FIXED_TERM = "MOHRE_FIXED_TERM", _("MOHRE Standard Fixed-Term")
-        MOHRE_PART_TIME = "MOHRE_PART_TIME", _("MOHRE Part-Time Contract")
-        MOHRE_TEMPORARY = "MOHRE_TEMPORARY", _("MOHRE Temporary Contract")
-        MOHRE_FLEXIBLE = "MOHRE_FLEXIBLE", _("MOHRE Flexible Contract")
-        MOHRE_JOB_SHARE = "MOHRE_JOB_SHARE", _("MOHRE Job Sharing Contract")
-        MOHRE_REMOTE = "MOHRE_REMOTE", _("MOHRE Remote Work Contract")
-
-        # =========================
-        # Free Zone Contracts
-        # =========================
-        FREEZONE_STANDARD = "FREEZONE_STANDARD", _("Free Zone Employment Contract")
-        FREEZONE_FIXED = "FREEZONE_FIXED", _("Free Zone Fixed-Term Contract")
-
-        # =========================
-        # Limited / Unlimited (Legacy - Pre 2022 Reform)
-        # =========================
-        LIMITED = "LIMITED", _("Limited Contract (Legacy)")
-        UNLIMITED = "UNLIMITED", _("Unlimited Contract (Legacy)")
-
-        # =========================
-        # Special Categories
-        # =========================
-        PROBATION = "PROBATION", _("Probationary Contract")
-        CONSULTANCY = "CONSULTANCY", _("Consultancy / Service Contract")
-        INTERNSHIP = "INTERNSHIP", _("Internship / Training Contract")
-
-    contract_type = models.CharField(
-        _("contract type"), max_length=100, choices=ContractType.choices, null=True, blank=True
-    )
+    contract_type = models.CharField(_("contract type"), max_length=100, null=True, blank=True)
     probation_period_months = models.IntegerField(_("probation period (months)"), default=6, null=True, blank=True)
     date_of_joining = models.DateField(_("date of joining"), null=True, blank=True)
 
-    class WorkLocation(models.TextChoices):
-        FACTORY = "Factory", _("Factory")
-        SHOWROOM = "Showroom", _("Showroom")
-        OFFICE = "Office", _("Office")
-        SITE = "Site", _("Site")
-        WAREHOUSE = "Warehouse", _("Warehouse")
-        OTHER = "Other", _("Other")
-
-    work_location = models.CharField(
-        _("work location"), max_length=50, choices=WorkLocation.choices, null=True, blank=True
-    )
+    work_location = models.CharField(_("work location"), max_length=50, null=True, blank=True)
 
     # Work Schedule
     working_days = models.CharField(_("working days"), max_length=100, null=True, blank=True)
@@ -263,6 +177,9 @@ class PreviousEmployment(models.Model):
     start_date = models.DateField(_("start date"))
     end_date = models.DateField(_("end date"))
     reason_for_leaving = models.TextField(_("reason for leaving"), null=True, blank=True)
+    experience_certificate = models.FileField(
+        _("experience certificate"), upload_to="employees/documents/experience_certificates/", null=True, blank=True
+    )
     experience_certificate_attached = models.BooleanField(_("experience certificate attached"), default=False)
 
     class Meta:
