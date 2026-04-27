@@ -293,6 +293,55 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
         return attrs
 
+    @staticmethod
+    def _delete_storage_path(path):
+        if not path:
+            return
+        try:
+            if default_storage.exists(path):
+                default_storage.delete(path)
+        except Exception:
+            # Never fail request if storage cleanup fails.
+            pass
+
+    def _cleanup_replaced_employee_files(self, instance, validated_data):
+        for field_name in self.media_fields:
+            if field_name not in validated_data:
+                continue
+            new_value = validated_data.get(field_name)
+            if not new_value:
+                continue
+            old_file = getattr(instance, field_name, None)
+            old_path = getattr(old_file, "name", None)
+            if old_path:
+                self._delete_storage_path(old_path)
+
+    def _cleanup_replaced_educational_certificates(self, instance, validated_data):
+        if "educational_certificates_document" not in validated_data:
+            return
+        new_paths = validated_data.get("educational_certificates_document") or []
+        old_paths = instance.educational_certificates_document or []
+        if isinstance(old_paths, str):
+            old_paths = [old_paths]
+        if isinstance(new_paths, str):
+            new_paths = [new_paths]
+        new_path_set = {path for path in new_paths if path}
+        for old_path in old_paths:
+            if old_path and old_path not in new_path_set:
+                self._delete_storage_path(old_path)
+
+    def _cleanup_previous_employment_files(self, instance):
+        for previous_employment in instance.previous_employments.all():
+            old_path = getattr(previous_employment.experience_certificate, "name", None)
+            if old_path:
+                self._delete_storage_path(old_path)
+
+    def _cleanup_permit_files(self, instance):
+        for permit in instance.permits.all():
+            old_path = getattr(permit.permits_document, "name", None)
+            if old_path:
+                self._delete_storage_path(old_path)
+
     def create(self, validated_data):
         previous_employments_data = validated_data.pop("previous_employments", [])
         permits_data = validated_data.pop("permits", [])
@@ -349,11 +398,14 @@ class EmployeeSerializer(serializers.ModelSerializer):
                 user.email = validated_data.get("email", user.email)
                 user.save()
 
+            self._cleanup_replaced_employee_files(instance, validated_data)
+            self._cleanup_replaced_educational_certificates(instance, validated_data)
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
             instance.save()
 
             if previous_employments_data is not None:
+                self._cleanup_previous_employment_files(instance)
                 instance.previous_employments.all().delete()
                 for pe_data in previous_employments_data:
                     previous_employment_payload = dict(pe_data)
@@ -363,6 +415,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
                     PreviousEmployment.objects.create(employee=instance, **previous_employment_payload)
 
             if permits_data is not None:
+                self._cleanup_permit_files(instance)
                 instance.permits.all().delete()
                 for permit_data in permits_data:
                     Permit.objects.create(employee=instance, **permit_data)
