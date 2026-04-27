@@ -309,11 +309,15 @@ class EmployeeSerializer(serializers.ModelSerializer):
             if field_name not in validated_data:
                 continue
             new_value = validated_data.get(field_name)
-            if not new_value:
-                continue
             old_file = getattr(instance, field_name, None)
             old_path = getattr(old_file, "name", None)
-            if old_path:
+            if not old_path:
+                continue
+            # Delete old file if the field is being replaced OR explicitly cleared.
+            if new_value:
+                self._delete_storage_path(old_path)
+                continue
+            if new_value in (None, ""):
                 self._delete_storage_path(old_path)
 
     def _cleanup_replaced_educational_certificates(self, instance, validated_data):

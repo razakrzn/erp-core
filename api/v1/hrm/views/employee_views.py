@@ -256,7 +256,7 @@ class EmployeeViewSet(CompanyScopedEmployeeQuerysetMixin, BaseHRMViewSet):
                     status_code=status.HTTP_400_BAD_REQUEST,
                 )
 
-            if not has_uploaded_file and is_empty_value:
+            if not has_uploaded_file and is_empty_value and request.method not in {"PUT", "PATCH"}:
                 return APIResponse.error(
                     errors={
                         field: [
