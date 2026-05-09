@@ -1,12 +1,12 @@
 FROM python:3.12-slim
 
-<<<<<<< Updated upstream
+# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# System deps for Python packages and entrypoint DB readiness checks.
+# System dependencies for Python packages and database drivers
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
@@ -16,50 +16,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat-traditional \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Python dependencies
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy project files
 COPY . /app/
+
+# Setup media and static directories
 RUN mkdir -p /var/www/media /var/www/static && \
     ln -sfn /var/www/media /app/media
+
+# Collect static files
 RUN python manage.py collectstatic --noinput
 
-# RUN chmod +x /app/entrypoint.sh
+# Expose the application port
+EXPOSE 8000
 
-EXPOSE 3001
-
-# Keep uploads out of image layers; mount persistent storage at runtime.
+# Keep uploads out of image layers; mount persistent storage at runtime
 VOLUME ["/var/www/media"]
 
-# ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:3001", "--workers", "2", "--timeout", "120", "--log-file", "-"]
-=======
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-WORKDIR /app
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    netcat-openbsd \
-    libpq-dev \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy project
-COPY . .
-
-# Make entrypoint script executable
-RUN chmod +x entrypoint.sh
-
-# Set entrypoint
-ENTRYPOINT ["/app/entrypoint.sh"]
-
-# Default command
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
->>>>>>> Stashed changes
+# Default command using gunicorn
+CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:8000", "--workers", "2", "--timeout", "120", "--log-file", "-"]
