@@ -31,7 +31,7 @@ RUN mkdir -p /var/www/media /var/www/static && \
 RUN python manage.py collectstatic --noinput
 
 # Expose the application port
-EXPOSE 8000
+EXPOSE 8002
 
 # Keep uploads out of image layers; mount persistent storage at runtime
 VOLUME ["/var/www/media"]
