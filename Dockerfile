@@ -37,4 +37,4 @@ EXPOSE 8002
 VOLUME ["/var/www/media"]
 
 # Default command using gunicorn
-CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:8000", "--workers", "2", "--timeout", "120", "--log-file", "-"]
+CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:8002", "--workers", "2", "--timeout", "120", "--log-file", "-"]
