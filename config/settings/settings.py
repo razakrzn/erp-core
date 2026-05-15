@@ -4,37 +4,51 @@ Django settings for config project.
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+load_dotenv(BASE_DIR / ".env")
+
+
+def get_env(name: str) -> str:
+    value = os.getenv(name)
+    if value is None:
+        raise ImproperlyConfigured(f"Missing required environment variable: {name}")
+    return value
+
+
+def env_bool(name: str) -> bool:
+    return get_env(name).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def env_list(name: str) -> list[str]:
+    value = get_env(name)
+    return [item.strip() for item in value.split(",") if item.strip()]
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-23cn5avp2f!&88oio-5e$a90d^h!-8)uo@4$e^3@j@da0i0&_m"
+SECRET_KEY = get_env("SECRET_KEY")
 
 # SECURITY WARNING: keep disabled on deployed environments.
-DEBUG = False
+DEBUG = env_bool("DEBUG")
 
 # CORS: hardcoded values only for test.
-DEFAULT_CORS_ORIGINS = [
-    "https://erp.emeraldinterior.com",
-]
+DEFAULT_CORS_ORIGINS = env_list("CORS_ALLOWED_ORIGINS")
 
 # TEMP TEST MODE: allow every origin to verify whether failures are CORS-policy related.
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = env_bool("CORS_ALLOW_ALL_ORIGINS")
 CORS_ORIGIN_ALLOW_ALL = CORS_ALLOW_ALL_ORIGINS  # Backward compatibility (older django-cors-headers).
 CORS_ALLOWED_ORIGINS = DEFAULT_CORS_ORIGINS
 CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS  # Backward compatibility (older django-cors-headers).
 CORS_ALLOW_CREDENTIALS = True
 
-ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = [
-    "http://erp.emeraldinterior.com",
-    "https://erp.emeraldinterior.com"
-]
+ALLOWED_HOSTS = env_list("ALLOWED_HOSTS")
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
 APPEND_SLASH = True
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -45,7 +59,7 @@ USE_X_FORWARDED_HOST = True
 
 # Coolify test mode: serve uploaded media through Django URLs even with DEBUG=False.
 # Keep this True only while no dedicated reverse-proxy/static server is configured.
-SERVE_MEDIA_WITH_DJANGO = True
+SERVE_MEDIA_WITH_DJANGO = env_bool("SERVE_MEDIA_WITH_DJANGO")
 
 
 # Application definition
@@ -136,15 +150,15 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "emrdb",
-        "USER": "root",
-        "PASSWORD": "zF2XKic8xBOiRAjA482g12LfHZyiDSpon1MSyNfWGznKNzI290OWkNnAG0D6YgBT",
-        "HOST": "72.62.254.95",
-        "PORT": 3307,
+        "NAME": get_env("DB_NAME"),
+        "USER": get_env("DB_USER"),
+        "PASSWORD": get_env("DB_PASSWORD"),
+        "HOST": get_env("DB_HOST"),
+        "PORT": int(get_env("DB_PORT")),
         "OPTIONS": {
-            "connect_timeout": 10,
+            "connect_timeout": int(get_env("DB_CONNECT_TIMEOUT")),
         },
-        "CONN_MAX_AGE": 60,
+        "CONN_MAX_AGE": int(get_env("DB_CONN_MAX_AGE")),
     }
 }
 
@@ -152,7 +166,7 @@ DATABASES = {
 # Caching
 # https://docs.djangoproject.com/en/6.0/topics/cache/
 
-redis_url = "redis://127.0.0.1:6379/1"
+redis_url = get_env("REDIS_CACHE_URL")
 
 CACHES = {
     "default": {
@@ -217,8 +231,8 @@ except (PermissionError, OSError):
     MEDIA_ROOT = _fallback_media_root
 
 # Celery / background jobs
-CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
-CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
+CELERY_BROKER_URL = get_env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = get_env("CELERY_RESULT_BACKEND")
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -229,7 +243,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 # Logging
 # Hardcoded log level for test.
-LOG_LEVEL = "DEBUG"
+LOG_LEVEL = get_env("LOG_LEVEL")
 
 LOGGING = {
     "version": 1,
