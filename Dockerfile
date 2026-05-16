@@ -25,7 +25,7 @@ RUN python manage.py collectstatic --noinput
 
 # RUN chmod +x /app/entrypoint.sh
 
-EXPOSE 3001
+EXPOSE 3002
 
 # Keep uploads out of image layers; mount persistent storage at runtime.
 VOLUME ["/var/www/media"]
