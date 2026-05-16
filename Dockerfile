@@ -31,4 +31,4 @@ EXPOSE 3002
 VOLUME ["/var/www/media"]
 
 # ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:3001", "--workers", "2", "--timeout", "120", "--log-file", "-"]
+CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:3002", "--workers", "2", "--timeout", "120", "--log-file", "-"]
