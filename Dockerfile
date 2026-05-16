@@ -21,9 +21,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 RUN mkdir -p /var/www/media /var/www/static && \
     ln -sfn /var/www/media /app/media
-RUN python manage.py collectstatic --noinput
-
-# RUN chmod +x /app/entrypoint.sh
 
 EXPOSE 3002
 
