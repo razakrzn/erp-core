@@ -21,14 +21,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app/
 RUN mkdir -p /var/www/media /var/www/static && \
     ln -sfn /var/www/media /app/media
-RUN python manage.py collectstatic --noinput
 
-# RUN chmod +x /app/entrypoint.sh
-
-EXPOSE 3003
+EXPOSE 3002
 
 # Keep uploads out of image layers; mount persistent storage at runtime.
 VOLUME ["/var/www/media"]
 
-# ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:3003", "--workers", "2", "--timeout", "120", "--log-file", "-"]
+CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:3002", "--workers", "2", "--timeout", "120", "--log-file", "-"]

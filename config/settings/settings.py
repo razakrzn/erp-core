@@ -37,13 +37,13 @@ SECRET_KEY = get_env("SECRET_KEY")
 # SECURITY WARNING: keep disabled on deployed environments.
 DEBUG = env_bool("DEBUG")
 
-# CORS: hardcoded values only for test.
-DEFAULT_CORS_ORIGINS = env_list("CORS_ALLOWED_ORIGINS")
-
-# TEMP TEST MODE: allow every origin to verify whether failures are CORS-policy related.
+# CORS
 CORS_ALLOW_ALL_ORIGINS = env_bool("CORS_ALLOW_ALL_ORIGINS")
 CORS_ORIGIN_ALLOW_ALL = CORS_ALLOW_ALL_ORIGINS  # Backward compatibility (older django-cors-headers).
-CORS_ALLOWED_ORIGINS = DEFAULT_CORS_ORIGINS
+if CORS_ALLOW_ALL_ORIGINS:
+    CORS_ALLOWED_ORIGINS = []
+else:
+    CORS_ALLOWED_ORIGINS = env_list("CORS_ALLOWED_ORIGINS")
 CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS  # Backward compatibility (older django-cors-headers).
 CORS_ALLOW_CREDENTIALS = True
 
