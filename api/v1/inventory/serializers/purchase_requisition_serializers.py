@@ -141,3 +141,14 @@ class PurchaseRequisitionProductNameListSerializer(serializers.Serializer):
         child=serializers.CharField(),
         read_only=True,
     )
+
+
+class PurchaseRequisitionFilterOptionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    label = serializers.CharField()
+
+
+class PurchaseRequisitionFilterOptionsSerializer(serializers.Serializer):
+    material_categories = PurchaseRequisitionFilterOptionSerializer(many=True)
+    vendors = PurchaseRequisitionFilterOptionSerializer(many=True)
+    specific_products = PurchaseRequisitionFilterOptionSerializer(many=True)

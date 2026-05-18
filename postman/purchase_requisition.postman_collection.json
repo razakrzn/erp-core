@@ -41,10 +41,33 @@
                   "key": "ordering",
                   "value": "-created_at",
                   "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "Submitted for Approval",
+                  "disabled": true
+                },
+                {
+                  "key": "material_categories",
+                  "value": "1",
+                  "description": "Category id(s) or name(s) from filter-options. Comma-separated or repeated.",
+                  "disabled": true
+                },
+                {
+                  "key": "vendors",
+                  "value": "2",
+                  "description": "Vendor id(s) or trade name(s) from filter-options.",
+                  "disabled": true
+                },
+                {
+                  "key": "specific_products",
+                  "value": "1",
+                  "description": "Product id(s) or name(s) from filter-options.",
+                  "disabled": true
                 }
               ]
             },
-            "description": "Retrieve a paginated list of purchase requisitions. Supports search and ordering."
+            "description": "Retrieve a paginated list of purchase requisitions. Supports search, ordering, status, and line-item filters (material_categories, vendors, specific_products) using values from filter-options."
           },
           "response": []
         },

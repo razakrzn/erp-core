@@ -13,6 +13,7 @@ from .company import CompanyViewSet
 from .accounts import UserViewSet, CheckUsernameAPIView
 from .inventory.views import (
     ProductViewSet,
+    PurchaseRequisitionViewSet,
     PurchaseRequisitionPreferredVendorNameViewSet,
     PurchaseRequisitionProductCategoryViewSet,
     PurchaseRequisitionProductNameViewSet,
@@ -43,6 +44,11 @@ urlpatterns = [
         "purchase-requisitions/preferred-vendor-names/",
         PurchaseRequisitionPreferredVendorNameViewSet.as_view({"get": "list"}),
         name="purchase-requisition-preferred-vendor-names",
+    ),
+    path(
+        "purchase-requisitions/filter-options/",
+        PurchaseRequisitionViewSet.as_view({"get": "filter_options"}),
+        name="purchase-requisition-filter-options",
     ),
     path(
         "products/accessories-dropdown/",
