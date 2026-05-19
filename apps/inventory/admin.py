@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 
 from .models import (
@@ -17,6 +18,47 @@ from .models import (
     Vendor,
     VendorContact,
 )
+
+
+class PurchaseOrderLineItemInlineForm(forms.ModelForm):
+    requisition_line_item = forms.ModelChoiceField(
+        queryset=PurchaseRequisitionLineItem.objects.select_related("purchase_requisition"),
+        required=False,
+        label="Purchase Requisition Line Item",
+    )
+
+    class Meta:
+        model = PurchaseOrderLineItem
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["requisition_line_item"].label_from_instance = self._format_requisition_line_item
+
+    @staticmethod
+    def _format_requisition_line_item(item):
+        pr_number = item.purchase_requisition.purchase_request_number if item.purchase_requisition else "PR-N/A"
+        product = item.product_name or item.product_code or f"Line {item.pk}"
+        qty = item.requested_qty if item.requested_qty is not None else "-"
+        return f"{pr_number} | {product} | Qty: {qty}"
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        line_item = self.cleaned_data.get("requisition_line_item")
+        if line_item:
+            requisition = line_item.purchase_requisition
+            instance.purchase_requisition = requisition
+            instance.product_code = line_item.product_code
+            instance.description = line_item.product_name
+            instance.unit = line_item.unit
+            instance.requested_qty = line_item.requested_qty
+            if requisition:
+                instance.required_by_date = requisition.required_by_date
+                instance.delivery_location = requisition.delivery_location
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance
 
 
 class VendorContactInline(admin.TabularInline):
@@ -172,6 +214,7 @@ class PurchaseRequisitionAdmin(admin.ModelAdmin):
     )
     readonly_fields = (
         "purchase_request_number",
+        "status",
         "created_by",
         "updated_by",
         "approved_by",
@@ -180,6 +223,34 @@ class PurchaseRequisitionAdmin(admin.ModelAdmin):
         "updated_at",
     )
     inlines = (PurchaseRequisitionLineItemInline,)
+
+    def save_model(self, request, obj, form, change):
+        was_approved = False
+        if change and obj.pk:
+            previous = PurchaseRequisition.objects.filter(pk=obj.pk).only("is_approved").first()
+            was_approved = bool(previous and previous.is_approved)
+
+        user = request.user if request.user and request.user.is_authenticated else None
+        if obj.is_approved:
+            obj.is_rejected = False
+            obj.reject_note = ""
+            obj.rejected_by = None
+            if user:
+                obj.approved_by = user
+        elif obj.is_rejected:
+            obj.is_approved = False
+            obj.approved_by = None
+            if user:
+                obj.rejected_by = user
+        else:
+            obj.approved_by = None
+            obj.rejected_by = None
+
+        super().save_model(request, obj, form, change)
+
+        if obj.is_approved and not was_approved:
+            obj.ensure_pending_purchase_order(actor=request.user)
+            obj.ensure_production_order()
 
 
 @admin.register(PurchaseRequisitionLineItem)
@@ -200,6 +271,26 @@ class PurchaseRequisitionLineItemAdmin(admin.ModelAdmin):
     readonly_fields = ("net_required_qty",)
 
 
+class PurchaseOrderLineItemInline(admin.TabularInline):
+    model = PurchaseOrderLineItem
+    form = PurchaseOrderLineItemInlineForm
+    extra = 1
+    fields = (
+        "requisition_line_item",
+        "product_code",
+        "purchase_requisition",
+        "description",
+        "unit",
+        "requested_qty",
+        "required_by_date",
+        "delivery_location",
+        "last_purchase_rate",
+        "negotiated_price",
+        "line_total",
+    )
+    readonly_fields = ("line_total",)
+
+
 @admin.register(PurchaseOrder)
 class PurchaseOrderAdmin(admin.ModelAdmin):
     list_display = (
@@ -217,6 +308,7 @@ class PurchaseOrderAdmin(admin.ModelAdmin):
     list_filter = ("status", "po_issued_date", "created_at", "is_confirmed", "is_closed")
     search_fields = ("po_number", "vendor__trade_name", "created_by__username")
     readonly_fields = ("po_number", "created_at", "updated_at")
+    inlines = (PurchaseOrderLineItemInline,)
 
 
 @admin.register(PurchaseOrderLineItem)

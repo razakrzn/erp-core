@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db import transaction
 from django.utils import timezone
 
 
@@ -80,8 +81,8 @@ class PurchaseRequisition(models.Model):
         max_length=50,
         null=True,
         blank=True,
-        default="Draft",
-        help_text="Current status: Draft, Submitted for Approval, Approved, Rejected.",
+        default="Pending",
+        help_text="Current status: Pending, Approved, Rejected.",
     )
     is_approved = models.BooleanField(default=False, null=True, blank=True)
     is_rejected = models.BooleanField(default=False, null=True, blank=True)
@@ -129,7 +130,18 @@ class PurchaseRequisition(models.Model):
         verbose_name_plural = "Purchase Requisitions"
         ordering = ["-created_at"]
 
+    def _resolve_status_from_flags(self):
+        if self.is_approved:
+            return "Approved"
+        if self.is_rejected:
+            return "Rejected"
+        return "Pending"
+
     def save(self, *args, **kwargs):
+        self.status = self._resolve_status_from_flags()
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            kwargs["update_fields"] = set(update_fields) | {"status"}
         is_new = self.pk is None
         super().save(*args, **kwargs)
 
@@ -140,6 +152,88 @@ class PurchaseRequisition(models.Model):
     def __str__(self) -> str:
         pr_number = self.purchase_request_number or f"PR-{self.pk or 'NEW'}"
         return f"{pr_number} ({self.status})"
+
+    def ensure_pending_purchase_order(self, actor=None):
+        """
+        Create one pending PO from this approved PR, with line items copied from PR line items.
+        Returns (po, created_new).
+        """
+        existing_po = self.purchase_orders.order_by("id").first()
+        if existing_po:
+            return existing_po, False
+
+        created_by = actor or self.approved_by or self.created_by
+        if not created_by:
+            raise ValueError("Cannot auto-create Purchase Order: no user available for created_by.")
+
+        from .purchaseorder import PurchaseOrder, PurchaseOrderLineItem
+
+        with transaction.atomic():
+            po = PurchaseOrder.objects.create(
+                purchase_requisition=self,
+                vendor=None,
+                associated_job=self.job_order_ref or "",
+                payment_terms="Pending",
+                shipping_delivery_terms="Pending",
+                po_issued_date=self.requisition_date or timezone.localdate(),
+                internal_remarks=f"Auto-created from approved PR {self.purchase_request_number or self.pk}.",
+                status="Pending",
+                is_confirmed=False,
+                is_closed=False,
+                created_by=created_by,
+                updated_by=created_by,
+            )
+
+            line_items = self.line_items.all()
+            po_line_items = [
+                PurchaseOrderLineItem(
+                    purchase_order=po,
+                    product_code=(line_item.product_code or ""),
+                    purchase_requisition=self,
+                    description=(line_item.product_name or ""),
+                    unit=(line_item.unit or ""),
+                    requested_qty=line_item.requested_qty,
+                    required_by_date=self.required_by_date,
+                    delivery_location=(self.delivery_location or ""),
+                    last_purchase_rate=Decimal("0.00"),
+                    negotiated_price=Decimal("0.00"),
+                )
+                for line_item in line_items
+            ]
+            if po_line_items:
+                PurchaseOrderLineItem.objects.bulk_create(po_line_items)
+
+            po.net_amount = sum((item.line_total for item in po.po_line_items.all()), Decimal("0.00"))
+            po.vat_amount = po.net_amount * PurchaseOrder.VAT_RATE
+            po.grand_total = po.net_amount + po.vat_amount
+            po.save(update_fields=["net_amount", "vat_amount", "grand_total", "updated_at"])
+
+        return po, True
+
+    def ensure_production_order(self):
+        """
+        Create one production order for this PR if it does not exist.
+        Returns (production_order, created_new).
+        """
+        from apps.production.models import ProductionOrder
+
+        order_no = f"PROD-PR-{self.pk:06d}"
+        existing = ProductionOrder.objects.filter(order_no=order_no).first()
+        if existing:
+            return existing, False
+
+        planned_qty = sum((item.requested_qty or Decimal("0.00") for item in self.line_items.all()), Decimal("0.00"))
+        production_order = ProductionOrder.objects.create(
+            name=f"Production for {self.purchase_request_number or f'PR-{self.pk:06d}'}",
+            order_no=order_no,
+            status="draft",
+            due_date=self.required_by_date,
+            planned_quantity=max(int(planned_qty), 0),
+            produced_quantity=0,
+            description=f"Auto-created from approved Purchase Requisition {self.purchase_request_number or self.pk}.",
+            is_active=True,
+        )
+        return production_order, True
 
 
 class PurchaseRequisitionLineItem(models.Model):

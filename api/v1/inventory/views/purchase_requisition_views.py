@@ -260,18 +260,15 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
         instance = self.get_object()
         value = self._parse_boolean_action_value(request.data.get("value", None), "value")
         user = request.user if request.user and request.user.is_authenticated else None
+        was_approved = bool(instance.is_approved)
 
         instance.is_approved = value
         if value:
             instance.is_rejected = False
-            instance.status = "Approved"
             instance.approved_by = user
             instance.rejected_by = None
             instance.reject_note = ""
         else:
-            # Cancel approval only if currently approved.
-            if instance.status == "Approved":
-                instance.status = "Submitted for Approval"
             instance.approved_by = None
 
         instance.updated_by = user if user else instance.updated_by
@@ -279,7 +276,6 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
             update_fields=[
                 "is_approved",
                 "is_rejected",
-                "status",
                 "approved_by",
                 "rejected_by",
                 "reject_note",
@@ -287,6 +283,9 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
                 "updated_at",
             ]
         )
+        if value and not was_approved:
+            instance.ensure_pending_purchase_order(actor=user)
+            instance.ensure_production_order()
 
         message = "Purchase Requisition Approved" if value else "Purchase Requisition Approval Cancelled"
         return APIResponse.success(
@@ -307,14 +306,10 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
         instance.is_rejected = value
         if value:
             instance.is_approved = False
-            instance.status = "Rejected"
             instance.rejected_by = user
             instance.reject_note = reject_note
             instance.approved_by = None
         else:
-            # Cancel rejection only if currently rejected.
-            if instance.status == "Rejected":
-                instance.status = "Submitted for Approval"
             instance.rejected_by = None
             instance.reject_note = ""
 
@@ -323,7 +318,6 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
             update_fields=[
                 "is_approved",
                 "is_rejected",
-                "status",
                 "approved_by",
                 "rejected_by",
                 "reject_note",

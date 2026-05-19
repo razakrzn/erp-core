@@ -1,0 +1,132 @@
+from decimal import Decimal
+
+from django.db import transaction
+from rest_framework import serializers
+
+from apps.inventory.models import PurchaseOrder, PurchaseOrderLineItem
+
+
+class PurchaseOrderLineItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurchaseOrderLineItem
+        fields = [
+            "id",
+            "purchase_order",
+            "product_code",
+            "purchase_requisition",
+            "description",
+            "unit",
+            "requested_qty",
+            "required_by_date",
+            "delivery_location",
+            "last_purchase_rate",
+            "negotiated_price",
+            "line_total",
+        ]
+        read_only_fields = ["line_total", "purchase_order"]
+        extra_kwargs = {
+            "purchase_requisition": {"required": False},
+        }
+
+
+class PurchaseOrderSerializer(serializers.ModelSerializer):
+    line_items = PurchaseOrderLineItemSerializer(source="po_line_items", many=True, required=False)
+    created_by_name = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = PurchaseOrder
+        fields = [
+            "id",
+            "po_number",
+            "purchase_requisition",
+            "vendor",
+            "associated_job",
+            "payment_terms",
+            "shipping_delivery_terms",
+            "po_issued_date",
+            "internal_remarks",
+            "status",
+            "is_confirmed",
+            "is_closed",
+            "net_amount",
+            "vat_amount",
+            "grand_total",
+            "created_by",
+            "created_by_name",
+            "updated_by",
+            "confirmed_by",
+            "created_at",
+            "updated_at",
+            "line_items",
+        ]
+        read_only_fields = [
+            "po_number",
+            "net_amount",
+            "vat_amount",
+            "grand_total",
+            "created_by",
+            "created_by_name",
+            "updated_by",
+            "confirmed_by",
+            "created_at",
+            "updated_at",
+        ]
+
+    def get_created_by_name(self, obj):
+        if not obj.created_by:
+            return None
+        return obj.created_by.get_full_name() or obj.created_by.get_username()
+
+    @staticmethod
+    def _recalculate_totals(instance):
+        net_amount = sum((line.line_total for line in instance.po_line_items.all()), Decimal("0.00"))
+        instance.net_amount = net_amount
+        instance.vat_amount = net_amount * PurchaseOrder.VAT_RATE
+        instance.grand_total = instance.net_amount + instance.vat_amount
+        instance.save(update_fields=["net_amount", "vat_amount", "grand_total", "updated_at"])
+
+    def create(self, validated_data):
+        line_items_data = validated_data.pop("po_line_items", [])
+        with transaction.atomic():
+            purchase_order = PurchaseOrder.objects.create(**validated_data)
+            for item_data in line_items_data:
+                PurchaseOrderLineItem.objects.create(purchase_order=purchase_order, **item_data)
+            self._recalculate_totals(purchase_order)
+        return purchase_order
+
+    def update(self, instance, validated_data):
+        line_items_data = validated_data.pop("po_line_items", None)
+        with transaction.atomic():
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save()
+
+            if line_items_data is not None:
+                instance.po_line_items.all().delete()
+                for item_data in line_items_data:
+                    PurchaseOrderLineItem.objects.create(purchase_order=instance, **item_data)
+            self._recalculate_totals(instance)
+        return instance
+
+
+class PurchaseOrderListSerializer(serializers.ModelSerializer):
+    created_by_name = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = PurchaseOrder
+        fields = [
+            "id",
+            "po_number",
+            "purchase_requisition",
+            "vendor",
+            "po_issued_date",
+            "status",
+            "net_amount",
+            "grand_total",
+            "created_by_name",
+        ]
+
+    def get_created_by_name(self, obj):
+        if not obj.created_by:
+            return None
+        return obj.created_by.get_full_name() or obj.created_by.get_username()

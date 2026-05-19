@@ -65,6 +65,7 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "purchase_request_number",
+            "status",
             "created_by",
             "approved_by",
             "rejected_by",
@@ -90,28 +91,70 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         line_items_data = validated_data.pop("line_items", [])
+        user = self.context.get("request").user if self.context.get("request") else None
 
         with transaction.atomic():
             requisition = PurchaseRequisition.objects.create(**validated_data)
             for item_data in line_items_data:
                 PurchaseRequisitionLineItem.objects.create(purchase_requisition=requisition, **item_data)
+            self._sync_approval_fields(requisition, user)
+            requisition.save()
+            if requisition.is_approved:
+                requisition.ensure_pending_purchase_order(actor=user if getattr(user, "is_authenticated", False) else None)
+                requisition.ensure_production_order()
 
         return requisition
 
     def update(self, instance, validated_data):
         line_items_data = validated_data.pop("line_items", None)
+        user = self.context.get("request").user if self.context.get("request") else None
+        was_approved = bool(instance.is_approved)
 
         with transaction.atomic():
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
+            self._sync_approval_fields(instance, user)
             instance.save()
 
             if line_items_data is not None:
                 instance.line_items.all().delete()
                 for item_data in line_items_data:
                     PurchaseRequisitionLineItem.objects.create(purchase_requisition=instance, **item_data)
+            if instance.is_approved and not was_approved:
+                instance.ensure_pending_purchase_order(actor=user if getattr(user, "is_authenticated", False) else None)
+                instance.ensure_production_order()
 
         return instance
+
+    def validate(self, attrs):
+        instance = getattr(self, "instance", None)
+        is_approved = attrs.get("is_approved", getattr(instance, "is_approved", False))
+        is_rejected = attrs.get("is_rejected", getattr(instance, "is_rejected", False))
+        reject_note = attrs.get("reject_note", getattr(instance, "reject_note", "")) or ""
+
+        if is_approved and is_rejected:
+            raise serializers.ValidationError("Purchase requisition cannot be both approved and rejected.")
+        if is_rejected and not reject_note.strip():
+            raise serializers.ValidationError({"reject_note": "This field is required when rejecting Purchase Requisition."})
+        return attrs
+
+    @staticmethod
+    def _sync_approval_fields(instance, user):
+        auth_user = user if getattr(user, "is_authenticated", False) else None
+        if instance.is_approved:
+            instance.is_rejected = False
+            instance.reject_note = ""
+            instance.rejected_by = None
+            if auth_user:
+                instance.approved_by = auth_user
+        elif instance.is_rejected:
+            instance.is_approved = False
+            instance.approved_by = None
+            if auth_user:
+                instance.rejected_by = auth_user
+        else:
+            instance.approved_by = None
+            instance.rejected_by = None
 
 
 class PurchaseRequisitionListSerializer(serializers.ModelSerializer):

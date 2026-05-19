@@ -16,6 +16,7 @@ from .purchase_requisition_views import (
     PurchaseRequisitionPreferredVendorNameViewSet,
     PurchaseRequisitionViewSet,
 )
+from .purchase_order_views import PurchaseOrderViewSet
 from .vendor_views import VendorViewSet
 
 __all__ = [
@@ -34,4 +35,5 @@ __all__ = [
     "PurchaseRequisitionProductNameViewSet",
     "PurchaseRequisitionProductCategoryViewSet",
     "PurchaseRequisitionPreferredVendorNameViewSet",
+    "PurchaseOrderViewSet",
 ]
