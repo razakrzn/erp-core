@@ -4,6 +4,16 @@ from apps.assessment.models import Accessory, Finish, Quote, QuoteItem, QuoteTer
 
 
 class QuoteCompletenessMixin:
+    @staticmethod
+    def _resolve_status(instance, template_created, custom_created):
+        if getattr(instance, "is_approved", False):
+            return "Quotation Approved"
+        if getattr(instance, "is_rejected", False):
+            return "Quotation Rejected"
+        if template_created and custom_created:
+            return "Awaiting Approval"
+        return "Awaiting Quotation"
+
     def add_completeness_flags(self, instance, representation):
         """
         Return flags indicating completeness for template and custom items independently.
@@ -35,6 +45,7 @@ class QuoteCompletenessMixin:
 
         representation["templateQuoteItemCreated"] = template_created
         representation["customQuoteItemCreated"] = custom_created
+        representation["status"] = self._resolve_status(instance, template_created, custom_created)
         return representation
 
 
