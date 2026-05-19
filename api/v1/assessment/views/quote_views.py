@@ -24,6 +24,7 @@ from .shared import BaseAssessmentViewSet
 class QuoteViewSet(BaseAssessmentViewSet):
     queryset = Quote.objects.select_related("boq").prefetch_related("items__finishes", "boq__items")
     serializer_class = QuoteDetailSerializer
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
     search_fields = ["quote_number", "boq__boq_number", "status", "client_status"]
     ordering_fields = ["quote_number", "status", "client_status", "created_at", "updated_at"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]

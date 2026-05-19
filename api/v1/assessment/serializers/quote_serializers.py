@@ -82,6 +82,7 @@ class QuoteListSerializer(QuoteCompletenessMixin, serializers.ModelSerializer):
         fields = [
             "id",
             "quote_number",
+            "attachment",
             "boq_number",
             "project_name",
             "client",
@@ -119,6 +120,7 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
     updated_by = serializers.SerializerMethodField()
     approved_by = serializers.SerializerMethodField()
     rejected_by = serializers.SerializerMethodField()
+    attachment = serializers.SerializerMethodField()
 
     class Meta:
         model = Quote
@@ -126,6 +128,7 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
             "id",
             "boq_id",
             "quote_number",
+            "attachment",
             "boq",
             "enquiry",
             "quote_items",
@@ -231,6 +234,15 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
 
     def get_rejected_by(self, obj):
         return self._get_user_full_name(obj.rejected_by)
+
+    def get_attachment(self, obj):
+        request = self.context.get("request")
+        if not obj.attachment:
+            return None
+        attachment_url = obj.attachment.url
+        if request is not None:
+            return request.build_absolute_uri(attachment_url)
+        return attachment_url
 
     def to_internal_value(self, data):
         if isinstance(data, dict):
