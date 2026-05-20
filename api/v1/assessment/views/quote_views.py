@@ -156,6 +156,8 @@ class QuoteViewSet(BaseAssessmentViewSet):
                 setattr(instance, field, request.data.get(field))
 
         instance.is_approved = value
+        if "attachment" in request.FILES:
+            instance.attachment = request.FILES["attachment"]
         if value:
             instance.is_rejected = False
             instance.reject_note = ""
