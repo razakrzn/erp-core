@@ -14,6 +14,8 @@ from .product_serializers import (
 from .purchase_requisition_serializers import (
     PurchaseRequisitionFilterOptionsSerializer,
     PurchaseRequisitionFilterOptionSerializer,
+    PurchaseRequisitionLineItemDropdownOptionSerializer,
+    PurchaseRequisitionLineItemFilterOptionSerializer,
     PurchaseRequisitionLineItemSerializer,
     PurchaseRequisitionListSerializer,
     PurchaseRequisitionProductNameListSerializer,
@@ -42,6 +44,8 @@ __all__ = [
     "PurchaseRequisitionSerializer",
     "PurchaseRequisitionFilterOptionSerializer",
     "PurchaseRequisitionFilterOptionsSerializer",
+    "PurchaseRequisitionLineItemDropdownOptionSerializer",
+    "PurchaseRequisitionLineItemFilterOptionSerializer",
     "PurchaseRequisitionLineItemSerializer",
     "PurchaseRequisitionProductNameListSerializer",
     "PurchaseOrderLineItemSerializer",

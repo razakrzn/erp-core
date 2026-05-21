@@ -38,7 +38,6 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "po_number",
-            "purchase_requisition",
             "vendor",
             "associated_job",
             "payment_terms",
@@ -117,7 +116,6 @@ class PurchaseOrderListSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "po_number",
-            "purchase_requisition",
             "vendor",
             "po_issued_date",
             "status",

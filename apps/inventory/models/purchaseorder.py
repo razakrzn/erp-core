@@ -18,16 +18,6 @@ class PurchaseOrder(models.Model):
         help_text="Auto-generated unique purchase order number.",
     )
 
-    # Link to originating PR (nullable — PO can be raised without a PR)
-    purchase_requisition = models.ForeignKey(
-        PurchaseRequisition,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="purchase_orders",
-        help_text="The Purchase Requisition this PO was raised from.",
-    )
-
     # Header fields
     vendor = models.ForeignKey(
         Vendor,

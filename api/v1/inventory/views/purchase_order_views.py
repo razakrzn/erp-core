@@ -11,7 +11,6 @@ from .shared import BaseInventoryViewSet
 
 class PurchaseOrderViewSet(BaseInventoryViewSet):
     queryset = PurchaseOrder.objects.select_related(
-        "purchase_requisition",
         "vendor",
         "created_by",
         "updated_by",
@@ -23,7 +22,6 @@ class PurchaseOrderViewSet(BaseInventoryViewSet):
         "po_number",
         "status",
         "vendor__trade_name",
-        "purchase_requisition__purchase_request_number",
         "associated_job",
         "internal_remarks",
     ]

@@ -22,9 +22,11 @@ from .models import (
 
 class PurchaseOrderLineItemInlineForm(forms.ModelForm):
     requisition_line_item = forms.ModelChoiceField(
-        queryset=PurchaseRequisitionLineItem.objects.select_related("purchase_requisition"),
+        queryset=PurchaseRequisitionLineItem.objects.select_related("purchase_requisition").filter(
+            purchase_requisition__is_approved=True
+        ),
         required=False,
-        label="Purchase Requisition Line Item",
+        label="Approved Purchase Requisition Line Item",
     )
 
     class Meta:
@@ -47,7 +49,6 @@ class PurchaseOrderLineItemInlineForm(forms.ModelForm):
         line_item = self.cleaned_data.get("requisition_line_item")
         if line_item:
             requisition = line_item.purchase_requisition
-            instance.purchase_requisition = requisition
             instance.product_code = line_item.product_code
             instance.description = line_item.product_name
             instance.unit = line_item.unit
@@ -249,7 +250,6 @@ class PurchaseRequisitionAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
         if obj.is_approved and not was_approved:
-            obj.ensure_pending_purchase_order(actor=request.user)
             obj.ensure_production_order()
 
 
@@ -266,9 +266,27 @@ class PurchaseRequisitionLineItemAdmin(admin.ModelAdmin):
         "requested_qty",
         "net_required_qty",
     )
-    list_filter = ("purchase_requisition__status",)
-    search_fields = ("purchase_requisition__id", "product_id", "product_name", "product_code")
+    list_filter = (
+        "product_category",
+        "product_name",
+        "unit",
+        "purchase_requisition__required_by_date",
+        "purchase_requisition__priority",
+        "purchase_requisition__status",
+    )
+    search_fields = (
+        "purchase_requisition__purchase_request_number",
+        "purchase_requisition__id",
+        "product_id",
+        "product_name",
+        "product_code",
+        "product_category",
+    )
     readonly_fields = ("net_required_qty",)
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.select_related("purchase_requisition").filter(purchase_requisition__is_approved=True)
 
 
 class PurchaseOrderLineItemInline(admin.TabularInline):
@@ -295,7 +313,6 @@ class PurchaseOrderLineItemInline(admin.TabularInline):
 class PurchaseOrderAdmin(admin.ModelAdmin):
     list_display = (
         "po_number",
-        "purchase_requisition",
         "vendor",
         "po_issued_date",
         "status",

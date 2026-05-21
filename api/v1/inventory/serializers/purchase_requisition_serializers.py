@@ -100,7 +100,6 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
             self._sync_approval_fields(requisition, user)
             requisition.save()
             if requisition.is_approved:
-                requisition.ensure_pending_purchase_order(actor=user if getattr(user, "is_authenticated", False) else None)
                 requisition.ensure_production_order()
 
         return requisition
@@ -121,7 +120,6 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
                 for item_data in line_items_data:
                     PurchaseRequisitionLineItem.objects.create(purchase_requisition=instance, **item_data)
             if instance.is_approved and not was_approved:
-                instance.ensure_pending_purchase_order(actor=user if getattr(user, "is_authenticated", False) else None)
                 instance.ensure_production_order()
 
         return instance
@@ -195,3 +193,14 @@ class PurchaseRequisitionFilterOptionsSerializer(serializers.Serializer):
     material_categories = PurchaseRequisitionFilterOptionSerializer(many=True)
     vendors = PurchaseRequisitionFilterOptionSerializer(many=True)
     specific_products = PurchaseRequisitionFilterOptionSerializer(many=True)
+
+
+class PurchaseRequisitionLineItemDropdownOptionSerializer(serializers.Serializer):
+    value = serializers.CharField()
+    label = serializers.CharField()
+
+
+class PurchaseRequisitionLineItemFilterOptionSerializer(serializers.Serializer):
+    key = serializers.CharField()
+    label = serializers.CharField()
+    options_endpoint = serializers.CharField()

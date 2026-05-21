@@ -13,6 +13,8 @@ from core.utils.responses import APIResponse, build_actions
 
 from ..serializers import (
     PurchaseRequisitionFilterOptionsSerializer,
+    PurchaseRequisitionLineItemDropdownOptionSerializer,
+    PurchaseRequisitionLineItemFilterOptionSerializer,
     PurchaseRequisitionLineItemSerializer,
     PurchaseRequisitionListSerializer,
     PurchaseRequisitionSerializer,
@@ -139,6 +141,18 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
 
         return queryset.filter(line_item_filter)
 
+    @staticmethod
+    def _parse_ordering_param(raw_ordering, allowed_fields, default_ordering):
+        ordering = []
+        for token in (raw_ordering or "").split(","):
+            value = token.strip()
+            if not value:
+                continue
+            normalized = value[1:] if value.startswith("-") else value
+            if normalized in allowed_fields:
+                ordering.append(value)
+        return ordering or default_ordering
+
     def get_serializer_class(self):
         if self.action == "list":
             return PurchaseRequisitionListSerializer
@@ -201,6 +215,128 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
         return APIResponse.success(
             data=serializer.validated_data,
             message="Purchase requisition filter options retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["get"], url_path="approved-line-items")
+    def approved_line_items(self, request, *args, **kwargs):
+        queryset = PurchaseRequisitionLineItem.objects.select_related("purchase_requisition").filter(
+            purchase_requisition__is_approved=True
+        )
+
+        category_ids, category_names = self._parse_filter_tokens(request, "product_category", "product_categories")
+        if category_ids:
+            category_names.extend(
+                Category.objects.filter(id__in=category_ids).values_list("name", flat=True)
+            )
+        category_names = list(dict.fromkeys(name for name in category_names if name))
+        if category_names:
+            queryset = queryset.filter(product_category__in=category_names)
+
+        _unused_ids, product_names = self._parse_filter_tokens(request, "product_name", "product_names")
+        product_names = list(dict.fromkeys(name for name in product_names if name))
+        if product_names:
+            queryset = queryset.filter(product_name__in=product_names)
+
+        search_term = (request.query_params.get("search") or "").strip()
+        if search_term:
+            queryset = queryset.filter(
+                Q(product_name__icontains=search_term)
+                | Q(product_code__icontains=search_term)
+                | Q(product_category__icontains=search_term)
+                | Q(purchase_requisition__purchase_request_number__icontains=search_term)
+            )
+
+        ordering = self._parse_ordering_param(
+            request.query_params.get("ordering"),
+            {
+                "id",
+                "purchase_requisition_id",
+                "product_name",
+                "product_code",
+                "requested_qty",
+                "net_required_qty",
+            },
+            ["id"],
+        )
+        queryset = queryset.order_by(*ordering)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = PurchaseRequisitionLineItemSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = PurchaseRequisitionLineItemSerializer(queryset, many=True)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Approved purchase requisition line items retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["get"], url_path="line-items/product-categories-dropdown")
+    def line_item_product_categories_dropdown(self, request, *args, **kwargs):
+        query = (request.query_params.get("search") or request.query_params.get("query") or "").strip()
+        queryset = (
+            PurchaseRequisitionLineItem.objects.exclude(product_category__isnull=True)
+            .exclude(product_category__exact="")
+            .values_list("product_category", flat=True)
+            .distinct()
+            .order_by("product_category")
+        )
+        if query:
+            queryset = queryset.filter(product_category__icontains=query)
+
+        options = [{"value": value, "label": value} for value in queryset]
+        serializer = PurchaseRequisitionLineItemDropdownOptionSerializer(data=options, many=True)
+        serializer.is_valid(raise_exception=True)
+        return APIResponse.success(
+            data=serializer.validated_data,
+            message="Line item product categories retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["get"], url_path="line-items/filter-options")
+    def line_item_filter_options(self, request, *args, **kwargs):
+        base_path = "/api/v1/inventory/purchase-requisitions/line-items"
+        payload = [
+            {
+                "key": "product_category",
+                "label": "Product Category",
+                "options_endpoint": f"{base_path}/product-categories-dropdown/",
+            },
+            {
+                "key": "product_name",
+                "label": "Product Name",
+                "options_endpoint": f"{base_path}/product-names-dropdown/",
+            },
+        ]
+        serializer = PurchaseRequisitionLineItemFilterOptionSerializer(data=payload, many=True)
+        serializer.is_valid(raise_exception=True)
+        return APIResponse.success(
+            data=serializer.validated_data,
+            message="Line item filter options retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["get"], url_path="line-items/product-names-dropdown")
+    def line_item_product_names_dropdown(self, request, *args, **kwargs):
+        query = (request.query_params.get("search") or request.query_params.get("query") or "").strip()
+        queryset = (
+            PurchaseRequisitionLineItem.objects.exclude(product_name__isnull=True)
+            .exclude(product_name__exact="")
+            .values_list("product_name", flat=True)
+            .distinct()
+            .order_by("product_name")
+        )
+        if query:
+            queryset = queryset.filter(product_name__icontains=query)
+
+        options = [{"value": value, "label": value} for value in queryset]
+        serializer = PurchaseRequisitionLineItemDropdownOptionSerializer(data=options, many=True)
+        serializer.is_valid(raise_exception=True)
+        return APIResponse.success(
+            data=serializer.validated_data,
+            message="Line item product names retrieved successfully.",
             status_code=status.HTTP_200_OK,
         )
 
@@ -284,7 +420,6 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
             ]
         )
         if value and not was_approved:
-            instance.ensure_pending_purchase_order(actor=user)
             instance.ensure_production_order()
 
         message = "Purchase Requisition Approved" if value else "Purchase Requisition Approval Cancelled"

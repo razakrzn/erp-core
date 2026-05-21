@@ -158,7 +158,9 @@ class PurchaseRequisition(models.Model):
         Create one pending PO from this approved PR, with line items copied from PR line items.
         Returns (po, created_new).
         """
-        existing_po = self.purchase_orders.order_by("id").first()
+        existing_po = (
+            PurchaseOrder.objects.filter(po_line_items__purchase_requisition=self).order_by("id").first()
+        )
         if existing_po:
             return existing_po, False
 
@@ -170,7 +172,6 @@ class PurchaseRequisition(models.Model):
 
         with transaction.atomic():
             po = PurchaseOrder.objects.create(
-                purchase_requisition=self,
                 vendor=None,
                 associated_job=self.job_order_ref or "",
                 payment_terms="Pending",

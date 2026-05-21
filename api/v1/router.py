@@ -9,6 +9,7 @@ your domain apps (e.g. apps.accounts, apps.company).
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
+from .views import APILandingView
 from .company import CompanyViewSet
 from .accounts import UserViewSet, CheckUsernameAPIView
 from .inventory.views import (
@@ -29,6 +30,7 @@ router.register(r"companies", CompanyViewSet, basename="company")
 router.register(r"users", UserViewSet, basename="user")
 
 urlpatterns = [
+    path("", APILandingView.as_view(), name="api-v1-home"),
     path("check-username/", CheckUsernameAPIView.as_view(), name="check-username"),
     path(
         "purchase-requisitions/product-names/",
