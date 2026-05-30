@@ -4,6 +4,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from apps.inventory.models import PurchaseOrder, PurchaseOrderLineItem
+from core.utils.responses import build_actions
 
 
 class PurchaseOrderLineItemSerializer(serializers.ModelSerializer):
@@ -38,6 +39,7 @@ class PurchaseOrderLineItemSerializer(serializers.ModelSerializer):
 class PurchaseOrderSerializer(serializers.ModelSerializer):
     line_items = PurchaseOrderLineItemSerializer(source="po_line_items", many=True, required=False)
     created_by_name = serializers.SerializerMethodField(read_only=True)
+    actions = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = PurchaseOrder
@@ -51,8 +53,9 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
             "po_issued_date",
             "internal_remarks",
             "status",
-            "is_confirmed",
-            "is_closed",
+            "is_approved",
+            "is_rejected",
+            "reject_note",
             "net_amount",
             "vat_amount",
             "grand_total",
@@ -63,6 +66,7 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "line_items",
+            "actions",
         ]
         read_only_fields = [
             "po_number",
@@ -81,6 +85,25 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
         if not obj.created_by:
             return None
         return obj.created_by.get_full_name() or obj.created_by.get_username()
+
+    def get_actions(self, obj):
+        request = self.context.get("request")
+        view = self.context.get("view")
+
+        if not request or not view or getattr(view, "action", None) != "retrieve":
+            return None
+
+        computed_actions = build_actions(request.user, getattr(view, "permission_prefix", ""))
+        return {
+            "canApprove": bool(computed_actions.get("canApprove", False)),
+            "canReject": bool(computed_actions.get("canReject", False)),
+        }
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if data.get("actions") is None:
+            data.pop("actions", None)
+        return data
 
     @staticmethod
     def _recalculate_totals(instance):

@@ -114,16 +114,28 @@ class PurchaseOrderViewSet(BaseInventoryViewSet):
         value = self._parse_boolean_action_value(request.data.get("value", None), "value")
         user = request.user if request.user and request.user.is_authenticated else None
 
-        instance.is_confirmed = value
+        instance.is_approved = value
         if value:
-            instance.status = "Confirmed"
+            instance.is_rejected = False
+            instance.reject_note = ""
+            instance.status = "Approved"
             instance.confirmed_by = user
         else:
             instance.status = "Pending"
             instance.confirmed_by = None
 
         instance.updated_by = user if user else instance.updated_by
-        instance.save(update_fields=["is_confirmed", "status", "confirmed_by", "updated_by", "updated_at"])
+        instance.save(
+            update_fields=[
+                "is_approved",
+                "is_rejected",
+                "reject_note",
+                "status",
+                "confirmed_by",
+                "updated_by",
+                "updated_at",
+            ]
+        )
 
         message = "Purchase Order Approved" if value else "Purchase Order Approval Cancelled"
         return APIResponse.success(
@@ -136,17 +148,33 @@ class PurchaseOrderViewSet(BaseInventoryViewSet):
     def reject(self, request, *args, **kwargs):
         instance = self.get_object()
         value = self._parse_boolean_action_value(request.data.get("value", None), "value")
+        reject_note = (request.data.get("reject_note", "") or "").strip()
+        if value and not reject_note:
+            raise ValidationError({"reject_note": "This field is required when rejecting Purchase Order."})
         user = request.user if request.user and request.user.is_authenticated else None
 
+        instance.is_rejected = value
         if value:
-            instance.is_confirmed = False
+            instance.is_approved = False
             instance.status = "Rejected"
             instance.confirmed_by = None
+            instance.reject_note = reject_note
         else:
             instance.status = "Pending"
+            instance.reject_note = ""
 
         instance.updated_by = user if user else instance.updated_by
-        instance.save(update_fields=["is_confirmed", "status", "confirmed_by", "updated_by", "updated_at"])
+        instance.save(
+            update_fields=[
+                "is_approved",
+                "is_rejected",
+                "reject_note",
+                "status",
+                "confirmed_by",
+                "updated_by",
+                "updated_at",
+            ]
+        )
 
         message = "Purchase Order Rejected" if value else "Purchase Order Rejection Cancelled"
         return APIResponse.success(

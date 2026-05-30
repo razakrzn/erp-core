@@ -179,8 +179,9 @@ class PurchaseRequisition(models.Model):
                 po_issued_date=self.requisition_date or timezone.localdate(),
                 internal_remarks=f"Auto-created from approved PR {self.purchase_request_number or self.pk}.",
                 status="Pending",
-                is_confirmed=False,
-                is_closed=False,
+                is_approved=False,
+                is_rejected=False,
+                reject_note="",
                 created_by=created_by,
                 updated_by=created_by,
             )

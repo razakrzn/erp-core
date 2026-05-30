@@ -195,7 +195,7 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
             if rate is None or rate <= 0:
                 rate = po_line.last_purchase_rate or Decimal("0.00")
 
-            is_meaningful = rate > 0 or purchase_order.is_confirmed or purchase_order.is_closed
+            is_meaningful = rate > 0 or purchase_order.is_approved or purchase_order.is_rejected
             if not is_meaningful:
                 continue
 

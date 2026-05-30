@@ -404,7 +404,7 @@ class PurchaseOrderAdmin(admin.ModelAdmin):
         "created_by",
         "created_at",
     )
-    list_filter = ("status", "po_issued_date", "created_at", "is_confirmed", "is_closed")
+    list_filter = ("status", "po_issued_date", "created_at", "is_approved", "is_rejected")
     search_fields = ("po_number", "vendor__trade_name", "created_by__username")
     readonly_fields = ("po_number", "created_at", "updated_at")
     inlines = (PurchaseOrderLineItemInline,)
