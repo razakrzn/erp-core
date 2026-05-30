@@ -182,6 +182,82 @@
           "response": []
         },
         {
+          "name": "Approve Purchase Order",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-orders/{{purchase_order_id}}/approve/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-orders",
+                "{{purchase_order_id}}",
+                "approve",
+                ""
+              ]
+            },
+            "description": "Approve or cancel approval for a purchase order using {\"value\": true|false}."
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Purchase Order",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/purchase-orders/{{purchase_order_id}}/reject/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "purchase-orders",
+                "{{purchase_order_id}}",
+                "reject",
+                ""
+              ]
+            },
+            "description": "Reject or cancel rejection for a purchase order using {\"value\": true|false}."
+          },
+          "response": []
+        },
+        {
           "name": "Delete Purchase Order",
           "request": {
             "method": "DELETE",

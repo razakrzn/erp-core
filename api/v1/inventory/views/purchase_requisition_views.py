@@ -1,7 +1,7 @@
 import json
 from decimal import Decimal
 
-from django.db.models import F, Q
+from django.db.models import Exists, F, OuterRef, Q
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -298,6 +298,18 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
     def approved_line_items(self, request, *args, **kwargs):
         queryset = PurchaseRequisitionLineItem.objects.select_related("purchase_requisition").filter(
             purchase_requisition__is_approved=True
+        )
+        existing_po_line_items = PurchaseOrderLineItem.objects.filter(
+            purchase_requisition_id=OuterRef("purchase_requisition_id")
+        ).filter(
+            Q(product_code=OuterRef("product_code"))
+            | (
+                (Q(product_code__isnull=True) | Q(product_code__exact=""))
+                & Q(description=OuterRef("product_name"))
+            )
+        )
+        queryset = queryset.annotate(_has_purchase_order=Exists(existing_po_line_items)).filter(
+            _has_purchase_order=False
         )
 
         category_ids, category_names = self._parse_filter_tokens(request, "product_category", "product_categories")

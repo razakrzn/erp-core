@@ -7,6 +7,11 @@ from apps.inventory.models import PurchaseOrder, PurchaseOrderLineItem
 
 
 class PurchaseOrderLineItemSerializer(serializers.ModelSerializer):
+    purchase_request_number = serializers.CharField(
+        source="purchase_requisition.purchase_request_number",
+        read_only=True,
+    )
+
     class Meta:
         model = PurchaseOrderLineItem
         fields = [
@@ -14,6 +19,7 @@ class PurchaseOrderLineItemSerializer(serializers.ModelSerializer):
             "purchase_order",
             "product_code",
             "purchase_requisition",
+            "purchase_request_number",
             "description",
             "unit",
             "requested_qty",
@@ -25,7 +31,7 @@ class PurchaseOrderLineItemSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["line_total", "purchase_order"]
         extra_kwargs = {
-            "purchase_requisition": {"required": False},
+            "purchase_requisition": {"required": False, "write_only": True},
         }
 
 
@@ -109,6 +115,7 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
 
 
 class PurchaseOrderListSerializer(serializers.ModelSerializer):
+    vendor = serializers.SerializerMethodField(read_only=True)
     created_by_name = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -128,3 +135,8 @@ class PurchaseOrderListSerializer(serializers.ModelSerializer):
         if not obj.created_by:
             return None
         return obj.created_by.get_full_name() or obj.created_by.get_username()
+
+    def get_vendor(self, obj):
+        if not obj.vendor:
+            return ""
+        return obj.vendor.trade_name or ""

@@ -5,6 +5,9 @@ from .models import (
     Brand,
     Category,
     Finish,
+    GoodsReceipt,
+    GoodsReceiptItem,
+    GoodsReceiptPhoto,
     Grade,
     Material,
     Product,
@@ -307,6 +310,85 @@ class PurchaseOrderLineItemInline(admin.TabularInline):
         "line_total",
     )
     readonly_fields = ("line_total",)
+
+
+class GoodsReceiptItemInline(admin.TabularInline):
+    model = GoodsReceiptItem
+    extra = 1
+    fields = (
+        "purchase_order_line_item",
+        "product_code",
+        "product_name",
+        "unit",
+        "po_qty",
+        "already_received",
+        "requested_qty",
+        "qty_rejected",
+        "rejection_reason",
+        "defect_photo",
+    )
+    readonly_fields = ("product_code", "product_name", "unit", "po_qty", "already_received")
+
+
+class GoodsReceiptPhotoInline(admin.TabularInline):
+    model = GoodsReceiptPhoto
+    extra = 1
+    fields = ("photo", "uploaded_at")
+    readonly_fields = ("uploaded_at",)
+
+
+@admin.register(GoodsReceipt)
+class GoodsReceiptAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "purchase_order",
+        "purchase_order_no",
+        "vendor_name",
+        "grn_recording_date",
+        "overall_quality_status",
+        "created_at",
+    )
+    list_filter = ("overall_quality_status", "grn_recording_date", "created_at")
+    search_fields = (
+        "purchase_order__po_number",
+        "purchase_order_no",
+        "vendor_name",
+        "vendor_invoice_no",
+        "delivery_challan_no",
+    )
+    readonly_fields = ("purchase_order_no", "po_date", "vendor_name", "vendor_trn", "vendor_address", "created_at", "updated_at")
+    inlines = (GoodsReceiptItemInline, GoodsReceiptPhotoInline)
+
+
+@admin.register(GoodsReceiptItem)
+class GoodsReceiptItemAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "goods_receipt",
+        "purchase_order_line_item",
+        "product_code",
+        "product_name",
+        "po_qty",
+        "already_received",
+        "requested_qty",
+        "qty_rejected",
+    )
+    list_filter = ("goods_receipt__grn_recording_date", "goods_receipt__overall_quality_status")
+    search_fields = (
+        "goods_receipt__purchase_order_no",
+        "product_code",
+        "product_name",
+        "purchase_order_line_item__purchase_order__po_number",
+    )
+    readonly_fields = ("product_code", "product_name", "unit", "po_qty", "already_received")
+
+
+@admin.register(GoodsReceiptPhoto)
+class GoodsReceiptPhotoAdmin(admin.ModelAdmin):
+    list_display = ("id", "goods_receipt", "uploaded_at")
+    list_filter = ("uploaded_at",)
+    search_fields = ("goods_receipt__purchase_order_no", "goods_receipt__purchase_order__po_number")
+    readonly_fields = ("uploaded_at",)
 
 
 @admin.register(PurchaseOrder)
