@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.db import transaction
 from rest_framework import serializers
 
-from apps.inventory.models import PurchaseOrder, PurchaseOrderLineItem
+from apps.inventory.models import PurchaseOrder, PurchaseOrderLineItem, Vendor
 from core.utils.responses import build_actions
 
 
@@ -37,6 +37,14 @@ class PurchaseOrderLineItemSerializer(serializers.ModelSerializer):
 
 
 class PurchaseOrderSerializer(serializers.ModelSerializer):
+    vendor = serializers.SerializerMethodField(read_only=True)
+    vendor_id = serializers.PrimaryKeyRelatedField(
+        source="vendor",
+        queryset=Vendor.objects.all(),
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
     line_items = PurchaseOrderLineItemSerializer(source="po_line_items", many=True, required=False)
     created_by_name = serializers.SerializerMethodField(read_only=True)
     actions = serializers.SerializerMethodField(read_only=True)
@@ -47,6 +55,7 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
             "id",
             "po_number",
             "vendor",
+            "vendor_id",
             "associated_job",
             "payment_terms",
             "shipping_delivery_terms",
@@ -85,6 +94,14 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
         if not obj.created_by:
             return None
         return obj.created_by.get_full_name() or obj.created_by.get_username()
+
+    def get_vendor(self, obj):
+        if not obj.vendor:
+            return None
+        return {
+            "id": obj.vendor.id,
+            "trade_name": obj.vendor.trade_name or "",
+        }
 
     def get_actions(self, obj):
         request = self.context.get("request")
