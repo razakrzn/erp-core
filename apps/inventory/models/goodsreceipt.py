@@ -11,6 +11,14 @@ from .purchaseorder import PurchaseOrder, PurchaseOrderLineItem
 
 
 class GoodsReceipt(models.Model):
+    grn_number = models.CharField(
+        max_length=30,
+        unique=True,
+        null=True,
+        blank=True,
+        editable=False,
+        help_text="Auto-generated unique goods receipt number.",
+    )
     purchase_order = models.ForeignKey(
         PurchaseOrder,
         on_delete=models.PROTECT,
@@ -90,8 +98,12 @@ class GoodsReceipt(models.Model):
             raise ValidationError({"purchase_order": "Goods Receipt must be linked to a Purchase Order."})
 
     def save(self, *args, **kwargs):
+        is_new = self.pk is None
         self.populate_from_purchase_order()
         super().save(*args, **kwargs)
+        if is_new and not self.grn_number:
+            self.grn_number = f"GRN-{self.pk:06d}"
+            super().save(update_fields=["grn_number"])
 
 
 class GoodsReceiptItem(models.Model):

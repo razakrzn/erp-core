@@ -341,6 +341,7 @@ class ReceivedGoodsPhotoInline(admin.TabularInline):
 class GoodsReceiptAdmin(admin.ModelAdmin):
     list_display = (
         "id",
+        "grn_number",
         "purchase_order",
         "purchase_order_no",
         "vendor_name",
@@ -356,7 +357,7 @@ class GoodsReceiptAdmin(admin.ModelAdmin):
         "vendor_invoice_no",
         "delivery_challan_no",
     )
-    readonly_fields = ("purchase_order_no", "po_date", "vendor_name", "vendor_trn", "vendor_address", "created_at", "updated_at")
+    readonly_fields = ("grn_number", "purchase_order_no", "po_date", "vendor_name", "vendor_trn", "vendor_address", "created_at", "updated_at")
     inlines = (GoodsReceiptItemInline, ReceivedGoodsPhotoInline)
 
 

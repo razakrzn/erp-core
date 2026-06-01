@@ -54,6 +54,7 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
         model = GoodsReceipt
         fields = [
             "id",
+            "grn_number",
             "purchase_order",
             "purchase_order_id",
             "purchase_order_no",
@@ -77,6 +78,7 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = [
+            "grn_number",
             "purchase_order_no",
             "po_date",
             "vendor_name",
