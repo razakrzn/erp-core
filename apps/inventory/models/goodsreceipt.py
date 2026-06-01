@@ -199,14 +199,11 @@ class GoodsReceiptItem(models.Model):
             raise ValidationError(
                 {
                     "qty_good": (
-                        f"Received quantity ({total_receiving_now}) cannot exceed pending PO quantity ({pending_qty})."
+                        f"Current GRN quantity (qty_good + qty_rejected = {total_receiving_now}) cannot exceed "
+                        f"pending PO quantity ({pending_qty}). "
+                        f"PO quantity: {self.po_qty}, previously received: {self.already_received}."
                     )
                 }
-            )
-
-        if (self.qty_rejected or Decimal("0.00")) > Decimal("0.00") and not self.defect_photo:
-            raise ValidationError(
-                {"defect_photo": "Defect photo is required when rejected quantity is greater than zero."}
             )
 
     def save(self, *args, **kwargs):

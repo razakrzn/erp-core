@@ -1,5 +1,7 @@
 import json
+import logging
 
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework import filters, status
@@ -9,6 +11,8 @@ from core.utils.responses import APIResponse
 
 from ..serializers import ApprovedPurchaseOrderForGRNSerializer, GoodsReceiptSerializer
 from .shared import BaseInventoryViewSet
+
+logger = logging.getLogger(__name__)
 
 
 class GoodsReceiptViewSet(BaseInventoryViewSet):
@@ -33,44 +37,84 @@ class GoodsReceiptViewSet(BaseInventoryViewSet):
     @staticmethod
     def _normalize_payload(request):
         payload = request.data.copy()
+        normalized_payload = {}
+        logger.info(
+            "GRN create payload received: data_keys=%s file_keys=%s",
+            list(request.data.keys()),
+            list(request.FILES.keys()),
+        )
+
         data_raw = payload.get("data", None)
         if isinstance(data_raw, str):
             normalized_data = data_raw.strip()
-            payload = json.loads(normalized_data) if normalized_data else {}
-            if request.FILES.get("vendor_delivery_challan"):
-                payload["vendor_delivery_challan"] = request.FILES.get("vendor_delivery_challan")
-            if request.FILES.get("vendor_invoice"):
-                payload["vendor_invoice"] = request.FILES.get("vendor_invoice")
-            if request.FILES.getlist("received_goods_photo_files"):
-                payload["received_goods_photo_files"] = request.FILES.getlist("received_goods_photo_files")
+            logger.info("GRN create: data field type=str length=%s", len(normalized_data))
+            normalized_payload = json.loads(normalized_data) if normalized_data else {}
+        elif isinstance(data_raw, dict):
+            logger.info("GRN create: data field type=dict")
+            normalized_payload = dict(data_raw)
+        else:
+            logger.info("GRN create: data field missing or non-json, falling back to request.data copy")
+            normalized_payload = dict(payload)
 
-        intakes_raw = payload.get("material_intakes", None)
+        intakes_raw = payload.get("material_intakes", normalized_payload.get("material_intakes"))
         if isinstance(intakes_raw, str):
             normalized = intakes_raw.strip()
-            payload["material_intakes"] = json.loads(normalized) if normalized else []
+            logger.info("GRN create: material_intakes type=str length=%s", len(normalized))
+            normalized_payload["material_intakes"] = json.loads(normalized) if normalized else []
+        elif isinstance(intakes_raw, list):
+            logger.info("GRN create: material_intakes type=list count=%s", len(intakes_raw))
+            normalized_payload["material_intakes"] = intakes_raw
+        else:
+            logger.info("GRN create: material_intakes missing or unsupported type=%s", type(intakes_raw).__name__)
 
-        material_intakes = payload.get("material_intakes", []) or []
+        if request.FILES.get("vendor_delivery_challan"):
+            normalized_payload["vendor_delivery_challan"] = request.FILES.get("vendor_delivery_challan")
+        if request.FILES.get("vendor_invoice"):
+            normalized_payload["vendor_invoice"] = request.FILES.get("vendor_invoice")
+        if request.FILES.getlist("received_goods_photo_files"):
+            normalized_payload["received_goods_photo_files"] = request.FILES.getlist("received_goods_photo_files")
+
+        material_intakes = normalized_payload.get("material_intakes", []) or []
+        logger.info("GRN create: normalized material_intakes count=%s", len(material_intakes))
         for intake in material_intakes:
             client_line_id = str(intake.get("client_line_id", "") or "").strip()
             if not client_line_id:
+                logger.info("GRN create: intake without client_line_id, skipping defect photo mapping")
                 continue
             file_key = f"defect_photo_{client_line_id}"
             if request.FILES.get(file_key):
                 intake["defect_photo"] = request.FILES.get(file_key)
-        payload["material_intakes"] = material_intakes
-        return payload
+                logger.info("GRN create: mapped defect photo key=%s", file_key)
+            else:
+                logger.info("GRN create: no defect photo file for key=%s", file_key)
+        normalized_payload["material_intakes"] = material_intakes
+        logger.info("GRN create: normalized payload keys=%s", list(normalized_payload.keys()))
+        return normalized_payload
 
     def create(self, request, *args, **kwargs):
         try:
             payload = self._normalize_payload(request)
         except (TypeError, ValueError, json.JSONDecodeError):
+            logger.exception("GRN create: payload normalization failed")
             return APIResponse.error(
                 message="Invalid payload. Send valid JSON in data and valid JSON array for material_intakes.",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
         serializer = self.get_serializer(data=payload)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        if not serializer.is_valid():
+            logger.warning("GRN create serializer errors: %s", serializer.errors)
+            return APIResponse.error(
+                message=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            self.perform_create(serializer)
+        except DjangoValidationError as exc:
+            logger.warning("GRN create model validation error: %s", exc.message_dict or exc.messages)
+            return APIResponse.error(
+                message=exc.message_dict if hasattr(exc, "message_dict") else exc.messages,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
         return APIResponse.success(
             data=serializer.data,
             message="Goods Receipt created successfully.",

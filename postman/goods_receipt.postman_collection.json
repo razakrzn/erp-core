@@ -58,7 +58,12 @@
               "formdata": [
                 {
                   "key": "data",
-                  "value": "{\n  \"purchase_order_id\": {{purchase_order_id}},\n  \"grn_recording_date\": \"2026-06-01\",\n  \"vendor_invoice_no\": \"INV-2026-001\",\n  \"vendor_invoice_date\": \"2026-06-01\",\n  \"delivery_challan_no\": \"DC-2026-001\",\n  \"delivery_challan_date\": \"2026-06-01\",\n  \"overall_quality_status\": \"accepted\",\n  \"quality_notes\": \"All received items inspected.\",\n  \"material_intakes\": [\n    {\n      \"client_line_id\": \"line_1\",\n      \"purchase_order_line_item\": {{purchase_order_line_item_id}},\n      \"qty_good\": \"8.00\",\n      \"qty_rejected\": \"2.00\",\n      \"rejection_reason\": \"Scratch marks\"\n    },\n    {\n      \"client_line_id\": \"line_2\",\n      \"purchase_order_line_item\": {{purchase_order_line_item_id_2}},\n      \"qty_good\": \"5.00\",\n      \"qty_rejected\": \"0.00\",\n      \"rejection_reason\": \"\"\n    }\n  ]\n}",
+                  "value": "{\n  \"purchase_order_id\": {{purchase_order_id}},\n  \"grn_recording_date\": \"2026-06-01\",\n  \"vendor_invoice_no\": \"INV-2026-001\",\n  \"vendor_invoice_date\": \"2026-06-01\",\n  \"delivery_challan_no\": \"DC-2026-001\",\n  \"delivery_challan_date\": \"2026-06-01\",\n  \"overall_quality_status\": \"accepted\",\n  \"quality_notes\": \"All received items inspected.\"\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "material_intakes",
+                  "value": "[\n  {\n    \"client_line_id\": \"line_1\",\n    \"purchase_order_line_item\": {{purchase_order_line_item_id}},\n    \"qty_good\": \"8.00\",\n    \"qty_rejected\": \"2.00\",\n    \"rejection_reason\": \"Scratch marks\"\n  },\n  {\n    \"client_line_id\": \"line_2\",\n    \"purchase_order_line_item\": {{purchase_order_line_item_id_2}},\n    \"qty_good\": \"5.00\",\n    \"qty_rejected\": \"0.00\",\n    \"rejection_reason\": \"\"\n  }\n]",
                   "type": "text"
                 },
                 {
@@ -101,7 +106,7 @@
                 ""
               ]
             },
-            "description": "Create a goods receipt using multipart form-data with `data` JSON + files. For defect photos, set `client_line_id` on each material_intake and send file key as `defect_photo_<client_line_id>` (example: defect_photo_line_1)."
+            "description": "Create with multipart form-data: `data` (text JSON object), `material_intakes` (text JSON array), and files. For defect photos, set `client_line_id` on each material_intake and send file key as `defect_photo_<client_line_id>`."
           },
           "response": []
         },
