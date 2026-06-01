@@ -6,6 +6,7 @@ from .views import (
     CategoryViewSet,
     FinishViewSet,
     GradeViewSet,
+    GoodsReceiptViewSet,
     MaterialViewSet,
     ProductViewSet,
     PurchaseOrderViewSet,
@@ -33,6 +34,7 @@ router.register(r"products", ProductViewSet, basename="inventory-product")
 router.register(r"vendors", VendorViewSet, basename="inventory-vendor")
 router.register(r"purchase-requisitions", PurchaseRequisitionViewSet, basename="inventory-purchase-requisition")
 router.register(r"purchase-orders", PurchaseOrderViewSet, basename="inventory-purchase-order")
+router.register(r"goods-receipts", GoodsReceiptViewSet, basename="inventory-goods-receipt")
 router.register(
     r"purchase-requisition-line-items",
     PurchaseRequisitionLineItemViewSet,

@@ -11,12 +11,6 @@ from .purchaseorder import PurchaseOrder, PurchaseOrderLineItem
 
 
 class GoodsReceipt(models.Model):
-    QUALITY_STATUS_CHOICES = (
-        ("accepted", "Accepted"),
-        ("accepted_with_remarks", "Accepted With Remarks"),
-        ("rejected", "Rejected"),
-    )
-
     purchase_order = models.ForeignKey(
         PurchaseOrder,
         on_delete=models.PROTECT,
@@ -47,7 +41,6 @@ class GoodsReceipt(models.Model):
 
     overall_quality_status = models.CharField(
         max_length=30,
-        choices=QUALITY_STATUS_CHOICES,
         default="accepted",
     )
     quality_notes = models.TextField(blank=True, default="")
@@ -129,7 +122,7 @@ class GoodsReceiptItem(models.Model):
         default=Decimal("0.00"),
         editable=False,
     )
-    requested_qty = models.DecimalField(
+    qty_good = models.DecimalField(
         max_digits=12,
         decimal_places=2,
         validators=[MinValueValidator(Decimal("0.00"))],
@@ -168,7 +161,7 @@ class GoodsReceiptItem(models.Model):
         received_total = queryset.aggregate(
             total=Coalesce(
                 Sum(
-                    F("requested_qty") + F("qty_rejected"),
+                    F("qty_good") + F("qty_rejected"),
                     output_field=DecimalField(max_digits=14, decimal_places=2),
                 ),
                 Value(Decimal("0.00")),
@@ -200,12 +193,12 @@ class GoodsReceiptItem(models.Model):
             )
 
         self.populate_from_po_line()
-        total_receiving_now = (self.requested_qty or Decimal("0.00")) + (self.qty_rejected or Decimal("0.00"))
+        total_receiving_now = (self.qty_good or Decimal("0.00")) + (self.qty_rejected or Decimal("0.00"))
         pending_qty = (self.po_qty or Decimal("0.00")) - (self.already_received or Decimal("0.00"))
         if total_receiving_now > pending_qty:
             raise ValidationError(
                 {
-                    "requested_qty": (
+                    "qty_good": (
                         f"Received quantity ({total_receiving_now}) cannot exceed pending PO quantity ({pending_qty})."
                     )
                 }
@@ -222,7 +215,7 @@ class GoodsReceiptItem(models.Model):
         super().save(*args, **kwargs)
 
 
-class GoodsReceiptPhoto(models.Model):
+class ReceivedGoodsPhoto(models.Model):
     goods_receipt = models.ForeignKey(
         GoodsReceipt,
         on_delete=models.CASCADE,
@@ -232,8 +225,8 @@ class GoodsReceiptPhoto(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Goods Receipt Photo"
-        verbose_name_plural = "Goods Receipt Photos"
+        verbose_name = "Received Goods Photo"
+        verbose_name_plural = "Received Goods Photos"
 
     def __str__(self) -> str:
         return f"GRN Photo {self.pk or 'NEW'} - GRN {self.goods_receipt_id}"

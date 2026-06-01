@@ -34,15 +34,7 @@ class Migration(migrations.Migration):
                 ("vendor_invoice", models.FileField(blank=True, null=True, upload_to="inventory/grn/vendor_invoice/")),
                 (
                     "overall_quality_status",
-                    models.CharField(
-                        choices=[
-                            ("accepted", "Accepted"),
-                            ("accepted_with_remarks", "Accepted With Remarks"),
-                            ("rejected", "Rejected"),
-                        ],
-                        default="accepted",
-                        max_length=30,
-                    ),
+                    models.CharField(default="accepted", max_length=30),
                 ),
                 ("quality_notes", models.TextField(blank=True, default="")),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
@@ -63,7 +55,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name="GoodsReceiptPhoto",
+            name="ReceivedGoodsPhoto",
             fields=[
                 ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                 ("photo", models.ImageField(upload_to="inventory/grn/received_goods/")),
@@ -109,7 +101,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "requested_qty",
+                    "qty_good",
                     models.DecimalField(
                         decimal_places=2,
                         default=Decimal("0.00"),

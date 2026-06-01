@@ -7,7 +7,7 @@ from .models import (
     Finish,
     GoodsReceipt,
     GoodsReceiptItem,
-    GoodsReceiptPhoto,
+    ReceivedGoodsPhoto,
     Grade,
     Material,
     Product,
@@ -322,7 +322,7 @@ class GoodsReceiptItemInline(admin.TabularInline):
         "unit",
         "po_qty",
         "already_received",
-        "requested_qty",
+        "qty_good",
         "qty_rejected",
         "rejection_reason",
         "defect_photo",
@@ -330,8 +330,8 @@ class GoodsReceiptItemInline(admin.TabularInline):
     readonly_fields = ("product_code", "product_name", "unit", "po_qty", "already_received")
 
 
-class GoodsReceiptPhotoInline(admin.TabularInline):
-    model = GoodsReceiptPhoto
+class ReceivedGoodsPhotoInline(admin.TabularInline):
+    model = ReceivedGoodsPhoto
     extra = 1
     fields = ("photo", "uploaded_at")
     readonly_fields = ("uploaded_at",)
@@ -357,7 +357,7 @@ class GoodsReceiptAdmin(admin.ModelAdmin):
         "delivery_challan_no",
     )
     readonly_fields = ("purchase_order_no", "po_date", "vendor_name", "vendor_trn", "vendor_address", "created_at", "updated_at")
-    inlines = (GoodsReceiptItemInline, GoodsReceiptPhotoInline)
+    inlines = (GoodsReceiptItemInline, ReceivedGoodsPhotoInline)
 
 
 @admin.register(GoodsReceiptItem)
@@ -370,7 +370,7 @@ class GoodsReceiptItemAdmin(admin.ModelAdmin):
         "product_name",
         "po_qty",
         "already_received",
-        "requested_qty",
+        "qty_good",
         "qty_rejected",
     )
     list_filter = ("goods_receipt__grn_recording_date", "goods_receipt__overall_quality_status")
@@ -383,8 +383,8 @@ class GoodsReceiptItemAdmin(admin.ModelAdmin):
     readonly_fields = ("product_code", "product_name", "unit", "po_qty", "already_received")
 
 
-@admin.register(GoodsReceiptPhoto)
-class GoodsReceiptPhotoAdmin(admin.ModelAdmin):
+@admin.register(ReceivedGoodsPhoto)
+class ReceivedGoodsPhotoAdmin(admin.ModelAdmin):
     list_display = ("id", "goods_receipt", "uploaded_at")
     list_filter = ("uploaded_at",)
     search_fields = ("goods_receipt__purchase_order_no", "goods_receipt__purchase_order__po_number")

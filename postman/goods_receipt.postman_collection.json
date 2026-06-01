@@ -1,0 +1,179 @@
+{
+  "info": {
+    "_postman_id": "0f30ab2e-f328-4470-a81f-0ef2f271d80f",
+    "name": "Goods Receipt API",
+    "description": "API collection for managing Goods Receipts (GRN), material intake items, and received goods photos in the ERP inventory module.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Goods Receipt",
+      "item": [
+        {
+          "name": "List Goods Receipts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/?page=1&search=&ordering=-created_at",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "goods-receipts",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "PO-000001",
+                  "disabled": true
+                },
+                {
+                  "key": "ordering",
+                  "value": "-created_at",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Retrieve a paginated list of goods receipts. Supports search and ordering."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Goods Receipt (Multipart with data JSON)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"purchase_order_id\": {{purchase_order_id}},\n  \"grn_recording_date\": \"2026-06-01\",\n  \"vendor_invoice_no\": \"INV-2026-001\",\n  \"vendor_invoice_date\": \"2026-06-01\",\n  \"delivery_challan_no\": \"DC-2026-001\",\n  \"delivery_challan_date\": \"2026-06-01\",\n  \"overall_quality_status\": \"accepted\",\n  \"quality_notes\": \"All received items inspected.\",\n  \"material_intakes\": [\n    {\n      \"client_line_id\": \"line_1\",\n      \"purchase_order_line_item\": {{purchase_order_line_item_id}},\n      \"qty_good\": \"8.00\",\n      \"qty_rejected\": \"2.00\",\n      \"rejection_reason\": \"Scratch marks\"\n    },\n    {\n      \"client_line_id\": \"line_2\",\n      \"purchase_order_line_item\": {{purchase_order_line_item_id_2}},\n      \"qty_good\": \"5.00\",\n      \"qty_rejected\": \"0.00\",\n      \"rejection_reason\": \"\"\n    }\n  ]\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "vendor_delivery_challan",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "vendor_invoice",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "received_goods_photo_files",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "received_goods_photo_files",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "defect_photo_line_1",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "goods-receipts",
+                ""
+              ]
+            },
+            "description": "Create a goods receipt using multipart form-data with `data` JSON + files. For defect photos, set `client_line_id` on each material_intake and send file key as `defect_photo_<client_line_id>` (example: defect_photo_line_1)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Goods Receipt Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "goods-receipts",
+                "{{goods_receipt_id}}",
+                ""
+              ]
+            },
+            "description": "Retrieve complete details of a single goods receipt including material intake lines and received goods photos."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Goods Receipt",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "goods-receipts",
+                "{{goods_receipt_id}}",
+                ""
+              ]
+            },
+            "description": "Delete a goods receipt."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "purchase_order_id",
+      "value": "1"
+    },
+    {
+      "key": "purchase_order_line_item_id",
+      "value": "1"
+    },
+    {
+      "key": "purchase_order_line_item_id_2",
+      "value": "2"
+    },
+    {
+      "key": "goods_receipt_id",
+      "value": "1"
+    }
+  ]
+}

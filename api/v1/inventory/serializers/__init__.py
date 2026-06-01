@@ -27,6 +27,11 @@ from .purchase_order_serializers import (
     PurchaseOrderListSerializer,
     PurchaseOrderSerializer,
 )
+from .goods_receipt_serializers import (
+    GoodsReceiptItemSerializer,
+    GoodsReceiptSerializer,
+    ReceivedGoodsPhotoSerializer,
+)
 from .vendor_serializers import VendorDropdownSerializer, VendorSerializer
 
 __all__ = [
@@ -53,6 +58,9 @@ __all__ = [
     "PurchaseOrderLineItemSerializer",
     "PurchaseOrderListSerializer",
     "PurchaseOrderSerializer",
+    "GoodsReceiptItemSerializer",
+    "ReceivedGoodsPhotoSerializer",
+    "GoodsReceiptSerializer",
     "VendorSerializer",
     "VendorDropdownSerializer",
 ]
