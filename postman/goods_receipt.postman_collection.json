@@ -129,6 +129,140 @@
           "response": []
         },
         {
+          "name": "Get Approved Purchase Order For GRN",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/approved-purchase-orders/{{purchase_order_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "goods-receipts",
+                "approved-purchase-orders",
+                "{{purchase_order_id}}",
+                ""
+              ]
+            },
+            "description": "Retrieve one approved purchase order with vendor and line items for GRN creation."
+          },
+          "response": []
+        },
+        {
+          "name": "Purchase Orders Dropdown (All)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/purchase-orders-dropdown/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "goods-receipts",
+                "purchase-orders-dropdown",
+                ""
+              ]
+            },
+            "description": "Retrieve purchase order dropdown options with id/label."
+          },
+          "response": []
+        },
+        {
+          "name": "Purchase Orders Dropdown (Approved)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/purchase-orders-dropdown/?status=approved",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "goods-receipts",
+                "purchase-orders-dropdown",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "approved"
+                }
+              ]
+            },
+            "description": "Retrieve purchase order dropdown options filtered by status=approved."
+          },
+          "response": []
+        },
+        {
+          "name": "Purchase Orders Dropdown (Rejected)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/purchase-orders-dropdown/?status=rejected",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "goods-receipts",
+                "purchase-orders-dropdown",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "rejected"
+                }
+              ]
+            },
+            "description": "Retrieve purchase order dropdown options filtered by status=rejected."
+          },
+          "response": []
+        },
+        {
+          "name": "Purchase Orders Dropdown (Pending)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/purchase-orders-dropdown/?status=pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "goods-receipts",
+                "purchase-orders-dropdown",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            },
+            "description": "Retrieve purchase order dropdown options filtered by status=pending."
+          },
+          "response": []
+        },
+        {
           "name": "Delete Goods Receipt",
           "request": {
             "method": "DELETE",

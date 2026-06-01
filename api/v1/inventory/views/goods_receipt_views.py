@@ -1,11 +1,13 @@
 import json
 
+from django.db.models import Q
+from rest_framework.decorators import action
 from rest_framework import filters, status
 
-from apps.inventory.models import GoodsReceipt
+from apps.inventory.models import GoodsReceipt, PurchaseOrder
 from core.utils.responses import APIResponse
 
-from ..serializers import GoodsReceiptSerializer
+from ..serializers import ApprovedPurchaseOrderForGRNSerializer, GoodsReceiptSerializer
 from .shared import BaseInventoryViewSet
 
 
@@ -73,4 +75,48 @@ class GoodsReceiptViewSet(BaseInventoryViewSet):
             data=serializer.data,
             message="Goods Receipt created successfully.",
             status_code=status.HTTP_201_CREATED,
+        )
+
+    @action(detail=False, methods=["get"], url_path=r"approved-purchase-orders/(?P<po_id>[^/.]+)")
+    def approved_purchase_order(self, request, po_id=None, *args, **kwargs):
+        approved_filter = Q(status__iexact="approved") | Q(is_approved=True)
+        purchase_order = (
+            PurchaseOrder.objects.select_related("vendor")
+            .prefetch_related("po_line_items", "po_line_items__purchase_requisition")
+            .filter(approved_filter, pk=po_id)
+            .first()
+        )
+        if not purchase_order:
+            return APIResponse.error(
+                message="Approved Purchase Order not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = ApprovedPurchaseOrderForGRNSerializer(purchase_order)
+        return APIResponse.success(
+            data=serializer.data,
+            message="Approved Purchase Order retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["get"], url_path="purchase-orders-dropdown")
+    def purchase_orders_dropdown(self, request, *args, **kwargs):
+        status_value = (request.query_params.get("status") or "").strip()
+
+        queryset = PurchaseOrder.objects.all()
+        if status_value:
+            queryset = queryset.filter(status__iexact=status_value)
+
+        options = [
+            {
+                "id": po.id,
+                "label": po.po_number or f"PO-{po.id:06d}",
+            }
+            for po in queryset.order_by("-created_at")
+        ]
+
+        return APIResponse.success(
+            data=options,
+            message="Purchase Orders retrieved successfully.",
+            status_code=status.HTTP_200_OK,
         )

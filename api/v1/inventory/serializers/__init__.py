@@ -28,6 +28,8 @@ from .purchase_order_serializers import (
     PurchaseOrderSerializer,
 )
 from .goods_receipt_serializers import (
+    ApprovedPurchaseOrderForGRNSerializer,
+    ApprovedPurchaseOrderLineItemForGRNSerializer,
     GoodsReceiptItemSerializer,
     GoodsReceiptSerializer,
     ReceivedGoodsPhotoSerializer,
@@ -58,6 +60,8 @@ __all__ = [
     "PurchaseOrderLineItemSerializer",
     "PurchaseOrderListSerializer",
     "PurchaseOrderSerializer",
+    "ApprovedPurchaseOrderLineItemForGRNSerializer",
+    "ApprovedPurchaseOrderForGRNSerializer",
     "GoodsReceiptItemSerializer",
     "ReceivedGoodsPhotoSerializer",
     "GoodsReceiptSerializer",

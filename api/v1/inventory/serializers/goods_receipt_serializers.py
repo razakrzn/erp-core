@@ -132,3 +132,55 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
                 ReceivedGoodsPhoto.objects.create(goods_receipt=goods_receipt, photo=photo_file)
 
         return goods_receipt
+
+
+class ApprovedPurchaseOrderLineItemForGRNSerializer(serializers.ModelSerializer):
+    purchase_request_number = serializers.CharField(
+        source="purchase_requisition.purchase_request_number",
+        read_only=True,
+    )
+
+    class Meta:
+        model = PurchaseOrderLineItem
+        fields = [
+            "id",
+            "purchase_order",
+            "product_code",
+            "purchase_request_number",
+            "description",
+            "unit",
+            "requested_qty",
+            "required_by_date",
+            "delivery_location",
+            "last_purchase_rate",
+            "negotiated_price",
+            "line_total",
+        ]
+
+
+class ApprovedPurchaseOrderForGRNSerializer(serializers.ModelSerializer):
+    vendor = serializers.SerializerMethodField(read_only=True)
+    line_items = ApprovedPurchaseOrderLineItemForGRNSerializer(source="po_line_items", many=True, read_only=True)
+
+    class Meta:
+        model = PurchaseOrder
+        fields = [
+            "id",
+            "po_number",
+            "po_issued_date",
+            "vendor",
+            "line_items",
+        ]
+
+    def get_vendor(self, obj):
+        if not obj.vendor:
+            return None
+        return {
+            "id": obj.vendor.id,
+            "trade_name": obj.vendor.trade_name or "",
+            "trn_number": obj.vendor.trn_number or "",
+            "store_office_no": obj.vendor.store_office_no or "",
+            "building_name": obj.vendor.building_name or "",
+            "street_area": obj.vendor.street_area or "",
+            "city_emirate": obj.vendor.city_emirate or "",
+        }
