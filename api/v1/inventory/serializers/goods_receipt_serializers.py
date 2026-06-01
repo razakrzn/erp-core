@@ -104,10 +104,15 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         purchase_order = attrs.get("purchase_order")
-        line_items = attrs.get("material_intakes", [])
+        line_items = attrs.get("material_intakes", None)
+        if purchase_order is None and self.instance is not None:
+            purchase_order = self.instance.purchase_order
 
         if not purchase_order:
             raise serializers.ValidationError({"purchase_order_id": "This field is required."})
+
+        if line_items is None:
+            return attrs
 
         po_line_item_ids = {
             item["purchase_order_line_item"].id
@@ -138,6 +143,50 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
                 ReceivedGoodsPhoto.objects.create(goods_receipt=goods_receipt, photo=photo_file)
 
         return goods_receipt
+
+    def update(self, instance, validated_data):
+        line_items_data = validated_data.pop("material_intakes", None)
+        received_goods_photo_files = validated_data.pop("received_goods_photo_files", None)
+
+        with transaction.atomic():
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save()
+
+            if line_items_data is not None:
+                instance.material_intakes.all().delete()
+                for line_data in line_items_data:
+                    GoodsReceiptItem.objects.create(goods_receipt=instance, **line_data)
+
+            if received_goods_photo_files is not None:
+                instance.received_goods_photos.all().delete()
+                for photo_file in received_goods_photo_files:
+                    ReceivedGoodsPhoto.objects.create(goods_receipt=instance, photo=photo_file)
+
+        return instance
+
+
+class GoodsReceiptListSerializer(serializers.ModelSerializer):
+    products = serializers.IntegerField(read_only=True, source="products_count")
+    received_qty = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = GoodsReceipt
+        fields = [
+            "id",
+            "grn_number",
+            "purchase_order_no",
+            "grn_recording_date",
+            "vendor_name",
+            "products",
+            "received_qty",
+        ]
+
+    def get_received_qty(self, obj):
+        value = getattr(obj, "total_already_received", None)
+        if value is None:
+            value = sum((item.already_received for item in obj.material_intakes.all()), Decimal("0.00"))
+        return f"{(value or Decimal('0.00')):.2f}"
 
 
 class ApprovedPurchaseOrderLineItemForGRNSerializer(serializers.ModelSerializer):

@@ -134,6 +134,110 @@
           "response": []
         },
         {
+          "name": "Update Goods Receipt (PUT - Multipart)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"purchase_order_id\": {{purchase_order_id}},\n  \"grn_recording_date\": \"2026-06-02\",\n  \"vendor_invoice_no\": \"INV-2026-001-REV1\",\n  \"vendor_invoice_date\": \"2026-06-02\",\n  \"delivery_challan_no\": \"DC-2026-001-REV1\",\n  \"delivery_challan_date\": \"2026-06-02\",\n  \"overall_quality_status\": \"accepted\",\n  \"quality_notes\": \"Updated after recheck.\"\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "material_intakes",
+                  "value": "[\n  {\n    \"client_line_id\": \"line_1\",\n    \"purchase_order_line_item\": {{purchase_order_line_item_id}},\n    \"qty_good\": \"1.00\",\n    \"qty_rejected\": \"0.00\",\n    \"rejection_reason\": \"\"\n  }\n]",
+                  "type": "text"
+                },
+                {
+                  "key": "vendor_delivery_challan",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "vendor_invoice",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "received_goods_photo_files",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "goods-receipts",
+                "{{goods_receipt_id}}",
+                ""
+              ]
+            },
+            "description": "Full update using multipart form-data: `data` (JSON object), `material_intakes` (JSON array), and optional files."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Goods Receipt (PATCH - Multipart)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"quality_notes\": \"Inspection note updated.\",\n  \"overall_quality_status\": \"accepted\"\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "material_intakes",
+                  "value": "[\n  {\n    \"client_line_id\": \"line_1\",\n    \"purchase_order_line_item\": {{purchase_order_line_item_id}},\n    \"qty_good\": \"1.00\",\n    \"qty_rejected\": \"0.00\",\n    \"rejection_reason\": \"\"\n  }\n]",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "vendor_invoice",
+                  "type": "file",
+                  "src": "",
+                  "disabled": true
+                },
+                {
+                  "key": "received_goods_photo_files",
+                  "type": "file",
+                  "src": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inventory",
+                "goods-receipts",
+                "{{goods_receipt_id}}",
+                ""
+              ]
+            },
+            "description": "Partial update using same multipart format. Enable optional fields as needed."
+          },
+          "response": []
+        },
+        {
           "name": "Get Approved Purchase Order For GRN",
           "request": {
             "method": "GET",

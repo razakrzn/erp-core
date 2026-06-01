@@ -31,6 +31,7 @@ from .goods_receipt_serializers import (
     ApprovedPurchaseOrderForGRNSerializer,
     ApprovedPurchaseOrderLineItemForGRNSerializer,
     GoodsReceiptItemSerializer,
+    GoodsReceiptListSerializer,
     GoodsReceiptSerializer,
     ReceivedGoodsPhotoSerializer,
 )
@@ -63,6 +64,7 @@ __all__ = [
     "ApprovedPurchaseOrderLineItemForGRNSerializer",
     "ApprovedPurchaseOrderForGRNSerializer",
     "GoodsReceiptItemSerializer",
+    "GoodsReceiptListSerializer",
     "ReceivedGoodsPhotoSerializer",
     "GoodsReceiptSerializer",
     "VendorSerializer",

@@ -2,14 +2,15 @@ import json
 import logging
 
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.db.models import Q
+from django.db.models import Count, DecimalField, Q, Sum, Value
+from django.db.models.functions import Coalesce
 from rest_framework.decorators import action
 from rest_framework import filters, status
 
 from apps.inventory.models import GoodsReceipt, PurchaseOrder
-from core.utils.responses import APIResponse
+from core.utils.responses import APIResponse, build_actions
 
-from ..serializers import ApprovedPurchaseOrderForGRNSerializer, GoodsReceiptSerializer
+from ..serializers import ApprovedPurchaseOrderForGRNSerializer, GoodsReceiptListSerializer, GoodsReceiptSerializer
 from .shared import BaseInventoryViewSet
 
 logger = logging.getLogger(__name__)
@@ -33,6 +34,58 @@ class GoodsReceiptViewSet(BaseInventoryViewSet):
     ordering_fields = ["id", "grn_recording_date", "created_at", "updated_at"]
     ordering = ["-created_at"]
     permission_prefix = "procurement.goods_receipts"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if getattr(self, "action", None) == "list":
+            queryset = queryset.annotate(
+                products_count=Count("material_intakes", distinct=True),
+                total_already_received=Coalesce(
+                    Sum("material_intakes__already_received"),
+                    Value(0),
+                    output_field=DecimalField(max_digits=14, decimal_places=2),
+                ),
+            )
+        return queryset
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return GoodsReceiptListSerializer
+        return GoodsReceiptSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        actions = build_actions(request.user, self.permission_prefix)
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return APIResponse.success(
+                data={
+                    "items": serializer.data,
+                    "actions": actions,
+                    "pagination": {
+                        "count": self.paginator.page.paginator.count,
+                        "total_pages": self.paginator.page.paginator.num_pages,
+                        "current_page": self.paginator.page.number,
+                        "next": self.paginator.get_next_link(),
+                        "previous": self.paginator.get_previous_link(),
+                    },
+                },
+                message="Data retrieved successfully",
+                status_code=status.HTTP_200_OK,
+            )
+
+        serializer = self.get_serializer(queryset, many=True)
+        return APIResponse.success(
+            data={
+                "items": serializer.data,
+                "actions": actions,
+                "pagination": None,
+            },
+            message="Data retrieved successfully",
+            status_code=status.HTTP_200_OK,
+        )
 
     @staticmethod
     def _normalize_payload(request):
@@ -119,6 +172,41 @@ class GoodsReceiptViewSet(BaseInventoryViewSet):
             data=serializer.data,
             message="Goods Receipt created successfully.",
             status_code=status.HTTP_201_CREATED,
+        )
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        try:
+            payload = self._normalize_payload(request)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            logger.exception("GRN update: payload normalization failed")
+            return APIResponse.error(
+                message="Invalid payload. Send valid JSON in data and valid JSON array for material_intakes.",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = self.get_serializer(instance, data=payload, partial=partial)
+        if not serializer.is_valid():
+            logger.warning("GRN update serializer errors: %s", serializer.errors)
+            return APIResponse.error(
+                message=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            self.perform_update(serializer)
+        except DjangoValidationError as exc:
+            logger.warning("GRN update model validation error: %s", exc.message_dict or exc.messages)
+            return APIResponse.error(
+                message=exc.message_dict if hasattr(exc, "message_dict") else exc.messages,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return APIResponse.success(
+            data=serializer.data,
+            message="Goods Receipt updated successfully.",
+            status_code=status.HTTP_200_OK,
         )
 
     @action(detail=False, methods=["get"], url_path=r"approved-purchase-orders/(?P<po_id>[^/.]+)")
