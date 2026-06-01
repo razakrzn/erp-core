@@ -1,3 +1,7 @@
+from decimal import Decimal
+
+from django.db.models import DecimalField, F, Sum, Value
+from django.db.models.functions import Coalesce
 from django.db import transaction
 from rest_framework import serializers
 
@@ -139,6 +143,7 @@ class ApprovedPurchaseOrderLineItemForGRNSerializer(serializers.ModelSerializer)
         source="purchase_requisition.purchase_request_number",
         read_only=True,
     )
+    already_received = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = PurchaseOrderLineItem
@@ -155,7 +160,25 @@ class ApprovedPurchaseOrderLineItemForGRNSerializer(serializers.ModelSerializer)
             "last_purchase_rate",
             "negotiated_price",
             "line_total",
+            "already_received",
         ]
+
+    def get_already_received(self, obj):
+        total = (
+            GoodsReceiptItem.objects.filter(purchase_order_line_item=obj)
+            .aggregate(
+                total=Coalesce(
+                    Sum(
+                        F("qty_good") + F("qty_rejected"),
+                        output_field=DecimalField(max_digits=14, decimal_places=2),
+                    ),
+                    Value(Decimal("0.00")),
+                    output_field=DecimalField(max_digits=14, decimal_places=2),
+                )
+            )
+            .get("total")
+        )
+        return f"{(total or Decimal('0.00')):.2f}"
 
 
 class ApprovedPurchaseOrderForGRNSerializer(serializers.ModelSerializer):
