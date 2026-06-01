@@ -160,7 +160,7 @@ class GoodsReceiptItem(models.Model):
     def __str__(self) -> str:
         return f"GRN Item {self.pk or 'NEW'} - {self.product_code or self.product_name}"
 
-    def _calculate_already_received(self) -> Decimal:
+    def _calculate_previously_received(self) -> Decimal:
         if not self.purchase_order_line_item_id:
             return Decimal("0.00")
 
@@ -173,7 +173,7 @@ class GoodsReceiptItem(models.Model):
         received_total = queryset.aggregate(
             total=Coalesce(
                 Sum(
-                    F("qty_good") + F("qty_rejected"),
+                    F("qty_good"),
                     output_field=DecimalField(max_digits=14, decimal_places=2),
                 ),
                 Value(Decimal("0.00")),
@@ -190,7 +190,10 @@ class GoodsReceiptItem(models.Model):
         self.product_name = line.description or ""
         self.unit = line.unit or ""
         self.po_qty = line.requested_qty or Decimal("0.00")
-        self.already_received = self._calculate_already_received()
+        previously_received = self._calculate_previously_received()
+        current_receiving = self.qty_good or Decimal("0.00")
+        # Store cumulative received quantity (previous + current accepted qty only).
+        self.already_received = previously_received + current_receiving
 
     def clean(self):
         super().clean()
@@ -205,15 +208,16 @@ class GoodsReceiptItem(models.Model):
             )
 
         self.populate_from_po_line()
-        total_receiving_now = (self.qty_good or Decimal("0.00")) + (self.qty_rejected or Decimal("0.00"))
-        pending_qty = (self.po_qty or Decimal("0.00")) - (self.already_received or Decimal("0.00"))
+        total_receiving_now = self.qty_good or Decimal("0.00")
+        previously_received = self._calculate_previously_received()
+        pending_qty = (self.po_qty or Decimal("0.00")) - previously_received
         if total_receiving_now > pending_qty:
             raise ValidationError(
                 {
                     "qty_good": (
-                        f"Current GRN quantity (qty_good + qty_rejected = {total_receiving_now}) cannot exceed "
+                        f"Current GRN accepted quantity (qty_good = {total_receiving_now}) cannot exceed "
                         f"pending PO quantity ({pending_qty}). "
-                        f"PO quantity: {self.po_qty}, previously received: {self.already_received}."
+                        f"PO quantity: {self.po_qty}, previously received: {previously_received}."
                     )
                 }
             )

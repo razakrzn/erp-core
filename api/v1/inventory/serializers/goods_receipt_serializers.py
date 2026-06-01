@@ -220,7 +220,7 @@ class ApprovedPurchaseOrderLineItemForGRNSerializer(serializers.ModelSerializer)
             .aggregate(
                 total=Coalesce(
                     Sum(
-                        F("qty_good") + F("qty_rejected"),
+                        F("qty_good"),
                         output_field=DecimalField(max_digits=14, decimal_places=2),
                     ),
                     Value(Decimal("0.00")),
