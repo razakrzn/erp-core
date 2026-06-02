@@ -113,12 +113,36 @@ class ProductViewSet(BaseInventoryViewSet):
         "max_stock_level",
         "moq",
         "opening_stock",
+        "purchased_stock",
+        "stock_on_hand",
         "opening_stock_date",
         "created_at",
         "updated_at",
     ]
     ordering = ["name"]
     permission_prefix = "procurement.materials"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        params = self.request.query_params
+
+        grn_id = (params.get("grn_id") or params.get("goods_receipt_id") or "").strip()
+        if grn_id:
+            queryset = queryset.filter(goods_receipt_items__goods_receipt_id=grn_id)
+
+        has_grn_intake = (
+            params.get("has_grn_intake")
+            or params.get("grn_intake")
+            or params.get("purchased")
+            or ""
+        )
+        normalized = str(has_grn_intake).strip().lower()
+        if normalized in {"true", "1", "yes"}:
+            queryset = queryset.filter(goods_receipt_items__isnull=False)
+        elif normalized in {"false", "0", "no"}:
+            queryset = queryset.filter(goods_receipt_items__isnull=True)
+
+        return queryset.distinct()
 
     def get_serializer_class(self):
         if self.action == "list":

@@ -190,6 +190,7 @@ class PurchaseRequisition(models.Model):
             po_line_items = [
                 PurchaseOrderLineItem(
                     purchase_order=po,
+                    product_id=line_item.product_id,
                     product_code=(line_item.product_code or ""),
                     purchase_requisition=self,
                     description=(line_item.product_name or ""),

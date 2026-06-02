@@ -37,6 +37,10 @@ class GoodsReceiptViewSet(BaseInventoryViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        product_id = (self.request.query_params.get("product_id") or self.request.query_params.get("product") or "").strip()
+        if product_id:
+            queryset = queryset.filter(material_intakes__product_id=product_id)
+
         if getattr(self, "action", None) == "list":
             queryset = queryset.annotate(
                 products_count=Count("material_intakes", distinct=True),
@@ -46,7 +50,7 @@ class GoodsReceiptViewSet(BaseInventoryViewSet):
                     output_field=DecimalField(max_digits=14, decimal_places=2),
                 ),
             )
-        return queryset
+        return queryset.distinct()
 
     def get_serializer_class(self):
         if self.action == "list":

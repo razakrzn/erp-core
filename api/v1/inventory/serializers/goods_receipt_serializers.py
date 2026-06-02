@@ -14,6 +14,7 @@ class GoodsReceiptItemSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "purchase_order_line_item",
+            "product",
             "product_code",
             "product_name",
             "unit",
@@ -24,7 +25,7 @@ class GoodsReceiptItemSerializer(serializers.ModelSerializer):
             "rejection_reason",
             "defect_photo",
         ]
-        read_only_fields = ["product_code", "product_name", "unit", "po_qty", "already_received"]
+        read_only_fields = ["product", "product_code", "product_name", "unit", "po_qty", "already_received"]
 
 
 class ReceivedGoodsPhotoSerializer(serializers.ModelSerializer):
@@ -201,6 +202,7 @@ class ApprovedPurchaseOrderLineItemForGRNSerializer(serializers.ModelSerializer)
         fields = [
             "id",
             "purchase_order",
+            "product",
             "product_code",
             "purchase_request_number",
             "description",
