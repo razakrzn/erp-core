@@ -23,6 +23,17 @@ from .models import (
 )
 
 
+def resolve_product_from_requisition_line(line_item):
+    if line_item.product_id:
+        product = Product.objects.filter(pk=line_item.product_id).first()
+        if product:
+            return product
+    product_code = line_item.product_code or ""
+    if product_code:
+        return Product.objects.filter(product_code=product_code).first()
+    return None
+
+
 class PurchaseOrderLineItemInlineForm(forms.ModelForm):
     requisition_line_item = forms.ModelChoiceField(
         queryset=PurchaseRequisitionLineItem.objects.select_related("purchase_requisition").filter(
@@ -52,6 +63,7 @@ class PurchaseOrderLineItemInlineForm(forms.ModelForm):
         line_item = self.cleaned_data.get("requisition_line_item")
         if line_item:
             requisition = line_item.purchase_requisition
+            instance.product = resolve_product_from_requisition_line(line_item)
             instance.product_code = line_item.product_code
             instance.description = line_item.product_name
             instance.unit = line_item.unit
@@ -151,6 +163,8 @@ class ProductAdmin(admin.ModelAdmin):
         "price",
         "standard_cost",
         "opening_stock",
+        "purchased_stock",
+        "stock_on_hand",
         "preferred_supplier",
         "category",
         "brand",
@@ -159,6 +173,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
     list_filter = ("status", "category", "brand", "material", "grade", "finish", "unit", "preferred_supplier")
     search_fields = ("name", "sku", "product_code", "hsn_sac_code", "preferred_supplier__trade_name")
+    readonly_fields = ("purchased_stock", "stock_on_hand")
 
 
 class PurchaseRequisitionLineItemInline(admin.TabularInline):
@@ -298,6 +313,7 @@ class PurchaseOrderLineItemInline(admin.TabularInline):
     extra = 1
     fields = (
         "requisition_line_item",
+        "product",
         "product_code",
         "purchase_requisition",
         "description",
@@ -309,7 +325,7 @@ class PurchaseOrderLineItemInline(admin.TabularInline):
         "negotiated_price",
         "line_total",
     )
-    readonly_fields = ("line_total",)
+    readonly_fields = ("product", "line_total")
 
 
 class GoodsReceiptItemInline(admin.TabularInline):
@@ -317,6 +333,7 @@ class GoodsReceiptItemInline(admin.TabularInline):
     extra = 1
     fields = (
         "purchase_order_line_item",
+        "product",
         "product_code",
         "product_name",
         "unit",
@@ -327,7 +344,7 @@ class GoodsReceiptItemInline(admin.TabularInline):
         "rejection_reason",
         "defect_photo",
     )
-    readonly_fields = ("product_code", "product_name", "unit", "po_qty", "already_received")
+    readonly_fields = ("product", "product_code", "product_name", "unit", "po_qty", "already_received")
 
 
 class ReceivedGoodsPhotoInline(admin.TabularInline):
@@ -367,6 +384,7 @@ class GoodsReceiptItemAdmin(admin.ModelAdmin):
         "id",
         "goods_receipt",
         "purchase_order_line_item",
+        "product",
         "product_code",
         "product_name",
         "po_qty",
@@ -381,7 +399,7 @@ class GoodsReceiptItemAdmin(admin.ModelAdmin):
         "product_name",
         "purchase_order_line_item__purchase_order__po_number",
     )
-    readonly_fields = ("product_code", "product_name", "unit", "po_qty", "already_received")
+    readonly_fields = ("product", "product_code", "product_name", "unit", "po_qty", "already_received")
 
 
 @admin.register(ReceivedGoodsPhoto)

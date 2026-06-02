@@ -7,6 +7,7 @@ from django.db.models import DecimalField, F, Sum, Value
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
+from .products import Product
 from .purchaseorder import PurchaseOrder, PurchaseOrderLineItem
 
 
@@ -117,6 +118,13 @@ class GoodsReceiptItem(models.Model):
         on_delete=models.PROTECT,
         related_name="goods_receipt_items",
     )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="goods_receipt_items",
+    )
 
     product_code = models.CharField(max_length=100, blank=True, default="")
     product_name = models.CharField(max_length=255, blank=True, default="")
@@ -194,6 +202,37 @@ class GoodsReceiptItem(models.Model):
         current_receiving = self.qty_good or Decimal("0.00")
         # Store cumulative received quantity (previous + current accepted qty only).
         self.already_received = previously_received + current_receiving
+        self.product = self._resolve_product()
+
+    def _resolve_product(self):
+        if self.purchase_order_line_item_id and self.purchase_order_line_item.product_id:
+            return self.purchase_order_line_item.product
+        product_code = self.product_code or ""
+        if not product_code:
+            return None
+        return Product.objects.filter(product_code=product_code).first()
+
+    @staticmethod
+    def refresh_product_stock(product_id):
+        if not product_id:
+            return
+
+        product = Product.objects.filter(pk=product_id).first()
+        if not product:
+            return
+
+        purchased_stock = product.goods_receipt_items.aggregate(
+            total=Coalesce(
+                Sum(
+                    F("qty_good"),
+                    output_field=DecimalField(max_digits=14, decimal_places=2),
+                ),
+                Value(Decimal("0.00")),
+                output_field=DecimalField(max_digits=14, decimal_places=2),
+            )
+        )["total"] or Decimal("0.00")
+        product.purchased_stock = purchased_stock
+        product.save(update_fields=["purchased_stock", "stock_on_hand", "updated_at"])
 
     def clean(self):
         super().clean()
@@ -223,9 +262,35 @@ class GoodsReceiptItem(models.Model):
             )
 
     def save(self, *args, **kwargs):
+        previous_product_id = None
+        if self.pk:
+            previous_product_id = (
+                GoodsReceiptItem.objects.filter(pk=self.pk).values_list("product_id", flat=True).first()
+            )
+
         self.populate_from_po_line()
         self.full_clean()
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            kwargs["update_fields"] = set(update_fields) | {
+                "product",
+                "product_code",
+                "product_name",
+                "unit",
+                "po_qty",
+                "already_received",
+            }
         super().save(*args, **kwargs)
+
+        affected_product_ids = {previous_product_id, self.product_id}
+        for product_id in affected_product_ids:
+            self.refresh_product_stock(product_id)
+
+    def delete(self, *args, **kwargs):
+        product_id = self.product_id
+        result = super().delete(*args, **kwargs)
+        self.refresh_product_stock(product_id)
+        return result
 
 
 class ReceivedGoodsPhoto(models.Model):

@@ -91,6 +91,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "max_stock_level",
             "moq",
             "opening_stock",
+            "purchased_stock",
             "stock_on_hand",
             "reserved",
             "available",
@@ -117,7 +118,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["stock_on_hand"]
+        read_only_fields = ["purchased_stock", "stock_on_hand"]
 
     def _get_related_name(self, obj, field_name):
         related_obj = getattr(obj, field_name, None)
@@ -175,6 +176,7 @@ class ProductListSerializer(serializers.ModelSerializer):
             "unit_name",
             "status",
             "stock_on_hand",
+            "purchased_stock",
             "reserved",
             "available",
             "reorder_level",

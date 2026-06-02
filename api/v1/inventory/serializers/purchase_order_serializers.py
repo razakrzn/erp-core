@@ -18,6 +18,7 @@ class PurchaseOrderLineItemSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "purchase_order",
+            "product",
             "product_code",
             "purchase_requisition",
             "purchase_request_number",
