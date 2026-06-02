@@ -19,10 +19,24 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
+from django.views.generic import RedirectView
 from django.views.static import serve
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 urlpatterns = [
+    path("", RedirectView.as_view(url="/api/v1/", permanent=False), name="root-to-api-home"),
     path("admin/", admin.site.urls),
+    path("api/schema/", SpectacularAPIView.as_view(api_version="v1"), name="api-schema"),
+    path(
+        "api/docs/",
+        SpectacularSwaggerView.as_view(url_name="api-schema"),
+        name="api-swagger-ui",
+    ),
+    path(
+        "api/redoc/",
+        SpectacularRedocView.as_view(url_name="api-schema"),
+        name="api-redoc",
+    ),
     path("api/v1/", include("api.v1.router")),
 ]
 

@@ -112,7 +112,7 @@ class BoqItemAdmin(admin.ModelAdmin):
 
 @admin.register(Quote)
 class QuoteAdmin(admin.ModelAdmin):
-    list_display = ("quote_number", "boq", "status", "is_approved", "is_rejected", "updated_at")
+    list_display = ("quote_number", "boq", "attachment", "resolved_status", "is_approved", "is_rejected", "updated_at")
     search_fields = ("quote_number", "boq__boq_number", "status")
     list_filter = ("status", "is_approved", "is_rejected", "created_at", "updated_at")
     inlines = [QuoteItemInline]
@@ -123,7 +123,8 @@ class QuoteAdmin(admin.ModelAdmin):
                 "fields": (
                     "quote_number",
                     "boq",
-                    "status",
+                    "attachment",
+                    "resolved_status",
                     "is_approved",
                     "is_rejected",
                 )
@@ -147,6 +148,7 @@ class QuoteAdmin(admin.ModelAdmin):
     )
     readonly_fields = (
         "quote_number",
+        "resolved_status",
         "boq_number",
         "boq_is_approved",
         "boq_is_rejected",
@@ -157,6 +159,37 @@ class QuoteAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
+
+    @staticmethod
+    def _quote_completeness(obj):
+        boq = getattr(obj, "boq", None)
+        if not boq:
+            return False, False
+
+        boq_items = list(boq.items.all())
+        if not boq_items:
+            return False, False
+
+        quote_items = list(obj.items.all())
+        created_boq_item_ids = {item.boq_item_id for item in quote_items if item.boq_item_id is not None}
+        template_boq_ids = {item.id for item in boq_items if item.is_template}
+        custom_boq_ids = {item.id for item in boq_items if not item.is_template}
+
+        template_created = template_boq_ids.issubset(created_boq_item_ids) if template_boq_ids else False
+        custom_created = custom_boq_ids.issubset(created_boq_item_ids) if custom_boq_ids else False
+        return template_created, custom_created
+
+    def resolved_status(self, obj):
+        if obj.is_approved:
+            return "Quotation Approved"
+        if obj.is_rejected:
+            return "Quotation Rejected"
+        template_created, custom_created = self._quote_completeness(obj)
+        if template_created and custom_created:
+            return "Awaiting Approval"
+        return "Awaiting Quotation"
+
+    resolved_status.short_description = "status"
 
     def boq_number(self, obj):
         return obj.boq.boq_number if obj.boq else ""

@@ -39,6 +39,7 @@ class Quote(models.Model):
         blank=True,
         null=True,
     )
+    attachment = models.FileField(_("attachment"), upload_to="assessment/quotes/", blank=True, null=True)
     discount_amount = models.DecimalField(_("discount amount"), max_digits=14, decimal_places=2, default=0)
     exclusive_total = models.DecimalField(_("exclusive total"), max_digits=14, decimal_places=2, default=0)
     vat_percent = models.DecimalField(_("vat percent"), max_digits=5, decimal_places=2, default=0)

@@ -27,6 +27,51 @@ class PurchaseRequisitionLineItemSerializer(serializers.ModelSerializer):
         }
 
 
+class ApprovedPurchaseRequisitionLineItemSerializer(PurchaseRequisitionLineItemSerializer):
+    purchase_request_number = serializers.CharField(
+        source="purchase_requisition.purchase_request_number",
+        read_only=True,
+    )
+    last_purchase_rate = serializers.SerializerMethodField()
+    last_purchase_vendor = serializers.SerializerMethodField()
+    last_purchase_qty = serializers.SerializerMethodField()
+
+    class Meta(PurchaseRequisitionLineItemSerializer.Meta):
+        fields = PurchaseRequisitionLineItemSerializer.Meta.fields + [
+            "purchase_request_number",
+            "last_purchase_rate",
+            "last_purchase_vendor",
+            "last_purchase_qty",
+        ]
+
+    def _last_purchase_for_line_item(self, obj):
+        lookup = self.context.get("last_purchase_by_product_code") or {}
+        product_code = self.context.get("product_code_by_line_item_id", {}).get(obj.id)
+        if not product_code:
+            return None
+        return lookup.get(product_code)
+
+    def get_last_purchase_rate(self, obj):
+        last_purchase = self._last_purchase_for_line_item(obj)
+        if not last_purchase:
+            return None
+        rate = last_purchase.get("last_purchase_rate")
+        return str(rate) if rate is not None else None
+
+    def get_last_purchase_vendor(self, obj):
+        last_purchase = self._last_purchase_for_line_item(obj)
+        if not last_purchase:
+            return None
+        return last_purchase.get("last_purchase_vendor")
+
+    def get_last_purchase_qty(self, obj):
+        last_purchase = self._last_purchase_for_line_item(obj)
+        if not last_purchase:
+            return None
+        qty = last_purchase.get("last_purchase_qty")
+        return str(qty) if qty is not None else None
+
+
 class PurchaseRequisitionSerializer(serializers.ModelSerializer):
     created_by_name = serializers.SerializerMethodField(read_only=True)
     approved_by_name = serializers.SerializerMethodField(read_only=True)
@@ -65,6 +110,7 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "purchase_request_number",
+            "status",
             "created_by",
             "approved_by",
             "rejected_by",
@@ -90,28 +136,68 @@ class PurchaseRequisitionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         line_items_data = validated_data.pop("line_items", [])
+        user = self.context.get("request").user if self.context.get("request") else None
 
         with transaction.atomic():
             requisition = PurchaseRequisition.objects.create(**validated_data)
             for item_data in line_items_data:
                 PurchaseRequisitionLineItem.objects.create(purchase_requisition=requisition, **item_data)
+            self._sync_approval_fields(requisition, user)
+            requisition.save()
+            if requisition.is_approved:
+                requisition.ensure_production_order()
 
         return requisition
 
     def update(self, instance, validated_data):
         line_items_data = validated_data.pop("line_items", None)
+        user = self.context.get("request").user if self.context.get("request") else None
+        was_approved = bool(instance.is_approved)
 
         with transaction.atomic():
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
+            self._sync_approval_fields(instance, user)
             instance.save()
 
             if line_items_data is not None:
                 instance.line_items.all().delete()
                 for item_data in line_items_data:
                     PurchaseRequisitionLineItem.objects.create(purchase_requisition=instance, **item_data)
+            if instance.is_approved and not was_approved:
+                instance.ensure_production_order()
 
         return instance
+
+    def validate(self, attrs):
+        instance = getattr(self, "instance", None)
+        is_approved = attrs.get("is_approved", getattr(instance, "is_approved", False))
+        is_rejected = attrs.get("is_rejected", getattr(instance, "is_rejected", False))
+        reject_note = attrs.get("reject_note", getattr(instance, "reject_note", "")) or ""
+
+        if is_approved and is_rejected:
+            raise serializers.ValidationError("Purchase requisition cannot be both approved and rejected.")
+        if is_rejected and not reject_note.strip():
+            raise serializers.ValidationError({"reject_note": "This field is required when rejecting Purchase Requisition."})
+        return attrs
+
+    @staticmethod
+    def _sync_approval_fields(instance, user):
+        auth_user = user if getattr(user, "is_authenticated", False) else None
+        if instance.is_approved:
+            instance.is_rejected = False
+            instance.reject_note = ""
+            instance.rejected_by = None
+            if auth_user:
+                instance.approved_by = auth_user
+        elif instance.is_rejected:
+            instance.is_approved = False
+            instance.approved_by = None
+            if auth_user:
+                instance.rejected_by = auth_user
+        else:
+            instance.approved_by = None
+            instance.rejected_by = None
 
 
 class PurchaseRequisitionListSerializer(serializers.ModelSerializer):
@@ -141,3 +227,25 @@ class PurchaseRequisitionProductNameListSerializer(serializers.Serializer):
         child=serializers.CharField(),
         read_only=True,
     )
+
+
+class PurchaseRequisitionFilterOptionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    label = serializers.CharField()
+
+
+class PurchaseRequisitionFilterOptionsSerializer(serializers.Serializer):
+    material_categories = PurchaseRequisitionFilterOptionSerializer(many=True)
+    vendors = PurchaseRequisitionFilterOptionSerializer(many=True)
+    specific_products = PurchaseRequisitionFilterOptionSerializer(many=True)
+
+
+class PurchaseRequisitionLineItemDropdownOptionSerializer(serializers.Serializer):
+    value = serializers.CharField()
+    label = serializers.CharField()
+
+
+class PurchaseRequisitionLineItemFilterOptionSerializer(serializers.Serializer):
+    key = serializers.CharField()
+    label = serializers.CharField()
+    options_endpoint = serializers.CharField()

@@ -18,16 +18,6 @@ class PurchaseOrder(models.Model):
         help_text="Auto-generated unique purchase order number.",
     )
 
-    # Link to originating PR (nullable — PO can be raised without a PR)
-    purchase_requisition = models.ForeignKey(
-        PurchaseRequisition,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="purchase_orders",
-        help_text="The Purchase Requisition this PO was raised from.",
-    )
-
     # Header fields
     vendor = models.ForeignKey(
         Vendor,
@@ -63,11 +53,17 @@ class PurchaseOrder(models.Model):
     # Status
     status = models.CharField(
         max_length=50,
-        default="Draft",
-        help_text="Current status e.g. Draft, Confirmed, Released, Closed.",
+        default="Pending",
+        help_text="Current status e.g. Pending, Approved, Rejected.",
     )
-    is_confirmed = models.BooleanField(default=False)
-    is_closed = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False, null=True, blank=True)
+    is_rejected = models.BooleanField(default=False, null=True, blank=True)
+    reject_note = models.TextField(
+        null=True,
+        blank=True,
+        default="",
+        help_text="Reason for rejecting this purchase order.",
+    )
 
     # Computed totals (stored for performance)
     net_amount = models.DecimalField(
@@ -119,7 +115,18 @@ class PurchaseOrder(models.Model):
         verbose_name_plural = "Purchase Orders"
         ordering = ["-created_at"]
 
+    def _resolve_status_from_flags(self):
+        if self.is_approved:
+            return "Approved"
+        if self.is_rejected:
+            return "Rejected"
+        return "Pending"
+
     def save(self, *args, **kwargs):
+        self.status = self._resolve_status_from_flags()
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            kwargs["update_fields"] = set(update_fields) | {"status"}
         is_new = self.pk is None
         super().save(*args, **kwargs)
 

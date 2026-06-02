@@ -4,6 +4,16 @@ from apps.assessment.models import Accessory, Finish, Quote, QuoteItem, QuoteTer
 
 
 class QuoteCompletenessMixin:
+    @staticmethod
+    def _resolve_status(instance, template_created, custom_created):
+        if getattr(instance, "is_approved", False):
+            return "Quotation Approved"
+        if getattr(instance, "is_rejected", False):
+            return "Quotation Rejected"
+        if template_created and custom_created:
+            return "Awaiting Approval"
+        return "Awaiting Quotation"
+
     def add_completeness_flags(self, instance, representation):
         """
         Return flags indicating completeness for template and custom items independently.
@@ -35,6 +45,7 @@ class QuoteCompletenessMixin:
 
         representation["templateQuoteItemCreated"] = template_created
         representation["customQuoteItemCreated"] = custom_created
+        representation["status"] = self._resolve_status(instance, template_created, custom_created)
         return representation
 
 
@@ -71,6 +82,7 @@ class QuoteListSerializer(QuoteCompletenessMixin, serializers.ModelSerializer):
         fields = [
             "id",
             "quote_number",
+            "attachment",
             "boq_number",
             "project_name",
             "client",
@@ -108,6 +120,7 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
     updated_by = serializers.SerializerMethodField()
     approved_by = serializers.SerializerMethodField()
     rejected_by = serializers.SerializerMethodField()
+    attachment = serializers.SerializerMethodField()
 
     class Meta:
         model = Quote
@@ -115,6 +128,7 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
             "id",
             "boq_id",
             "quote_number",
+            "attachment",
             "boq",
             "enquiry",
             "quote_items",
@@ -220,6 +234,15 @@ class QuoteDetailSerializer(QuoteCompletenessMixin, serializers.ModelSerializer)
 
     def get_rejected_by(self, obj):
         return self._get_user_full_name(obj.rejected_by)
+
+    def get_attachment(self, obj):
+        request = self.context.get("request")
+        if not obj.attachment:
+            return None
+        attachment_url = obj.attachment.url
+        if request is not None:
+            return request.build_absolute_uri(attachment_url)
+        return attachment_url
 
     def to_internal_value(self, data):
         if isinstance(data, dict):
