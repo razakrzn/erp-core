@@ -35,13 +35,8 @@ class QuoteCompletenessMixin:
                 template_boq_ids = {item.id for item in boq_items if item.is_template}
                 custom_boq_ids = {item.id for item in boq_items if not item.is_template}
 
-                # Calculate completeness for Templates
-                if template_boq_ids:
-                    template_created = template_boq_ids.issubset(created_boq_item_ids)
-
-                # Calculate completeness for Custom items
-                if custom_boq_ids:
-                    custom_created = custom_boq_ids.issubset(created_boq_item_ids)
+                template_created = template_boq_ids.issubset(created_boq_item_ids)
+                custom_created = custom_boq_ids.issubset(created_boq_item_ids)
 
         representation["templateQuoteItemCreated"] = template_created
         representation["customQuoteItemCreated"] = custom_created
