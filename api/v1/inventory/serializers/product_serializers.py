@@ -209,3 +209,20 @@ class ProductDropdownSerializer(serializers.ModelSerializer):
             "product_brand",
             "product_size",
         ]
+
+
+class ProductFilterDropdownOptionSerializer(serializers.Serializer):
+    value = serializers.CharField()
+    label = serializers.CharField()
+
+
+class ProductFilterChoiceSerializer(serializers.Serializer):
+    value = serializers.CharField()
+    label = serializers.CharField()
+
+
+class ProductFilterOptionSerializer(serializers.Serializer):
+    key = serializers.CharField()
+    label = serializers.CharField()
+    options = ProductFilterChoiceSerializer(many=True, required=False)
+    options_endpoint = serializers.CharField(required=False)
