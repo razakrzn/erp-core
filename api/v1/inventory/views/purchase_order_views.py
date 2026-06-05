@@ -1,6 +1,8 @@
 import json
 
 from rest_framework import filters, status
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 
 from apps.inventory.models import PurchaseOrder
 from core.utils.responses import APIResponse
@@ -90,5 +92,93 @@ class PurchaseOrderViewSet(BaseInventoryViewSet):
         return APIResponse.success(
             data=data,
             message="Purchase Order updated successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @staticmethod
+    def _parse_boolean_action_value(raw_value, field_name="value"):
+        if isinstance(raw_value, bool):
+            return raw_value
+        if raw_value is None:
+            raise ValidationError({field_name: "This field is required and must be true or false."})
+        normalized = str(raw_value).strip().lower()
+        if normalized in {"true", "1", "yes"}:
+            return True
+        if normalized in {"false", "0", "no"}:
+            return False
+        raise ValidationError({field_name: "Invalid boolean value. Use true or false."})
+
+    @action(detail=True, methods=["patch"], url_path="approve")
+    def approve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        value = self._parse_boolean_action_value(request.data.get("value", None), "value")
+        user = request.user if request.user and request.user.is_authenticated else None
+
+        instance.is_approved = value
+        if value:
+            instance.is_rejected = False
+            instance.reject_note = ""
+            instance.status = "Approved"
+            instance.confirmed_by = user
+        else:
+            instance.status = "Pending"
+            instance.confirmed_by = None
+
+        instance.updated_by = user if user else instance.updated_by
+        instance.save(
+            update_fields=[
+                "is_approved",
+                "is_rejected",
+                "reject_note",
+                "status",
+                "confirmed_by",
+                "updated_by",
+                "updated_at",
+            ]
+        )
+
+        message = "Purchase Order Approved" if value else "Purchase Order Approval Cancelled"
+        return APIResponse.success(
+            data=None,
+            message=message,
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=["patch"], url_path="reject")
+    def reject(self, request, *args, **kwargs):
+        instance = self.get_object()
+        value = self._parse_boolean_action_value(request.data.get("value", None), "value")
+        reject_note = (request.data.get("reject_note", "") or "").strip()
+        if value and not reject_note:
+            raise ValidationError({"reject_note": "This field is required when rejecting Purchase Order."})
+        user = request.user if request.user and request.user.is_authenticated else None
+
+        instance.is_rejected = value
+        if value:
+            instance.is_approved = False
+            instance.status = "Rejected"
+            instance.confirmed_by = None
+            instance.reject_note = reject_note
+        else:
+            instance.status = "Pending"
+            instance.reject_note = ""
+
+        instance.updated_by = user if user else instance.updated_by
+        instance.save(
+            update_fields=[
+                "is_approved",
+                "is_rejected",
+                "reject_note",
+                "status",
+                "confirmed_by",
+                "updated_by",
+                "updated_at",
+            ]
+        )
+
+        message = "Purchase Order Rejected" if value else "Purchase Order Rejection Cancelled"
+        return APIResponse.success(
+            data=None,
+            message=message,
             status_code=status.HTTP_200_OK,
         )

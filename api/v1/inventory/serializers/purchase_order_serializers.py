@@ -3,17 +3,25 @@ from decimal import Decimal
 from django.db import transaction
 from rest_framework import serializers
 
-from apps.inventory.models import PurchaseOrder, PurchaseOrderLineItem
+from apps.inventory.models import PurchaseOrder, PurchaseOrderLineItem, Vendor
+from core.utils.responses import build_actions
 
 
 class PurchaseOrderLineItemSerializer(serializers.ModelSerializer):
+    purchase_request_number = serializers.CharField(
+        source="purchase_requisition.purchase_request_number",
+        read_only=True,
+    )
+
     class Meta:
         model = PurchaseOrderLineItem
         fields = [
             "id",
             "purchase_order",
+            "product",
             "product_code",
             "purchase_requisition",
+            "purchase_request_number",
             "description",
             "unit",
             "requested_qty",
@@ -25,13 +33,22 @@ class PurchaseOrderLineItemSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["line_total", "purchase_order"]
         extra_kwargs = {
-            "purchase_requisition": {"required": False},
+            "purchase_requisition": {"required": False, "write_only": True},
         }
 
 
 class PurchaseOrderSerializer(serializers.ModelSerializer):
+    vendor = serializers.SerializerMethodField(read_only=True)
+    vendor_id = serializers.PrimaryKeyRelatedField(
+        source="vendor",
+        queryset=Vendor.objects.all(),
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
     line_items = PurchaseOrderLineItemSerializer(source="po_line_items", many=True, required=False)
     created_by_name = serializers.SerializerMethodField(read_only=True)
+    actions = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = PurchaseOrder
@@ -39,14 +56,16 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
             "id",
             "po_number",
             "vendor",
+            "vendor_id",
             "associated_job",
             "payment_terms",
             "shipping_delivery_terms",
             "po_issued_date",
             "internal_remarks",
             "status",
-            "is_confirmed",
-            "is_closed",
+            "is_approved",
+            "is_rejected",
+            "reject_note",
             "net_amount",
             "vat_amount",
             "grand_total",
@@ -57,6 +76,7 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "line_items",
+            "actions",
         ]
         read_only_fields = [
             "po_number",
@@ -75,6 +95,33 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
         if not obj.created_by:
             return None
         return obj.created_by.get_full_name() or obj.created_by.get_username()
+
+    def get_vendor(self, obj):
+        if not obj.vendor:
+            return None
+        return {
+            "id": obj.vendor.id,
+            "trade_name": obj.vendor.trade_name or "",
+        }
+
+    def get_actions(self, obj):
+        request = self.context.get("request")
+        view = self.context.get("view")
+
+        if not request or not view or getattr(view, "action", None) != "retrieve":
+            return None
+
+        computed_actions = build_actions(request.user, getattr(view, "permission_prefix", ""))
+        return {
+            "canApprove": bool(computed_actions.get("canApprove", False)),
+            "canReject": bool(computed_actions.get("canReject", False)),
+        }
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if data.get("actions") is None:
+            data.pop("actions", None)
+        return data
 
     @staticmethod
     def _recalculate_totals(instance):
@@ -109,6 +156,7 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
 
 
 class PurchaseOrderListSerializer(serializers.ModelSerializer):
+    vendor = serializers.SerializerMethodField(read_only=True)
     created_by_name = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -128,3 +176,8 @@ class PurchaseOrderListSerializer(serializers.ModelSerializer):
         if not obj.created_by:
             return None
         return obj.created_by.get_full_name() or obj.created_by.get_username()
+
+    def get_vendor(self, obj):
+        if not obj.vendor:
+            return ""
+        return obj.vendor.trade_name or ""

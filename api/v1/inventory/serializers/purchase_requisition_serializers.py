@@ -27,6 +27,51 @@ class PurchaseRequisitionLineItemSerializer(serializers.ModelSerializer):
         }
 
 
+class ApprovedPurchaseRequisitionLineItemSerializer(PurchaseRequisitionLineItemSerializer):
+    purchase_request_number = serializers.CharField(
+        source="purchase_requisition.purchase_request_number",
+        read_only=True,
+    )
+    last_purchase_rate = serializers.SerializerMethodField()
+    last_purchase_vendor = serializers.SerializerMethodField()
+    last_purchase_qty = serializers.SerializerMethodField()
+
+    class Meta(PurchaseRequisitionLineItemSerializer.Meta):
+        fields = PurchaseRequisitionLineItemSerializer.Meta.fields + [
+            "purchase_request_number",
+            "last_purchase_rate",
+            "last_purchase_vendor",
+            "last_purchase_qty",
+        ]
+
+    def _last_purchase_for_line_item(self, obj):
+        lookup = self.context.get("last_purchase_by_product_code") or {}
+        product_code = self.context.get("product_code_by_line_item_id", {}).get(obj.id)
+        if not product_code:
+            return None
+        return lookup.get(product_code)
+
+    def get_last_purchase_rate(self, obj):
+        last_purchase = self._last_purchase_for_line_item(obj)
+        if not last_purchase:
+            return None
+        rate = last_purchase.get("last_purchase_rate")
+        return str(rate) if rate is not None else None
+
+    def get_last_purchase_vendor(self, obj):
+        last_purchase = self._last_purchase_for_line_item(obj)
+        if not last_purchase:
+            return None
+        return last_purchase.get("last_purchase_vendor")
+
+    def get_last_purchase_qty(self, obj):
+        last_purchase = self._last_purchase_for_line_item(obj)
+        if not last_purchase:
+            return None
+        qty = last_purchase.get("last_purchase_qty")
+        return str(qty) if qty is not None else None
+
+
 class PurchaseRequisitionSerializer(serializers.ModelSerializer):
     created_by_name = serializers.SerializerMethodField(read_only=True)
     approved_by_name = serializers.SerializerMethodField(read_only=True)

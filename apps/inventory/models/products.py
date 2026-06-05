@@ -85,6 +85,9 @@ class Product(models.Model):
     max_stock_level = models.PositiveIntegerField(_("max stock level"), blank=True, null=True)
     moq = models.PositiveIntegerField(_("MOQ (min order)"), default=1, blank=True, null=True)
     opening_stock = models.PositiveIntegerField(_("opening stock"), default=0, blank=True, null=True)
+    purchased_stock = models.DecimalField(
+        _("purchased stock"), max_digits=12, decimal_places=2, default=0, blank=True, null=True, editable=False
+    )
     stock_on_hand = models.DecimalField(_("stock on hand"), max_digits=12, decimal_places=2, default=0, blank=True, null=True)
     reserved = models.DecimalField(_("reserved"), max_digits=12, decimal_places=2, default=0, blank=True, null=True)
     available = models.DecimalField(_("available"), max_digits=12, decimal_places=2, default=0, blank=True, null=True)
@@ -168,3 +171,12 @@ class Product(models.Model):
 
     def __str__(self) -> str:
         return f"{self.name} ({self.sku})"
+
+    def save(self, *args, **kwargs):
+        opening_stock = self.opening_stock or 0
+        purchased_stock = self.purchased_stock or 0
+        self.stock_on_hand = opening_stock + purchased_stock
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            kwargs["update_fields"] = set(update_fields) | {"stock_on_hand"}
+        super().save(*args, **kwargs)
