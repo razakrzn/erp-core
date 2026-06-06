@@ -346,7 +346,7 @@ class GoodsReceiptItemInline(admin.TabularInline):
         "rejection_reason",
         "defect_photo",
     )
-    readonly_fields = ("product", "product_code", "product_name", "unit", "po_qty", "already_received")
+    readonly_fields = ("already_received",)
 
 
 class ReceivedGoodsPhotoInline(admin.TabularInline):
@@ -411,7 +411,7 @@ class GoodsReceiptItemAdmin(admin.ModelAdmin):
         "product_name",
         "purchase_order_line_item__purchase_order__po_number",
     )
-    readonly_fields = ("product", "product_code", "product_name", "unit", "po_qty", "already_received")
+    readonly_fields = ("already_received",)
 
 
 @admin.register(ReceivedGoodsPhoto)

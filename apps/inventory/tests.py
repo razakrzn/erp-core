@@ -81,6 +81,23 @@ class GoodsReceiptApprovalTests(TestCase):
         payload.update(overrides)
         return payload
 
+    def _standalone_payload(self, **line_overrides):
+        line = {
+            "product_name": "Standalone Sheet",
+            "unit": "Nos",
+            "qty_good": "3.00",
+            "qty_rejected": "0.00",
+            "rejection_reason": "",
+        }
+        line.update(line_overrides)
+        return {
+            "vendor_name": "Walk-in Supplier",
+            "vendor_invoice_no": "INV-001",
+            "grn_recording_date": "2026-06-06",
+            "overall_quality_status": "accepted",
+            "material_intakes": [line],
+        }
+
     def test_goods_receipt_create_is_approved_by_default(self):
         serializer = GoodsReceiptSerializer(data=self._valid_payload(is_approved=False, is_rejected=True))
         self.assertTrue(serializer.is_valid(), serializer.errors)
@@ -123,3 +140,44 @@ class GoodsReceiptApprovalTests(TestCase):
         )
 
         self.assertEqual(goods_receipt.status, "Rejected")
+
+    def test_standalone_goods_receipt_can_be_created_without_purchase_order(self):
+        product = Product.objects.create(
+            name="Standalone Sheet",
+            product_code="STANDALONE-001",
+            opening_stock=0,
+        )
+        serializer = GoodsReceiptSerializer(data=self._standalone_payload(product=product.id))
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        goods_receipt = serializer.save()
+        item = goods_receipt.material_intakes.get()
+        product.refresh_from_db()
+
+        self.assertIsNone(goods_receipt.purchase_order_id)
+        self.assertEqual(goods_receipt.vendor_name, "Walk-in Supplier")
+        self.assertTrue(goods_receipt.is_approved)
+        self.assertEqual(goods_receipt.status, "Approved")
+        self.assertIsNone(item.purchase_order_line_item_id)
+        self.assertEqual(item.product_id, product.id)
+        self.assertEqual(item.product_code, "STANDALONE-001")
+        self.assertEqual(item.product_name, "Standalone Sheet")
+        self.assertEqual(item.already_received, Decimal("3.00"))
+        self.assertEqual(product.purchased_stock, Decimal("3.00"))
+        self.assertEqual(product.stock_on_hand, Decimal("3.00"))
+
+    def test_standalone_goods_receipt_requires_product_details(self):
+        serializer = GoodsReceiptSerializer(
+            data=self._standalone_payload(product_name="", product_code="", product=None)
+        )
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("material_intakes", serializer.errors)
+
+    def test_purchase_order_goods_receipt_still_requires_po_line_item(self):
+        payload = self._valid_payload()
+        payload["material_intakes"][0].pop("purchase_order_line_item")
+        serializer = GoodsReceiptSerializer(data=payload)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("material_intakes", serializer.errors)
