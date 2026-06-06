@@ -39,6 +39,30 @@ class ProductStockTests(TestCase):
         self.assertEqual(product.stock_on_hand, Decimal("10.00"))
         self.assertEqual(product.available, Decimal("4.00"))
 
+    def test_stock_value_is_standard_cost_times_stock_on_hand(self):
+        product = Product.objects.create(
+            name="Valued sheet",
+            opening_stock=10,
+            purchased_stock=Decimal("2.00"),
+            standard_cost=Decimal("7.50"),
+        )
+
+        self.assertEqual(product.stock_on_hand, Decimal("12.00"))
+        self.assertEqual(product.stock_value_aed, Decimal("90.00"))
+
+    def test_partial_save_recalculates_stock_value(self):
+        product = Product.objects.create(
+            name="Revalued sheet",
+            opening_stock=4,
+            standard_cost=Decimal("5.00"),
+        )
+
+        product.standard_cost = Decimal("6.25")
+        product.save(update_fields=["standard_cost"])
+        product.refresh_from_db()
+
+        self.assertEqual(product.stock_value_aed, Decimal("25.00"))
+
 
 class GoodsReceiptApprovalTests(TestCase):
     def setUp(self):
