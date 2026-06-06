@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import Count, DecimalField, Q, Sum, Value
 from django.db.models.functions import Coalesce
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework import filters, status
 
 from apps.inventory.models import GoodsReceipt, PurchaseOrder
@@ -30,8 +31,9 @@ class GoodsReceiptViewSet(BaseInventoryViewSet):
         "vendor_invoice_no",
         "delivery_challan_no",
         "overall_quality_status",
+        "status",
     ]
-    ordering_fields = ["id", "grn_recording_date", "created_at", "updated_at"]
+    ordering_fields = ["id", "grn_recording_date", "status", "created_at", "updated_at"]
     ordering = ["-created_at"]
     permission_prefix = "procurement.goods_receipts"
 
@@ -254,5 +256,77 @@ class GoodsReceiptViewSet(BaseInventoryViewSet):
         return APIResponse.success(
             data=options,
             message="Purchase Orders retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @staticmethod
+    def _parse_boolean_action_value(raw_value, field_name="value"):
+        if isinstance(raw_value, bool):
+            return raw_value
+        if raw_value is None:
+            raise ValidationError({field_name: "This field is required and must be true or false."})
+        normalized = str(raw_value).strip().lower()
+        if normalized in {"true", "1", "yes"}:
+            return True
+        if normalized in {"false", "0", "no"}:
+            return False
+        raise ValidationError({field_name: "Invalid boolean value. Use true or false."})
+
+    @action(detail=True, methods=["patch"], url_path="approve")
+    def approve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        value = self._parse_boolean_action_value(request.data.get("value", None), "value")
+
+        instance.is_approved = value
+        if value:
+            instance.is_rejected = False
+            instance.reject_note = ""
+
+        instance.save(
+            update_fields=[
+                "is_approved",
+                "is_rejected",
+                "reject_note",
+                "status",
+                "updated_at",
+            ]
+        )
+
+        message = "Goods Receipt Approved" if value else "Goods Receipt Approval Cancelled"
+        return APIResponse.success(
+            data=None,
+            message=message,
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=True, methods=["patch"], url_path="reject")
+    def reject(self, request, *args, **kwargs):
+        instance = self.get_object()
+        value = self._parse_boolean_action_value(request.data.get("value", None), "value")
+        reject_note = (request.data.get("reject_note", "") or "").strip()
+        if value and not reject_note:
+            raise ValidationError({"reject_note": "This field is required when rejecting Goods Receipt."})
+
+        instance.is_rejected = value
+        if value:
+            instance.is_approved = False
+            instance.reject_note = reject_note
+        else:
+            instance.reject_note = ""
+
+        instance.save(
+            update_fields=[
+                "is_approved",
+                "is_rejected",
+                "reject_note",
+                "status",
+                "updated_at",
+            ]
+        )
+
+        message = "Goods Receipt Rejected" if value else "Goods Receipt Rejection Cancelled"
+        return APIResponse.success(
+            data=None,
+            message=message,
             status_code=status.HTTP_200_OK,
         )

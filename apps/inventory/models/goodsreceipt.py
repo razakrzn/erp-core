@@ -53,6 +53,19 @@ class GoodsReceipt(models.Model):
         default="accepted",
     )
     quality_notes = models.TextField(blank=True, default="")
+    status = models.CharField(
+        max_length=50,
+        default="Pending",
+        help_text="Current status e.g. Pending, Approved, Rejected.",
+    )
+    is_approved = models.BooleanField(default=False, null=True, blank=True)
+    is_rejected = models.BooleanField(default=False, null=True, blank=True)
+    reject_note = models.TextField(
+        null=True,
+        blank=True,
+        default="",
+        help_text="Reason for rejecting this goods receipt.",
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -64,6 +77,13 @@ class GoodsReceipt(models.Model):
 
     def __str__(self) -> str:
         return f"GRN {self.pk or 'NEW'} - {self.purchase_order_no or self.purchase_order_id}"
+
+    def _resolve_status_from_flags(self):
+        if self.is_approved:
+            return "Approved"
+        if self.is_rejected:
+            return "Rejected"
+        return "Pending"
 
     @staticmethod
     def _compose_vendor_address(vendor) -> str:
@@ -101,6 +121,10 @@ class GoodsReceipt(models.Model):
     def save(self, *args, **kwargs):
         is_new = self.pk is None
         self.populate_from_purchase_order()
+        self.status = self._resolve_status_from_flags()
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            kwargs["update_fields"] = set(update_fields) | {"status"}
         super().save(*args, **kwargs)
         if is_new and not self.grn_number:
             self.grn_number = f"GRN-{self.pk:06d}"

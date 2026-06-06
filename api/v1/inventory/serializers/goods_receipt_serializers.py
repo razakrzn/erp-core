@@ -72,6 +72,10 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
             "vendor_invoice",
             "overall_quality_status",
             "quality_notes",
+            "status",
+            "is_approved",
+            "is_rejected",
+            "reject_note",
             "material_intakes",
             "received_goods_photos",
             "received_goods_photo_files",
@@ -85,6 +89,7 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
             "vendor_name",
             "vendor_trn",
             "vendor_address",
+            "status",
             "received_goods_photos",
             "created_at",
             "updated_at",
@@ -135,6 +140,9 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         line_items_data = validated_data.pop("material_intakes", [])
         received_goods_photo_files = validated_data.pop("received_goods_photo_files", [])
+        validated_data["is_approved"] = True
+        validated_data["is_rejected"] = False
+        validated_data["reject_note"] = ""
 
         with transaction.atomic():
             goods_receipt = GoodsReceipt.objects.create(**validated_data)
@@ -148,6 +156,9 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         line_items_data = validated_data.pop("material_intakes", None)
         received_goods_photo_files = validated_data.pop("received_goods_photo_files", None)
+        validated_data["is_approved"] = False
+        validated_data["is_rejected"] = False
+        validated_data["reject_note"] = ""
 
         with transaction.atomic():
             for attr, value in validated_data.items():
@@ -179,6 +190,10 @@ class GoodsReceiptListSerializer(serializers.ModelSerializer):
             "purchase_order_no",
             "grn_recording_date",
             "vendor_name",
+            "status",
+            "is_approved",
+            "is_rejected",
+            "reject_note",
             "products",
             "received_qty",
         ]

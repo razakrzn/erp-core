@@ -366,9 +366,19 @@ class GoodsReceiptAdmin(admin.ModelAdmin):
         "vendor_name",
         "grn_recording_date",
         "overall_quality_status",
+        "status",
+        "is_approved",
+        "is_rejected",
         "created_at",
     )
-    list_filter = ("overall_quality_status", "grn_recording_date", "created_at")
+    list_filter = (
+        "overall_quality_status",
+        "status",
+        "is_approved",
+        "is_rejected",
+        "grn_recording_date",
+        "created_at",
+    )
     search_fields = (
         "purchase_order__po_number",
         "purchase_order_no",
