@@ -1,0 +1,36 @@
+from decimal import Decimal
+
+from django.db import migrations, models
+
+
+def sync_product_available(apps, schema_editor):
+    Product = apps.get_model("inventory", "Product")
+
+    for product in Product.objects.all().iterator():
+        stock_on_hand = product.stock_on_hand or Decimal("0.00")
+        reserved = product.reserved or Decimal("0.00")
+        product.available = stock_on_hand - reserved
+        product.save(update_fields=["available"])
+
+
+class Migration(migrations.Migration):
+    dependencies = [
+        ("inventory", "0045_product_purchased_stock_grn_product_link"),
+    ]
+
+    operations = [
+        migrations.AlterField(
+            model_name="product",
+            name="available",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=2,
+                default=0,
+                editable=False,
+                max_digits=12,
+                null=True,
+                verbose_name="available",
+            ),
+        ),
+        migrations.RunPython(sync_product_available, reverse_code=migrations.RunPython.noop),
+    ]
