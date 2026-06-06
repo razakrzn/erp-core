@@ -167,6 +167,7 @@ class ProductAdmin(admin.ModelAdmin):
         "stock_on_hand",
         "reserved",
         "available",
+        "stock_value_aed",
         "preferred_supplier",
         "category",
         "brand",
@@ -175,7 +176,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
     list_filter = ("status", "category", "brand", "material", "grade", "finish", "unit", "preferred_supplier")
     search_fields = ("name", "sku", "product_code", "hsn_sac_code", "preferred_supplier__trade_name")
-    readonly_fields = ("purchased_stock", "stock_on_hand", "available")
+    readonly_fields = ("purchased_stock", "stock_on_hand", "available", "stock_value_aed")
 
 
 class PurchaseRequisitionLineItemInline(admin.TabularInline):
