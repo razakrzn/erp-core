@@ -23,6 +23,8 @@ class GoodsReceipt(models.Model):
     purchase_order = models.ForeignKey(
         PurchaseOrder,
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name="goods_receipts",
     )
     purchase_order_no = models.CharField(max_length=30, blank=True, default="")
@@ -115,8 +117,6 @@ class GoodsReceipt(models.Model):
 
     def clean(self):
         super().clean()
-        if not self.purchase_order_id:
-            raise ValidationError({"purchase_order": "Goods Receipt must be linked to a Purchase Order."})
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
@@ -140,6 +140,8 @@ class GoodsReceiptItem(models.Model):
     purchase_order_line_item = models.ForeignKey(
         PurchaseOrderLineItem,
         on_delete=models.PROTECT,
+        null=True,
+        blank=True,
         related_name="goods_receipt_items",
     )
     product = models.ForeignKey(
@@ -228,7 +230,22 @@ class GoodsReceiptItem(models.Model):
         self.already_received = previously_received + current_receiving
         self.product = self._resolve_product()
 
+    def populate_standalone_item(self):
+        if self.purchase_order_line_item_id:
+            return
+
+        self.product = self._resolve_product()
+        if self.product_id:
+            self.product_code = self.product_code or self.product.product_code or ""
+            self.product_name = self.product_name or self.product.name or ""
+            if not self.unit and self.product.unit_id:
+                self.unit = self.product.unit.name or ""
+        self.po_qty = self.po_qty or Decimal("0.00")
+        self.already_received = self.qty_good or Decimal("0.00")
+
     def _resolve_product(self):
+        if self.product_id:
+            return self.product
         if self.purchase_order_line_item_id and self.purchase_order_line_item.product_id:
             return self.purchase_order_line_item.product
         product_code = self.product_code or ""
@@ -262,8 +279,35 @@ class GoodsReceiptItem(models.Model):
         super().clean()
         if not self.goods_receipt_id:
             raise ValidationError({"goods_receipt": "Goods Receipt Item must belong to a Goods Receipt."})
+
+        if not self.goods_receipt.purchase_order_id:
+            if self.purchase_order_line_item_id:
+                raise ValidationError(
+                    {
+                        "purchase_order_line_item": (
+                            "Standalone Goods Receipt Items cannot be linked to a Purchase Order line item."
+                        )
+                    }
+                )
+            self.populate_standalone_item()
+            if not self.product_id and not self.product_code and not self.product_name:
+                raise ValidationError(
+                    {
+                        "product": (
+                            "Standalone Goods Receipt Items require a product, product code, or product name."
+                        )
+                    }
+                )
+            return
+
         if not self.purchase_order_line_item_id:
-            raise ValidationError({"purchase_order_line_item": "Purchase order line item is required."})
+            raise ValidationError(
+                {
+                    "purchase_order_line_item": (
+                        "Purchase order line item is required for Purchase Order-based Goods Receipts."
+                    )
+                }
+            )
 
         if self.goods_receipt.purchase_order_id != self.purchase_order_line_item.purchase_order_id:
             raise ValidationError(
@@ -292,7 +336,10 @@ class GoodsReceiptItem(models.Model):
                 GoodsReceiptItem.objects.filter(pk=self.pk).values_list("product_id", flat=True).first()
             )
 
-        self.populate_from_po_line()
+        if self.purchase_order_line_item_id:
+            self.populate_from_po_line()
+        else:
+            self.populate_standalone_item()
         self.full_clean()
         update_fields = kwargs.get("update_fields")
         if update_fields is not None:

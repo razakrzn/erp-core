@@ -2,12 +2,22 @@
   "info": {
     "_postman_id": "0f30ab2e-f328-4470-a81f-0ef2f271d80f",
     "name": "Goods Receipt API",
-    "description": "API collection for managing Goods Receipts (GRN), material intake items, and received goods photos in the ERP inventory module.",
+    "description": "Goods Receipt (GRN) API collection covering both Purchase Order-based receipts and standalone receipts without a Purchase Order.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
   },
   "item": [
     {
-      "name": "Goods Receipt",
+      "name": "Goods Receipts",
       "item": [
         {
           "name": "List Goods Receipts",
@@ -16,16 +26,8 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/inventory/goods-receipts/?page=1&search=&ordering=-created_at",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "inventory",
-                "goods-receipts",
-                ""
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", ""],
               "query": [
                 {
                   "key": "page",
@@ -34,7 +36,7 @@
                 },
                 {
                   "key": "search",
-                  "value": "PO-000001",
+                  "value": "GRN-000001",
                   "disabled": true
                 },
                 {
@@ -44,69 +46,7 @@
                 }
               ]
             },
-            "description": "Retrieve a paginated list of goods receipts. Supports search and ordering."
-          },
-          "response": []
-        },
-        {
-          "name": "Create Goods Receipt (Multipart with data JSON)",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "data",
-                  "value": "{\n  \"purchase_order_id\": {{purchase_order_id}},\n  \"grn_recording_date\": \"2026-06-01\",\n  \"vendor_invoice_no\": \"INV-2026-001\",\n  \"vendor_invoice_date\": \"2026-06-01\",\n  \"delivery_challan_no\": \"DC-2026-001\",\n  \"delivery_challan_date\": \"2026-06-01\",\n  \"overall_quality_status\": \"accepted\",\n  \"quality_notes\": \"All received items inspected.\"\n}",
-                  "type": "text"
-                },
-                {
-                  "key": "material_intakes",
-                  "value": "[\n  {\n    \"client_line_id\": \"line_1\",\n    \"purchase_order_line_item\": {{purchase_order_line_item_id}},\n    \"qty_good\": \"8.00\",\n    \"qty_rejected\": \"2.00\",\n    \"rejection_reason\": \"Scratch marks\"\n  },\n  {\n    \"client_line_id\": \"line_2\",\n    \"purchase_order_line_item\": {{purchase_order_line_item_id_2}},\n    \"qty_good\": \"5.00\",\n    \"qty_rejected\": \"0.00\",\n    \"rejection_reason\": \"\"\n  }\n]",
-                  "type": "text"
-                },
-                {
-                  "key": "vendor_delivery_challan",
-                  "type": "file",
-                  "src": ""
-                },
-                {
-                  "key": "vendor_invoice",
-                  "type": "file",
-                  "src": ""
-                },
-                {
-                  "key": "received_goods_photo_files",
-                  "type": "file",
-                  "src": ""
-                },
-                {
-                  "key": "received_goods_photo_files",
-                  "type": "file",
-                  "src": ""
-                },
-                {
-                  "key": "defect_photo_line_1",
-                  "type": "file",
-                  "src": ""
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "inventory",
-                "goods-receipts",
-                ""
-              ]
-            },
-            "description": "Create with multipart form-data: `data` (text JSON object), `material_intakes` (text JSON array), and files. For defect photos, set `client_line_id` on each material_intake and send file key as `defect_photo_<client_line_id>`."
+            "description": "Retrieve paginated goods receipts. Search supports PO number, vendor, invoice, challan, quality status, and approval status."
           },
           "response": []
         },
@@ -117,257 +57,10 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "inventory",
-                "goods-receipts",
-                "{{goods_receipt_id}}",
-                ""
-              ]
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", "{{goods_receipt_id}}", ""]
             },
-            "description": "Retrieve complete details of a single goods receipt including material intake lines and received goods photos."
-          },
-          "response": []
-        },
-        {
-          "name": "Update Goods Receipt (PUT - Multipart)",
-          "request": {
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "data",
-                  "value": "{\n  \"purchase_order_id\": {{purchase_order_id}},\n  \"grn_recording_date\": \"2026-06-02\",\n  \"vendor_invoice_no\": \"INV-2026-001-REV1\",\n  \"vendor_invoice_date\": \"2026-06-02\",\n  \"delivery_challan_no\": \"DC-2026-001-REV1\",\n  \"delivery_challan_date\": \"2026-06-02\",\n  \"overall_quality_status\": \"accepted\",\n  \"quality_notes\": \"Updated after recheck.\"\n}",
-                  "type": "text"
-                },
-                {
-                  "key": "material_intakes",
-                  "value": "[\n  {\n    \"client_line_id\": \"line_1\",\n    \"purchase_order_line_item\": {{purchase_order_line_item_id}},\n    \"qty_good\": \"1.00\",\n    \"qty_rejected\": \"0.00\",\n    \"rejection_reason\": \"\"\n  }\n]",
-                  "type": "text"
-                },
-                {
-                  "key": "vendor_delivery_challan",
-                  "type": "file",
-                  "src": ""
-                },
-                {
-                  "key": "vendor_invoice",
-                  "type": "file",
-                  "src": ""
-                },
-                {
-                  "key": "received_goods_photo_files",
-                  "type": "file",
-                  "src": ""
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "inventory",
-                "goods-receipts",
-                "{{goods_receipt_id}}",
-                ""
-              ]
-            },
-            "description": "Full update using multipart form-data: `data` (JSON object), `material_intakes` (JSON array), and optional files."
-          },
-          "response": []
-        },
-        {
-          "name": "Partial Update Goods Receipt (PATCH - Multipart)",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "data",
-                  "value": "{\n  \"quality_notes\": \"Inspection note updated.\",\n  \"overall_quality_status\": \"accepted\"\n}",
-                  "type": "text"
-                },
-                {
-                  "key": "material_intakes",
-                  "value": "[\n  {\n    \"client_line_id\": \"line_1\",\n    \"purchase_order_line_item\": {{purchase_order_line_item_id}},\n    \"qty_good\": \"1.00\",\n    \"qty_rejected\": \"0.00\",\n    \"rejection_reason\": \"\"\n  }\n]",
-                  "type": "text",
-                  "disabled": true
-                },
-                {
-                  "key": "vendor_invoice",
-                  "type": "file",
-                  "src": "",
-                  "disabled": true
-                },
-                {
-                  "key": "received_goods_photo_files",
-                  "type": "file",
-                  "src": "",
-                  "disabled": true
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "inventory",
-                "goods-receipts",
-                "{{goods_receipt_id}}",
-                ""
-              ]
-            },
-            "description": "Partial update using same multipart format. Enable optional fields as needed."
-          },
-          "response": []
-        },
-        {
-          "name": "Get Approved Purchase Order For GRN",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/approved-purchase-orders/{{purchase_order_id}}/",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "inventory",
-                "goods-receipts",
-                "approved-purchase-orders",
-                "{{purchase_order_id}}",
-                ""
-              ]
-            },
-            "description": "Retrieve one approved purchase order with vendor and line items for GRN creation."
-          },
-          "response": []
-        },
-        {
-          "name": "Purchase Orders Dropdown (All)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/purchase-orders-dropdown/",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "inventory",
-                "goods-receipts",
-                "purchase-orders-dropdown",
-                ""
-              ]
-            },
-            "description": "Retrieve purchase order dropdown options with id/label."
-          },
-          "response": []
-        },
-        {
-          "name": "Purchase Orders Dropdown (Approved)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/purchase-orders-dropdown/?status=approved",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "inventory",
-                "goods-receipts",
-                "purchase-orders-dropdown",
-                ""
-              ],
-              "query": [
-                {
-                  "key": "status",
-                  "value": "approved"
-                }
-              ]
-            },
-            "description": "Retrieve purchase order dropdown options filtered by status=approved."
-          },
-          "response": []
-        },
-        {
-          "name": "Purchase Orders Dropdown (Rejected)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/purchase-orders-dropdown/?status=rejected",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "inventory",
-                "goods-receipts",
-                "purchase-orders-dropdown",
-                ""
-              ],
-              "query": [
-                {
-                  "key": "status",
-                  "value": "rejected"
-                }
-              ]
-            },
-            "description": "Retrieve purchase order dropdown options filtered by status=rejected."
-          },
-          "response": []
-        },
-        {
-          "name": "Purchase Orders Dropdown (Pending)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/purchase-orders-dropdown/?status=pending",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "inventory",
-                "goods-receipts",
-                "purchase-orders-dropdown",
-                ""
-              ],
-              "query": [
-                {
-                  "key": "status",
-                  "value": "pending"
-                }
-              ]
-            },
-            "description": "Retrieve purchase order dropdown options filtered by status=pending."
+            "description": "Retrieve complete GRN details, including material intake lines and received goods photos."
           },
           "response": []
         },
@@ -378,19 +71,382 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/",
-              "host": [
-                "{{base_url}}"
-              ],
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", "{{goods_receipt_id}}", ""]
+            },
+            "description": "Delete a goods receipt. Product stock is recalculated when material intake items are removed."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "PO-Based Receipt Workflow",
+      "item": [
+        {
+          "name": "Get Approved Purchase Order For GRN",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/approved-purchase-orders/{{purchase_order_id}}/",
+              "host": ["{{base_url}}"],
               "path": [
                 "api",
                 "v1",
                 "inventory",
                 "goods-receipts",
-                "{{goods_receipt_id}}",
+                "approved-purchase-orders",
+                "{{purchase_order_id}}",
                 ""
               ]
             },
-            "description": "Delete a goods receipt."
+            "description": "Retrieve one approved Purchase Order with vendor and line item data for PO-based GRN creation."
+          },
+          "response": []
+        },
+        {
+          "name": "Create PO-Based Goods Receipt (Multipart)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"purchase_order_id\": {{purchase_order_id}},\n  \"grn_recording_date\": \"2026-06-06\",\n  \"vendor_invoice_no\": \"INV-PO-2026-001\",\n  \"vendor_invoice_date\": \"2026-06-06\",\n  \"delivery_challan_no\": \"DC-PO-2026-001\",\n  \"delivery_challan_date\": \"2026-06-06\",\n  \"overall_quality_status\": \"accepted\",\n  \"quality_notes\": \"PO-based receipt. Vendor and PO fields are populated from the Purchase Order.\"\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "material_intakes",
+                  "value": "[\n  {\n    \"client_line_id\": \"po_line_1\",\n    \"purchase_order_line_item\": {{purchase_order_line_item_id}},\n    \"qty_good\": \"8.00\",\n    \"qty_rejected\": \"2.00\",\n    \"rejection_reason\": \"Scratch marks\"\n  },\n  {\n    \"client_line_id\": \"po_line_2\",\n    \"purchase_order_line_item\": {{purchase_order_line_item_id_2}},\n    \"qty_good\": \"5.00\",\n    \"qty_rejected\": \"0.00\",\n    \"rejection_reason\": \"\"\n  }\n]",
+                  "type": "text"
+                },
+                {
+                  "key": "vendor_delivery_challan",
+                  "type": "file",
+                  "src": "",
+                  "disabled": true
+                },
+                {
+                  "key": "vendor_invoice",
+                  "type": "file",
+                  "src": "",
+                  "disabled": true
+                },
+                {
+                  "key": "received_goods_photo_files",
+                  "type": "file",
+                  "src": "",
+                  "disabled": true
+                },
+                {
+                  "key": "defect_photo_po_line_1",
+                  "type": "file",
+                  "src": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", ""]
+            },
+            "description": "Create a GRN from a Purchase Order. Each item must include purchase_order_line_item. Product fields, PO quantity, and already_received are derived by the backend."
+          },
+          "response": []
+        },
+        {
+          "name": "Update PO-Based Goods Receipt (PUT - Multipart)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"purchase_order_id\": {{purchase_order_id}},\n  \"grn_recording_date\": \"2026-06-07\",\n  \"vendor_invoice_no\": \"INV-PO-2026-001-REV1\",\n  \"vendor_invoice_date\": \"2026-06-07\",\n  \"delivery_challan_no\": \"DC-PO-2026-001-REV1\",\n  \"delivery_challan_date\": \"2026-06-07\",\n  \"overall_quality_status\": \"accepted\",\n  \"quality_notes\": \"Edited PO-based receipt. Editing resets approval to Pending.\"\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "material_intakes",
+                  "value": "[\n  {\n    \"client_line_id\": \"po_line_1\",\n    \"purchase_order_line_item\": {{purchase_order_line_item_id}},\n    \"qty_good\": \"1.00\",\n    \"qty_rejected\": \"0.00\",\n    \"rejection_reason\": \"\"\n  }\n]",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", "{{goods_receipt_id}}", ""]
+            },
+            "description": "Full update for a PO-based GRN. Update replaces material_intakes when sent and resets approval to Pending."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Standalone Receipt Workflow",
+      "item": [
+        {
+          "name": "Create Standalone Goods Receipt (JSON - Product ID)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grn_recording_date\": \"2026-06-06\",\n  \"vendor_name\": \"Walk-in Supplier LLC\",\n  \"vendor_trn\": \"100000000000001\",\n  \"vendor_address\": \"Dubai, UAE\",\n  \"vendor_invoice_no\": \"INV-ST-2026-001\",\n  \"vendor_invoice_date\": \"2026-06-06\",\n  \"delivery_challan_no\": \"DC-ST-2026-001\",\n  \"delivery_challan_date\": \"2026-06-06\",\n  \"overall_quality_status\": \"accepted\",\n  \"quality_notes\": \"Standalone receipt without Purchase Order.\",\n  \"material_intakes\": [\n    {\n      \"product\": {{product_id}},\n      \"qty_good\": \"3.00\",\n      \"qty_rejected\": \"0.00\",\n      \"rejection_reason\": \"\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", ""]
+            },
+            "description": "Create a standalone GRN without purchase_order_id. Each item must include product, product_code, or product_name."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Standalone Goods Receipt (JSON - Manual Product Details)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"grn_recording_date\": \"2026-06-06\",\n  \"vendor_name\": \"Manual Supplier\",\n  \"vendor_invoice_no\": \"INV-ST-2026-002\",\n  \"overall_quality_status\": \"accepted\",\n  \"quality_notes\": \"Standalone receipt with manual item details only.\",\n  \"material_intakes\": [\n    {\n      \"product_code\": \"MANUAL-001\",\n      \"product_name\": \"Manual Item\",\n      \"unit\": \"Nos\",\n      \"qty_good\": \"10.00\",\n      \"qty_rejected\": \"1.00\",\n      \"rejection_reason\": \"Damaged packaging\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", ""]
+            },
+            "description": "Create a standalone GRN with manual item fields. If product_code matches an existing Product, stock is linked to that product."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Standalone Goods Receipt (Multipart with Files)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"grn_recording_date\": \"2026-06-06\",\n  \"vendor_name\": \"Standalone File Supplier\",\n  \"vendor_invoice_no\": \"INV-ST-FILE-001\",\n  \"overall_quality_status\": \"accepted\",\n  \"quality_notes\": \"Standalone multipart receipt.\"\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "material_intakes",
+                  "value": "[\n  {\n    \"client_line_id\": \"standalone_line_1\",\n    \"product\": {{product_id}},\n    \"qty_good\": \"4.00\",\n    \"qty_rejected\": \"1.00\",\n    \"rejection_reason\": \"Bent corner\"\n  }\n]",
+                  "type": "text"
+                },
+                {
+                  "key": "vendor_delivery_challan",
+                  "type": "file",
+                  "src": "",
+                  "disabled": true
+                },
+                {
+                  "key": "vendor_invoice",
+                  "type": "file",
+                  "src": "",
+                  "disabled": true
+                },
+                {
+                  "key": "received_goods_photo_files",
+                  "type": "file",
+                  "src": "",
+                  "disabled": true
+                },
+                {
+                  "key": "defect_photo_standalone_line_1",
+                  "type": "file",
+                  "src": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", ""]
+            },
+            "description": "Standalone multipart GRN. For defect photos, set client_line_id in material_intakes and send file key defect_photo_<client_line_id>."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Standalone Goods Receipt (PATCH - JSON)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vendor_invoice_no\": \"INV-ST-2026-001-REV1\",\n  \"quality_notes\": \"Edited standalone receipt. Editing resets approval to Pending.\",\n  \"material_intakes\": [\n    {\n      \"product\": {{product_id}},\n      \"qty_good\": \"5.00\",\n      \"qty_rejected\": \"0.00\",\n      \"rejection_reason\": \"\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", "{{goods_receipt_id}}", ""]
+            },
+            "description": "Patch a standalone GRN. If material_intakes is included, existing intake lines are replaced. Approval is reset to Pending."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Approval Actions",
+      "item": [
+        {
+          "name": "Approve Goods Receipt",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/approve/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", "{{goods_receipt_id}}", "approve", ""]
+            },
+            "description": "Approve a GRN. Sets is_approved=true, is_rejected=false, reject_note='', and status=Approved."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Goods Receipt Approval",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/approve/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", "{{goods_receipt_id}}", "approve", ""]
+            },
+            "description": "Cancel GRN approval. Sets is_approved=false and status=Pending unless rejected."
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Goods Receipt",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": true,\n  \"reject_note\": \"Quantity mismatch after inspection.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/reject/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", "{{goods_receipt_id}}", "reject", ""]
+            },
+            "description": "Reject a GRN. reject_note is required when value=true."
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Goods Receipt Rejection",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/{{goods_receipt_id}}/reject/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", "{{goods_receipt_id}}", "reject", ""]
+            },
+            "description": "Cancel GRN rejection. Clears reject_note and resolves status back to Pending."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Helpers",
+      "item": [
+        {
+          "name": "Purchase Orders Dropdown (All)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/purchase-orders-dropdown/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", "purchase-orders-dropdown", ""]
+            },
+            "description": "Retrieve purchase order dropdown options with id and label."
+          },
+          "response": []
+        },
+        {
+          "name": "Purchase Orders Dropdown (Approved)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/inventory/goods-receipts/purchase-orders-dropdown/?status=approved",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "inventory", "goods-receipts", "purchase-orders-dropdown", ""],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "approved"
+                }
+              ]
+            },
+            "description": "Retrieve purchase order dropdown options filtered by status=approved."
           },
           "response": []
         }
@@ -401,6 +457,10 @@
     {
       "key": "base_url",
       "value": "http://localhost:8000"
+    },
+    {
+      "key": "token",
+      "value": ""
     },
     {
       "key": "purchase_order_id",
@@ -416,6 +476,10 @@
     },
     {
       "key": "goods_receipt_id",
+      "value": "1"
+    },
+    {
+      "key": "product_id",
       "value": "1"
     }
   ]
