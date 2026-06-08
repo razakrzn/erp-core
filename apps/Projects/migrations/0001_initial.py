@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         ('assessment', '0039_add_quote_attachment'),
         ('crm', '0016_alter_enquiry_status'),
         ('hrm', '0018_permit_and_remove_employee_permits_document'),
-        ('inventory', '0038_alter_purchaserequisition_status'),
+        ('inventory', '0038_goodsreceipt_goodsreceiptitem_goodsreceiptphoto'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
