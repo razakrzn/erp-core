@@ -26,6 +26,7 @@ COPY . /app/
 # Setup media and static directories
 RUN mkdir -p /var/www/media /var/www/static && \
     ln -sfn /var/www/media /app/media
+<<<<<<< HEAD
 
 # Collect static files
 RUN python manage.py collectstatic --noinput
@@ -38,3 +39,13 @@ VOLUME ["/var/www/media"]
 
 # Default command using gunicorn
 CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:8002", "--workers", "2", "--timeout", "120", "--log-file", "-"]
+=======
+
+EXPOSE 3002
+
+# Keep uploads out of image layers; mount persistent storage at runtime.
+VOLUME ["/var/www/media"]
+
+# ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["gunicorn", "config.wsgi:application", "-b", "0.0.0.0:3002", "--workers", "2", "--timeout", "120", "--log-file", "-"]
+>>>>>>> 2900b838da33f69b0d46874891dcadef46db6140

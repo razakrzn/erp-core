@@ -1,3 +1,4 @@
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views import (
@@ -5,8 +6,10 @@ from .views import (
     CategoryViewSet,
     FinishViewSet,
     GradeViewSet,
+    GoodsReceiptViewSet,
     MaterialViewSet,
     ProductViewSet,
+    PurchaseOrderViewSet,
     PurchaseRequisitionLineItemViewSet,
     PurchaseRequisitionProductCategoryViewSet,
     PurchaseRequisitionProductNameViewSet,
@@ -30,6 +33,8 @@ router.register(r"units", UnitViewSet, basename="inventory-unit")
 router.register(r"products", ProductViewSet, basename="inventory-product")
 router.register(r"vendors", VendorViewSet, basename="inventory-vendor")
 router.register(r"purchase-requisitions", PurchaseRequisitionViewSet, basename="inventory-purchase-requisition")
+router.register(r"purchase-orders", PurchaseOrderViewSet, basename="inventory-purchase-order")
+router.register(r"goods-receipts", GoodsReceiptViewSet, basename="inventory-goods-receipt")
 router.register(
     r"purchase-requisition-line-items",
     PurchaseRequisitionLineItemViewSet,
@@ -51,4 +56,26 @@ router.register(
     basename="inventory-purchase-requisition-preferred-vendor-name",
 )
 
-urlpatterns = router.urls
+urlpatterns = [
+    path(
+        "purchase-requisitions/product-names/",
+        PurchaseRequisitionProductNameViewSet.as_view({"get": "list"}),
+        name="inventory-purchase-requisition-product-names",
+    ),
+    path(
+        "purchase-requisitions/product-categories/",
+        PurchaseRequisitionProductCategoryViewSet.as_view({"get": "list"}),
+        name="inventory-purchase-requisition-product-categories",
+    ),
+    path(
+        "purchase-requisitions/preferred-vendor-names/",
+        PurchaseRequisitionPreferredVendorNameViewSet.as_view({"get": "list"}),
+        name="inventory-purchase-requisition-preferred-vendor-names",
+    ),
+    path(
+        "purchase-requisitions/filter-options/",
+        PurchaseRequisitionViewSet.as_view({"get": "filter_options"}),
+        name="inventory-purchase-requisition-filter-options",
+    ),
+    *router.urls,
+]

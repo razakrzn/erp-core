@@ -1,0 +1,20 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: erp-core:latest
+    command:
+      - /bin/sh
+      - -c
+      - python manage.py migrate && python manage.py collectstatic --noinput && exec gunicorn config.wsgi:application -b 0.0.0.0:3002 --workers 2 --timeout 120 --log-file -
+    env_file:
+      - .env
+    ports:
+      - "3002:3002"
+    volumes:
+      - media_data:/var/www/media
+    restart: unless-stopped
+
+volumes:
+  media_data:
