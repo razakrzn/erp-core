@@ -175,8 +175,8 @@ class QuoteAdmin(admin.ModelAdmin):
         template_boq_ids = {item.id for item in boq_items if item.is_template}
         custom_boq_ids = {item.id for item in boq_items if not item.is_template}
 
-        template_created = template_boq_ids.issubset(created_boq_item_ids) if template_boq_ids else False
-        custom_created = custom_boq_ids.issubset(created_boq_item_ids) if custom_boq_ids else False
+        template_created = template_boq_ids.issubset(created_boq_item_ids)
+        custom_created = custom_boq_ids.issubset(created_boq_item_ids)
         return template_created, custom_created
 
     def resolved_status(self, obj):

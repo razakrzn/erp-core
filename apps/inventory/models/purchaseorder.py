@@ -5,6 +5,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 
 from .PurchaseRequist import PurchaseRequisition
+from .products import Product
 from .vendor import Vendor
 
 
@@ -53,11 +54,17 @@ class PurchaseOrder(models.Model):
     # Status
     status = models.CharField(
         max_length=50,
-        default="Draft",
-        help_text="Current status e.g. Draft, Confirmed, Released, Closed.",
+        default="Pending",
+        help_text="Current status e.g. Pending, Approved, Rejected.",
     )
-    is_confirmed = models.BooleanField(default=False)
-    is_closed = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False, null=True, blank=True)
+    is_rejected = models.BooleanField(default=False, null=True, blank=True)
+    reject_note = models.TextField(
+        null=True,
+        blank=True,
+        default="",
+        help_text="Reason for rejecting this purchase order.",
+    )
 
     # Computed totals (stored for performance)
     net_amount = models.DecimalField(
@@ -109,7 +116,18 @@ class PurchaseOrder(models.Model):
         verbose_name_plural = "Purchase Orders"
         ordering = ["-created_at"]
 
+    def _resolve_status_from_flags(self):
+        if self.is_approved:
+            return "Approved"
+        if self.is_rejected:
+            return "Rejected"
+        return "Pending"
+
     def save(self, *args, **kwargs):
+        self.status = self._resolve_status_from_flags()
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            kwargs["update_fields"] = set(update_fields) | {"status"}
         is_new = self.pk is None
         super().save(*args, **kwargs)
 
@@ -129,6 +147,13 @@ class PurchaseOrderLineItem(models.Model):
         related_name="po_line_items",
     )
     product_code = models.CharField(max_length=100, null=True, blank=True, default="")
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="purchase_order_line_items",
+    )
     purchase_requisition = models.ForeignKey(
         PurchaseRequisition,
         on_delete=models.SET_NULL,
@@ -188,10 +213,22 @@ class PurchaseOrderLineItem(models.Model):
         verbose_name = "Purchase Order Line Item"
         verbose_name_plural = "Purchase Order Line Items"
 
+    def _resolve_product(self):
+        if self.product_id:
+            return self.product
+        product_code = self.product_code or ""
+        if not product_code:
+            return None
+        return Product.objects.filter(product_code=product_code).first()
+
     def save(self, *args, **kwargs):
+        self.product = self._resolve_product()
         requested_qty = self.requested_qty or Decimal("0.00")
         negotiated_price = self.negotiated_price or Decimal("0.00")
         self.line_total = requested_qty * negotiated_price
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            kwargs["update_fields"] = set(update_fields) | {"product", "line_total"}
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:

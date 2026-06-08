@@ -1,17 +1,26 @@
 import json
+from decimal import Decimal
 
-from django.db.models import F, Q
+from django.db.models import Exists, F, OuterRef, Q
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 
-from apps.inventory.models import Category, Product, PurchaseRequisition, PurchaseRequisitionLineItem, Vendor
+from apps.inventory.models import (
+    Category,
+    Product,
+    PurchaseOrderLineItem,
+    PurchaseRequisition,
+    PurchaseRequisitionLineItem,
+    Vendor,
+)
 from core.permissions.rbac_permission import RBACPermission
 from core.utils.responses import APIResponse, build_actions
 
 from ..serializers import (
+    ApprovedPurchaseRequisitionLineItemSerializer,
     PurchaseRequisitionFilterOptionsSerializer,
     PurchaseRequisitionLineItemDropdownOptionSerializer,
     PurchaseRequisitionLineItemFilterOptionSerializer,
@@ -142,6 +151,73 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
         return queryset.filter(line_item_filter)
 
     @staticmethod
+    def _resolve_line_item_product_codes(line_items):
+        product_code_by_line_item_id = {}
+        product_ids = []
+
+        for line_item in line_items:
+            if line_item.product_code:
+                product_code_by_line_item_id[line_item.id] = line_item.product_code
+            elif line_item.product_id:
+                product_ids.append(line_item.product_id)
+
+        if product_ids:
+            products = Product.objects.filter(id__in=product_ids).values("id", "product_code")
+            product_code_by_id = {row["id"]: row["product_code"] for row in products if row["product_code"]}
+            for line_item in line_items:
+                if line_item.id in product_code_by_line_item_id:
+                    continue
+                code = product_code_by_id.get(line_item.product_id)
+                if code:
+                    product_code_by_line_item_id[line_item.id] = code
+
+        return product_code_by_line_item_id
+
+    @staticmethod
+    def _build_last_purchase_lookup(product_codes):
+        if not product_codes:
+            return {}
+
+        po_lines = (
+            PurchaseOrderLineItem.objects.filter(product_code__in=product_codes)
+            .select_related("purchase_order", "purchase_order__vendor")
+            .order_by("product_code", "-purchase_order__po_issued_date", "-purchase_order__created_at", "-id")
+        )
+
+        lookup = {}
+        for po_line in po_lines:
+            code = po_line.product_code
+            if not code or code in lookup:
+                continue
+
+            purchase_order = po_line.purchase_order
+            rate = po_line.negotiated_price
+            if rate is None or rate <= 0:
+                rate = po_line.last_purchase_rate or Decimal("0.00")
+
+            is_meaningful = rate > 0 or purchase_order.is_approved or purchase_order.is_rejected
+            if not is_meaningful:
+                continue
+
+            vendor = purchase_order.vendor
+            lookup[code] = {
+                "last_purchase_rate": rate,
+                "last_purchase_qty": po_line.requested_qty,
+                "last_purchase_vendor": vendor.trade_name if vendor else None,
+            }
+
+        return lookup
+
+    @classmethod
+    def _approved_line_item_serializer_context(cls, line_items):
+        product_code_by_line_item_id = cls._resolve_line_item_product_codes(line_items)
+        product_codes = list(dict.fromkeys(product_code_by_line_item_id.values()))
+        return {
+            "product_code_by_line_item_id": product_code_by_line_item_id,
+            "last_purchase_by_product_code": cls._build_last_purchase_lookup(product_codes),
+        }
+
+    @staticmethod
     def _parse_ordering_param(raw_ordering, allowed_fields, default_ordering):
         ordering = []
         for token in (raw_ordering or "").split(","):
@@ -223,6 +299,18 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
         queryset = PurchaseRequisitionLineItem.objects.select_related("purchase_requisition").filter(
             purchase_requisition__is_approved=True
         )
+        existing_po_line_items = PurchaseOrderLineItem.objects.filter(
+            purchase_requisition_id=OuterRef("purchase_requisition_id")
+        ).filter(
+            Q(product_code=OuterRef("product_code"))
+            | (
+                (Q(product_code__isnull=True) | Q(product_code__exact=""))
+                & Q(description=OuterRef("product_name"))
+            )
+        )
+        queryset = queryset.annotate(_has_purchase_order=Exists(existing_po_line_items)).filter(
+            _has_purchase_order=False
+        )
 
         category_ids, category_names = self._parse_filter_tokens(request, "product_category", "product_categories")
         if category_ids:
@@ -237,6 +325,32 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
         product_names = list(dict.fromkeys(name for name in product_names if name))
         if product_names:
             queryset = queryset.filter(product_name__in=product_names)
+
+        vendor_ids, vendor_names = self._parse_filter_tokens(
+            request,
+            "preferred_supplier",
+            "preferred_suppliers",
+            "vendors",
+        )
+        if vendor_ids or vendor_names:
+            product_filter = Q()
+            if vendor_ids:
+                product_filter |= Q(preferred_supplier_id__in=vendor_ids)
+            if vendor_names:
+                product_filter |= Q(preferred_supplier__trade_name__in=vendor_names)
+            product_ids = Product.objects.filter(product_filter).values_list("id", flat=True)
+            queryset = queryset.filter(product_id__in=product_ids)
+
+        pr_ids, pr_numbers = self._parse_filter_tokens(
+            request,
+            "purchase_request_number",
+            "purchase_request_numbers",
+        )
+        if pr_ids:
+            queryset = queryset.filter(purchase_requisition_id__in=pr_ids)
+        pr_numbers = list(dict.fromkeys(number for number in pr_numbers if number))
+        if pr_numbers:
+            queryset = queryset.filter(purchase_requisition__purchase_request_number__in=pr_numbers)
 
         search_term = (request.query_params.get("search") or "").strip()
         if search_term:
@@ -263,10 +377,19 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = PurchaseRequisitionLineItemSerializer(page, many=True)
+            serializer = ApprovedPurchaseRequisitionLineItemSerializer(
+                page,
+                many=True,
+                context=self._approved_line_item_serializer_context(page),
+            )
             return self.get_paginated_response(serializer.data)
 
-        serializer = PurchaseRequisitionLineItemSerializer(queryset, many=True)
+        line_items = list(queryset)
+        serializer = ApprovedPurchaseRequisitionLineItemSerializer(
+            line_items,
+            many=True,
+            context=self._approved_line_item_serializer_context(line_items),
+        )
         return APIResponse.success(
             data=serializer.data,
             message="Approved purchase requisition line items retrieved successfully.",
@@ -309,6 +432,16 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
                 "label": "Product Name",
                 "options_endpoint": f"{base_path}/product-names-dropdown/",
             },
+            {
+                "key": "preferred_supplier",
+                "label": "Preferred Supplier",
+                "options_endpoint": f"{base_path}/preferred-supplier-dropdown/",
+            },
+            {
+                "key": "purchase_request_number",
+                "label": "Purchase Request Number",
+                "options_endpoint": f"{base_path}/purchase-request-numbers-dropdown/",
+            },
         ]
         serializer = PurchaseRequisitionLineItemFilterOptionSerializer(data=payload, many=True)
         serializer.is_valid(raise_exception=True)
@@ -337,6 +470,56 @@ class PurchaseRequisitionViewSet(BaseInventoryViewSet):
         return APIResponse.success(
             data=serializer.validated_data,
             message="Line item product names retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["get"], url_path="line-items/preferred-supplier-dropdown")
+    def line_item_preferred_supplier_dropdown(self, request, *args, **kwargs):
+        query = (request.query_params.get("search") or request.query_params.get("query") or "").strip()
+        product_ids = (
+            PurchaseRequisitionLineItem.objects.exclude(product_id__isnull=True)
+            .values_list("product_id", flat=True)
+            .distinct()
+        )
+        vendors = (
+            Vendor.objects.filter(products__id__in=product_ids)
+            .exclude(trade_name__isnull=True)
+            .exclude(trade_name__exact="")
+            .distinct()
+            .order_by("trade_name")
+        )
+        if query:
+            vendors = vendors.filter(trade_name__icontains=query)
+
+        options = [{"value": str(vendor.id), "label": vendor.trade_name} for vendor in vendors]
+        serializer = PurchaseRequisitionLineItemDropdownOptionSerializer(data=options, many=True)
+        serializer.is_valid(raise_exception=True)
+        return APIResponse.success(
+            data=serializer.validated_data,
+            message="Line item preferred suppliers retrieved successfully.",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=["get"], url_path="line-items/purchase-request-numbers-dropdown")
+    def line_item_purchase_request_numbers_dropdown(self, request, *args, **kwargs):
+        query = (request.query_params.get("search") or request.query_params.get("query") or "").strip()
+        queryset = (
+            PurchaseRequisition.objects.filter(is_approved=True)
+            .exclude(purchase_request_number__isnull=True)
+            .exclude(purchase_request_number__exact="")
+            .values_list("purchase_request_number", flat=True)
+            .distinct()
+            .order_by("purchase_request_number")
+        )
+        if query:
+            queryset = queryset.filter(purchase_request_number__icontains=query)
+
+        options = [{"value": value, "label": value} for value in queryset]
+        serializer = PurchaseRequisitionLineItemDropdownOptionSerializer(data=options, many=True)
+        serializer.is_valid(raise_exception=True)
+        return APIResponse.success(
+            data=serializer.validated_data,
+            message="Line item purchase request numbers retrieved successfully.",
             status_code=status.HTTP_200_OK,
         )
 

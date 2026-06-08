@@ -5,6 +5,9 @@ from .models import (
     Brand,
     Category,
     Finish,
+    GoodsReceipt,
+    GoodsReceiptItem,
+    ReceivedGoodsPhoto,
     Grade,
     Material,
     Product,
@@ -18,6 +21,17 @@ from .models import (
     Vendor,
     VendorContact,
 )
+
+
+def resolve_product_from_requisition_line(line_item):
+    if line_item.product_id:
+        product = Product.objects.filter(pk=line_item.product_id).first()
+        if product:
+            return product
+    product_code = line_item.product_code or ""
+    if product_code:
+        return Product.objects.filter(product_code=product_code).first()
+    return None
 
 
 class PurchaseOrderLineItemInlineForm(forms.ModelForm):
@@ -49,6 +63,7 @@ class PurchaseOrderLineItemInlineForm(forms.ModelForm):
         line_item = self.cleaned_data.get("requisition_line_item")
         if line_item:
             requisition = line_item.purchase_requisition
+            instance.product = resolve_product_from_requisition_line(line_item)
             instance.product_code = line_item.product_code
             instance.description = line_item.product_name
             instance.unit = line_item.unit
@@ -148,6 +163,11 @@ class ProductAdmin(admin.ModelAdmin):
         "price",
         "standard_cost",
         "opening_stock",
+        "purchased_stock",
+        "stock_on_hand",
+        "reserved",
+        "available",
+        "stock_value_aed",
         "preferred_supplier",
         "category",
         "brand",
@@ -156,6 +176,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
     list_filter = ("status", "category", "brand", "material", "grade", "finish", "unit", "preferred_supplier")
     search_fields = ("name", "sku", "product_code", "hsn_sac_code", "preferred_supplier__trade_name")
+    readonly_fields = ("purchased_stock", "stock_on_hand", "available", "stock_value_aed")
 
 
 class PurchaseRequisitionLineItemInline(admin.TabularInline):
@@ -295,6 +316,7 @@ class PurchaseOrderLineItemInline(admin.TabularInline):
     extra = 1
     fields = (
         "requisition_line_item",
+        "product",
         "product_code",
         "purchase_requisition",
         "description",
@@ -306,7 +328,99 @@ class PurchaseOrderLineItemInline(admin.TabularInline):
         "negotiated_price",
         "line_total",
     )
-    readonly_fields = ("line_total",)
+    readonly_fields = ("product", "line_total")
+
+
+class GoodsReceiptItemInline(admin.TabularInline):
+    model = GoodsReceiptItem
+    extra = 1
+    fields = (
+        "purchase_order_line_item",
+        "product",
+        "product_code",
+        "product_name",
+        "unit",
+        "po_qty",
+        "already_received",
+        "qty_good",
+        "qty_rejected",
+        "rejection_reason",
+        "defect_photo",
+    )
+    readonly_fields = ("already_received",)
+
+
+class ReceivedGoodsPhotoInline(admin.TabularInline):
+    model = ReceivedGoodsPhoto
+    extra = 1
+    fields = ("photo", "uploaded_at")
+    readonly_fields = ("uploaded_at",)
+
+
+@admin.register(GoodsReceipt)
+class GoodsReceiptAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "grn_number",
+        "purchase_order",
+        "purchase_order_no",
+        "vendor_name",
+        "grn_recording_date",
+        "overall_quality_status",
+        "status",
+        "is_approved",
+        "is_rejected",
+        "created_at",
+    )
+    list_filter = (
+        "overall_quality_status",
+        "status",
+        "is_approved",
+        "is_rejected",
+        "grn_recording_date",
+        "created_at",
+    )
+    search_fields = (
+        "purchase_order__po_number",
+        "purchase_order_no",
+        "vendor_name",
+        "vendor_invoice_no",
+        "delivery_challan_no",
+    )
+    readonly_fields = ("grn_number", "purchase_order_no", "po_date", "vendor_name", "vendor_trn", "vendor_address", "created_at", "updated_at")
+    inlines = (GoodsReceiptItemInline, ReceivedGoodsPhotoInline)
+
+
+@admin.register(GoodsReceiptItem)
+class GoodsReceiptItemAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "goods_receipt",
+        "purchase_order_line_item",
+        "product",
+        "product_code",
+        "product_name",
+        "po_qty",
+        "already_received",
+        "qty_good",
+        "qty_rejected",
+    )
+    list_filter = ("goods_receipt__grn_recording_date", "goods_receipt__overall_quality_status")
+    search_fields = (
+        "goods_receipt__purchase_order_no",
+        "product_code",
+        "product_name",
+        "purchase_order_line_item__purchase_order__po_number",
+    )
+    readonly_fields = ("already_received",)
+
+
+@admin.register(ReceivedGoodsPhoto)
+class ReceivedGoodsPhotoAdmin(admin.ModelAdmin):
+    list_display = ("id", "goods_receipt", "uploaded_at")
+    list_filter = ("uploaded_at",)
+    search_fields = ("goods_receipt__purchase_order_no", "goods_receipt__purchase_order__po_number")
+    readonly_fields = ("uploaded_at",)
 
 
 @admin.register(PurchaseOrder)
@@ -322,7 +436,7 @@ class PurchaseOrderAdmin(admin.ModelAdmin):
         "created_by",
         "created_at",
     )
-    list_filter = ("status", "po_issued_date", "created_at", "is_confirmed", "is_closed")
+    list_filter = ("status", "po_issued_date", "created_at", "is_approved", "is_rejected")
     search_fields = ("po_number", "vendor__trade_name", "created_by__username")
     readonly_fields = ("po_number", "created_at", "updated_at")
     inlines = (PurchaseOrderLineItemInline,)
