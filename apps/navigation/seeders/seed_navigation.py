@@ -1,7 +1,12 @@
-from apps.navigation.models import Feature, Module
+from django.db import transaction
 
-# Permissions (create/view/edit/delete) are created automatically via signal
-# when each Module is created; see apps.navigation.services.permission_generator.
+from apps.navigation.models import Feature, Module, Permission
+from apps.navigation.signals import suppress_default_permission_generation
+from apps.navigation.services.permission_generator import generate_default_permissions_for_module
+
+# If a module omits `permissions`, the post_save signal creates the default
+# CRUD bundle ({feature_code}.{module_code}.create|view|edit|delete).
+# If `permissions` is provided, those entries are created instead.
 
 ERP_STRUCTURE = [
     {
@@ -552,32 +557,83 @@ ERP_STRUCTURE = [
 
 
 def run():
-    for feature_data in ERP_STRUCTURE:
-        feature, created = Feature.objects.get_or_create(
-            feature_code=feature_data["feature_code"],
-            defaults={
-                "feature_name": feature_data["feature_name"],
-                "icon": feature_data["icon"],
-                "order": feature_data["order"],
-            },
-        )
-        if not created:
-            # Update existing feature if needed
-            feature.feature_name = feature_data["feature_name"]
-            feature.icon = feature_data["icon"]
-            feature.order = feature_data["order"]
-            feature.save()
+    def _permission_payload(permission_data: dict) -> tuple[str, str]:
+        permission_code = permission_data.get("permission_code") or permission_data.get("code")
+        if not permission_code:
+            raise ValueError("Each permission entry must define 'code' or 'permission_code'.")
 
-        for module_data in feature_data["modules"]:
-            Module.objects.get_or_create(
-                module_code=module_data["code"],
+        permission_name = permission_data.get("permission_name") or permission_data.get("name") or permission_code
+        return permission_code, permission_name
+
+    with transaction.atomic():
+        for feature_data in ERP_STRUCTURE:
+            feature, created = Feature.objects.get_or_create(
+                feature_code=feature_data["feature_code"],
                 defaults={
+                    "feature_name": feature_data["feature_name"],
+                    "icon": feature_data["icon"],
+                    "order": feature_data["order"],
+                },
+            )
+            if not created:
+                # Update existing feature if needed
+                feature.feature_name = feature_data["feature_name"]
+                feature.icon = feature_data["icon"]
+                feature.order = feature_data["order"]
+                feature.save()
+
+            for module_data in feature_data["modules"]:
+                permissions_data = module_data.get("permissions")
+                module_defaults = {
                     "module_name": module_data["name"],
                     "feature": feature,
                     "route": module_data["route"],
                     "icon": module_data["icon"],
                     "order": module_data["order"],
-                },
-            )
-            # Default permissions (create/view/edit/delete) are created by
-            # post_save signal in apps.navigation.signals.
+                }
+
+                if permissions_data is None:
+                    module, module_created = Module.objects.get_or_create(
+                        module_code=module_data["code"],
+                        defaults=module_defaults,
+                    )
+                else:
+                    existing_module = Module.objects.filter(module_code=module_data["code"]).first()
+                    if existing_module is None:
+                        with suppress_default_permission_generation():
+                            module = Module.objects.create(
+                                module_code=module_data["code"],
+                                **module_defaults,
+                            )
+                        module_created = True
+                    else:
+                        module = existing_module
+                        module_created = False
+
+                if not module_created:
+                    module.module_name = module_data["name"]
+                    module.feature = feature
+                    module.route = module_data["route"]
+                    module.icon = module_data["icon"]
+                    module.order = module_data["order"]
+                    module.save()
+
+                if permissions_data is None:
+                    # No explicit permissions were defined, so the post_save signal
+                    # creates the default CRUD permissions for new modules.
+                    if not module_created and not module.permissions.exists():
+                        # Re-runs against pre-existing modules still get the default
+                        # CRUD bundle if nothing has been defined yet.
+                        generate_default_permissions_for_module(module)
+                    continue
+
+                # Explicit permissions were declared, so replace any existing ones
+                # with the provided set.
+                Permission.objects.filter(module=module).delete()
+                for permission_data in permissions_data:
+                    permission_code, permission_name = _permission_payload(permission_data)
+                    Permission.objects.create(
+                        module=module,
+                        permission_code=permission_code,
+                        permission_name=permission_name,
+                    )

@@ -3,6 +3,10 @@ from .feature_serializers import (
     FeatureSerializer,
     FeatureWriteSerializer,
 )
+from .seeder_serializers import (
+    SeederFeatureSerializer,
+    SeederModuleSerializer,
+)
 from .module_serializers import (
     CompanyModuleAccessSerializer,
     ModuleReadOnlySerializer,
@@ -26,6 +30,8 @@ __all__ = [
     "ModuleReadOnlySerializer",
     "ModuleSerializer",
     "ModuleWriteSerializer",
+    "SeederFeatureSerializer",
+    "SeederModuleSerializer",
     "PermissionSerializer",
     "PermissionWriteSerializer",
     "SidebarFeatureSerializer",

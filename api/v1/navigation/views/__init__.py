@@ -14,6 +14,7 @@ from .module_views import (
     ModuleListCreateAPIView,
     ModuleReadOnlyListAPIView,
 )
+from .seeder_views import NavigationSeederAPIView
 from .permission_views import (
     PermissionDetailAPIView,
     PermissionListCreateAPIView,
@@ -33,6 +34,7 @@ __all__ = [
     "ModuleDetailAPIView",
     "ModuleListCreateAPIView",
     "ModuleReadOnlyListAPIView",
+    "NavigationSeederAPIView",
     "PermissionDetailAPIView",
     "PermissionListCreateAPIView",
     "SidebarAPIView",

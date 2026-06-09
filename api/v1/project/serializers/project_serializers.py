@@ -150,6 +150,7 @@ class ReworkRequestSerializer(serializers.ModelSerializer):
 # Project Write Serializer
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class ProjectWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
@@ -174,6 +175,7 @@ class ProjectWriteSerializer(serializers.ModelSerializer):
 # ─────────────────────────────────────────────────────────────────────────────
 # Project List Serializer
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 class ProjectListSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source="client.customer_name", read_only=True)
@@ -208,6 +210,7 @@ class ProjectListSerializer(serializers.ModelSerializer):
 # Project Detail Serializer
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class ProjectDetailSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source="client.customer_name", read_only=True)
     project_manager_detail = UserLightSerializer(source="project_manager", read_only=True)
@@ -217,7 +220,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
     milestones = MilestoneSerializer(many=True, read_only=True)
     tasks = TaskSerializer(many=True, read_only=True)
     team_members = ProjectTeamMemberSerializer(many=True, read_only=True)
-    materials = ProjectMaterialSerializer(many=True, read_only=True)
+    materials = ProjectMaterialSerializer(source="allocated_materials", many=True, read_only=True)
     quality_checkpoints = QualityCheckpointSerializer(many=True, read_only=True)
     deliveries = DeliveryScheduleSerializer(many=True, read_only=True)
     documents = ProjectDocumentSerializer(many=True, read_only=True)

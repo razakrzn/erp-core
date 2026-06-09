@@ -7,9 +7,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from apps.Projects.models import (
     Project,
-    ProjectTeamMember,
-    Milestone,
-    Task,
     DXFFile,
     DXFAnalysisResult,
 )
@@ -29,8 +26,8 @@ User = get_user_model()
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     permission_classes = [IsAuthenticated, RBACPermission]
-    permission_prefix = "projects.projects"
-    
+    permission_prefix = "project.all_projects"
+
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["client", "is_active", "project_manager", "status"]
     search_fields = ["project_name", "job_number", "description", "location"]
@@ -49,10 +46,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     }
 
     def get_serializer_class(self):
-        return self.serializer_action_classes.get(
-            self.action,
-            ProjectDetailSerializer
-        )
+        return self.serializer_action_classes.get(self.action, ProjectDetailSerializer)
 
     def perform_create(self, serializer):
         user = self.request.user if self.request.user and self.request.user.is_authenticated else None
@@ -92,10 +86,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
 
-        response_serializer = ProjectDetailSerializer(
-            serializer.instance,
-            context={"request": request}
-        )
+        response_serializer = ProjectDetailSerializer(serializer.instance, context={"request": request})
 
         return APIResponse.success(
             data=response_serializer.data,
@@ -107,19 +98,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
 
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=partial
-        )
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
 
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        response_serializer = ProjectDetailSerializer(
-            serializer.instance,
-            context={"request": request}
-        )
+        response_serializer = ProjectDetailSerializer(serializer.instance, context={"request": request})
 
         return APIResponse.success(
             data=response_serializer.data,
@@ -140,7 +124,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"], url_path="summary")
     def summary(self, request, *args, **kwargs):
         instance = self.get_object()
-        
+
         milestones = instance.milestones.all()
         total_milestones = milestones.count()
         completed_milestones = milestones.filter(status="completed").count()
@@ -158,7 +142,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
         team_count = instance.team_members.count()
 
-        materials = instance.materials.all()
+        materials = instance.allocated_materials.all()
         material_count = materials.count()
         estimated_cost = float(sum(m.total_cost for m in materials))
         issued_materials = materials.filter(status="issued").count()
@@ -188,10 +172,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 "completed": completed_milestones,
                 "completion_percentage": milestone_progress,
             },
-            "tasks": {
-                "total": total_tasks,
-                **task_stats
-            },
+            "tasks": {"total": total_tasks, **task_stats},
             "team_members_count": team_count,
             "materials": {
                 "total_items": material_count,
@@ -213,21 +194,21 @@ class ProjectViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         start_date = request.data.get("start_date")
         end_date = request.data.get("end_date")
-        
+
         if not start_date and not end_date:
             return APIResponse.error(
                 message="At least one of start_date or end_date must be provided.",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         if start_date:
             instance.start_date = start_date
         if end_date:
             instance.end_date = end_date
-            
+
         instance.updated_by = request.user if request.user and request.user.is_authenticated else None
         instance.save()
-        
+
         serializer = self.get_serializer(instance)
         return APIResponse.success(
             data=serializer.data,
@@ -240,13 +221,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def assign_manager(self, request, *args, **kwargs):
         instance = self.get_object()
         manager_id = request.data.get("project_manager")
-        
+
         if manager_id is None:
             return APIResponse.error(
                 message="project_manager field is required.",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         if manager_id == "":
             instance.project_manager = None
         else:
@@ -258,10 +239,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
                     message="Manager user not found.",
                     status_code=status.HTTP_400_BAD_REQUEST,
                 )
-                
+
         instance.updated_by = request.user if request.user and request.user.is_authenticated else None
         instance.save()
-        
+
         serializer = self.get_serializer(instance)
         return APIResponse.success(
             data=serializer.data,
@@ -274,24 +255,24 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def update_status(self, request, *args, **kwargs):
         instance = self.get_object()
         new_status = request.data.get("status")
-        
+
         if not new_status:
             return APIResponse.error(
                 message="status field is required.",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         valid_statuses = [choice[0] for choice in Project.STATUS_CHOICES]
         if new_status not in valid_statuses:
             return APIResponse.error(
                 message=f"Invalid status value. Choose from: {', '.join(valid_statuses)}",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         instance.status = new_status
         instance.updated_by = request.user if request.user and request.user.is_authenticated else None
         instance.save()
-        
+
         serializer = self.get_serializer(instance)
         return APIResponse.success(
             data=serializer.data,
@@ -316,19 +297,19 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def dxf_upload(self, request, *args, **kwargs):
         instance = self.get_object()
         dxf_file_obj = request.FILES.get("file")
-        
+
         if not dxf_file_obj:
             return APIResponse.error(
                 message="No file uploaded. Please upload a .dxf file.",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         if not dxf_file_obj.name.lower().endswith(".dxf"):
             return APIResponse.error(
                 message="Unsupported file format. Only .dxf files are supported.",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         # Create the DXFFile registry record
         dxf_record = DXFFile.objects.create(
             project=instance,
@@ -336,13 +317,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
             status="processing",
             uploaded_by=request.user if request.user and request.user.is_authenticated else None,
         )
-        
+
         # Run optimization
         from apps.production.services.cutting_optimization import run_cutting_optimization
+
         try:
             optimization_result = run_cutting_optimization(dxf_record.file.path)
             summary = optimization_result.get("summary", {})
-            
+
             # Save analysis results
             DXFAnalysisResult.objects.create(
                 dxf_file=dxf_record,
@@ -353,7 +335,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 utilization_percent=summary.get("utilization_percent", 0.0),
                 raw_data=optimization_result,
             )
-            
+
             dxf_record.status = "completed"
             dxf_record.save()
         except Exception as e:
@@ -363,7 +345,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 message=f"DXF analysis optimization failed: {str(e)}",
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-            
+
         # Serialize the updated DXF record
         serializer = DXFFileSerializer(dxf_record)
         return APIResponse.success(
@@ -377,34 +359,38 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def gantt(self, request, *args, **kwargs):
         instance = self.get_object()
         milestones = instance.milestones.all().order_by("order", "created_at")
-        
+
         gantt_data = []
         for milestone in milestones:
-            gantt_data.append({
-                "id": f"milestone-{milestone.id}",
-                "name": milestone.name,
-                "start_date": milestone.start_date.isoformat() if milestone.start_date else None,
-                "end_date": milestone.due_date.isoformat() if milestone.due_date else None,
-                "status": milestone.status,
-                "progress": milestone.completion_percentage,
-                "type": "project",
-                "dependencies": []
-            })
-            
+            gantt_data.append(
+                {
+                    "id": f"milestone-{milestone.id}",
+                    "name": milestone.name,
+                    "start_date": milestone.start_date.isoformat() if milestone.start_date else None,
+                    "end_date": milestone.due_date.isoformat() if milestone.due_date else None,
+                    "status": milestone.status,
+                    "progress": milestone.completion_percentage,
+                    "type": "project",
+                    "dependencies": [],
+                }
+            )
+
             tasks = milestone.tasks.all().order_by("created_at")
             for task in tasks:
-                gantt_data.append({
-                    "id": f"task-{task.id}",
-                    "name": task.title,
-                    "start_date": task.start_date.isoformat() if task.start_date else None,
-                    "end_date": task.due_date.isoformat() if task.due_date else None,
-                    "status": task.status,
-                    "progress": task.completion_percentage,
-                    "type": "task",
-                    "parent": f"milestone-{milestone.id}",
-                    "dependencies": []
-                })
-                
+                gantt_data.append(
+                    {
+                        "id": f"task-{task.id}",
+                        "name": task.title,
+                        "start_date": task.start_date.isoformat() if task.start_date else None,
+                        "end_date": task.due_date.isoformat() if task.due_date else None,
+                        "status": task.status,
+                        "progress": task.completion_percentage,
+                        "type": "task",
+                        "parent": f"milestone-{milestone.id}",
+                        "dependencies": [],
+                    }
+                )
+
         return APIResponse.success(
             data=gantt_data,
             message="Gantt-ready project milestones and tasks retrieved successfully.",

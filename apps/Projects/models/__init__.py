@@ -1,3 +1,4 @@
+from .estimate import Labour, Material, Other
 from .project import (
     Project,
     ProjectTeamMember,
@@ -26,6 +27,9 @@ __all__ = [
     "Timesheet",
     "ProjectDocument",
     "ProjectMaterial",
+    "Material",
+    "Labour",
+    "Other",
     "QualityCheckpoint",
     "DeliverySchedule",
     "ReworkRequest",

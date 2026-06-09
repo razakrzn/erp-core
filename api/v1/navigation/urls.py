@@ -19,6 +19,7 @@ from .views import (
     ModuleDetailAPIView,
     ModuleListCreateAPIView,
     ModuleReadOnlyListAPIView,
+    NavigationSeederAPIView,
     PermissionDetailAPIView,
     PermissionListCreateAPIView,
     SidebarAPIView,
@@ -61,6 +62,11 @@ urlpatterns = [
         "sidebar/",
         SidebarAPIView.as_view(),
         name="sidebar",
+    ),
+    path(
+        "seeder/",
+        NavigationSeederAPIView.as_view(),
+        name="navigation-seeder",
     ),
     path(
         "features/list/",
