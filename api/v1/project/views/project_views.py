@@ -8,10 +8,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from apps.Projects.models import (
     Project,
     ProjectTeamMember,
-    Milestone,
-    Task,
-    DXFFile,
-    DXFAnalysisResult,
 )
 from core.permissions.rbac_permission import RBACPermission
 from core.utils.responses import APIResponse
@@ -20,7 +16,6 @@ from ..serializers import (
     ProjectListSerializer,
     ProjectDetailSerializer,
     ProjectTeamMemberSerializer,
-    DXFFileSerializer,
 )
 
 User = get_user_model()
@@ -136,77 +131,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
             status_code=status.HTTP_200_OK,
         )
 
-    # ─── Custom Action: Summary Card ──────────────────────────────────────────
-    @action(detail=True, methods=["get"], url_path="summary")
-    def summary(self, request, *args, **kwargs):
-        instance = self.get_object()
-        
-        milestones = instance.milestones.all()
-        total_milestones = milestones.count()
-        completed_milestones = milestones.filter(status="completed").count()
-        milestone_progress = round((completed_milestones / total_milestones * 100), 2) if total_milestones > 0 else 0.0
-
-        tasks = instance.tasks.all()
-        total_tasks = tasks.count()
-        task_stats = {
-            "todo": tasks.filter(status="todo").count(),
-            "in_progress": tasks.filter(status="in_progress").count(),
-            "review": tasks.filter(status="review").count(),
-            "done": tasks.filter(status="done").count(),
-            "blocked": tasks.filter(status="blocked").count(),
-        }
-
-        team_count = instance.team_members.count()
-
-        materials = instance.materials.all()
-        material_count = materials.count()
-        estimated_cost = float(sum(m.total_cost for m in materials))
-        issued_materials = materials.filter(status="issued").count()
-
-        qas = instance.quality_checkpoints.all()
-        qa_stats = {
-            "total": qas.count(),
-            "pending": qas.filter(result="pending").count(),
-            "pass": qas.filter(result="pass").count(),
-            "fail": qas.filter(result="fail").count(),
-        }
-
-        reworks = instance.rework_requests.all()
-        rework_stats = {
-            "total": reworks.count(),
-            "open": reworks.filter(status="open").count(),
-            "resolved": reworks.filter(status="resolved").count(),
-        }
-
-        data = {
-            "project_name": instance.project_name,
-            "job_number": instance.job_number,
-            "status": instance.status,
-            "contract_value": float(instance.contract_value),
-            "milestones": {
-                "total": total_milestones,
-                "completed": completed_milestones,
-                "completion_percentage": milestone_progress,
-            },
-            "tasks": {
-                "total": total_tasks,
-                **task_stats
-            },
-            "team_members_count": team_count,
-            "materials": {
-                "total_items": material_count,
-                "total_estimated_cost": estimated_cost,
-                "total_issued": issued_materials,
-            },
-            "quality_checkpoints": qa_stats,
-            "rework_requests": rework_stats,
-        }
-        return APIResponse.success(
-            data=data,
-            message="Project summary retrieved successfully.",
-            status_code=status.HTTP_200_OK,
-        )
-
     # ─── Custom Action: Edit start/end dates ──────────────────────────────────
     @action(detail=True, methods=["patch"], url_path="timeline")
     def timeline(self, request, *args, **kwargs):
@@ -311,102 +235,4 @@ class ProjectViewSet(viewsets.ModelViewSet):
             status_code=status.HTTP_200_OK,
         )
 
-    # ─── Custom Action: Upload and Analyze DXF ────────────────────────────────
-    @action(detail=True, methods=["post"], url_path="dxf/upload")
-    def dxf_upload(self, request, *args, **kwargs):
-        instance = self.get_object()
-        dxf_file_obj = request.FILES.get("file")
-        
-        if not dxf_file_obj:
-            return APIResponse.error(
-                message="No file uploaded. Please upload a .dxf file.",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-            
-        if not dxf_file_obj.name.lower().endswith(".dxf"):
-            return APIResponse.error(
-                message="Unsupported file format. Only .dxf files are supported.",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
-            
-        # Create the DXFFile registry record
-        dxf_record = DXFFile.objects.create(
-            project=instance,
-            file=dxf_file_obj,
-            status="processing",
-            uploaded_by=request.user if request.user and request.user.is_authenticated else None,
-        )
-        
-        # Run optimization
-        from apps.production.services.cutting_optimization import run_cutting_optimization
-        try:
-            optimization_result = run_cutting_optimization(dxf_record.file.path)
-            summary = optimization_result.get("summary", {})
-            
-            # Save analysis results
-            DXFAnalysisResult.objects.create(
-                dxf_file=dxf_record,
-                total_parts=summary.get("total_parts", 0),
-                placed_parts=summary.get("placed_parts", 0),
-                unplaced_parts=summary.get("unplaced_parts", 0),
-                oversized_parts=summary.get("oversized_parts", 0),
-                utilization_percent=summary.get("utilization_percent", 0.0),
-                raw_data=optimization_result,
-            )
-            
-            dxf_record.status = "completed"
-            dxf_record.save()
-        except Exception as e:
-            dxf_record.status = "failed"
-            dxf_record.save()
-            return APIResponse.error(
-                message=f"DXF analysis optimization failed: {str(e)}",
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-            
-        # Serialize the updated DXF record
-        serializer = DXFFileSerializer(dxf_record)
-        return APIResponse.success(
-            data=serializer.data,
-            message="DXF file uploaded and analyzed successfully using cutting optimization.",
-            status_code=status.HTTP_200_OK,
-        )
 
-    # ─── Custom Action: Gantt-ready milestone+task data ────────────────────────
-    @action(detail=True, methods=["get"], url_path="gantt")
-    def gantt(self, request, *args, **kwargs):
-        instance = self.get_object()
-        milestones = instance.milestones.all().order_by("order", "created_at")
-        
-        gantt_data = []
-        for milestone in milestones:
-            gantt_data.append({
-                "id": f"milestone-{milestone.id}",
-                "name": milestone.name,
-                "start_date": milestone.start_date.isoformat() if milestone.start_date else None,
-                "end_date": milestone.due_date.isoformat() if milestone.due_date else None,
-                "status": milestone.status,
-                "progress": milestone.completion_percentage,
-                "type": "project",
-                "dependencies": []
-            })
-            
-            tasks = milestone.tasks.all().order_by("created_at")
-            for task in tasks:
-                gantt_data.append({
-                    "id": f"task-{task.id}",
-                    "name": task.title,
-                    "start_date": task.start_date.isoformat() if task.start_date else None,
-                    "end_date": task.due_date.isoformat() if task.due_date else None,
-                    "status": task.status,
-                    "progress": task.completion_percentage,
-                    "type": "task",
-                    "parent": f"milestone-{milestone.id}",
-                    "dependencies": []
-                })
-                
-        return APIResponse.success(
-            data=gantt_data,
-            message="Gantt-ready project milestones and tasks retrieved successfully.",
-            status_code=status.HTTP_200_OK,
-        )

@@ -18,16 +18,8 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/v1/project/projects/",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"project",
-								"projects",
-								""
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "project", "projects", ""]
 						}
 					},
 					"response": []
@@ -44,20 +36,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"project_name\": \"Sample Project\",\n  \"client\": 1,\n  \"project_manager\": 1,\n  \"status\": \"planning\",\n  \"is_active\": true\n}"
+							"raw": "{\n  \"project_name\": \"Sample Project\",\n  \"description\": \"Project description\",\n  \"location\": \"Main Street\",\n  \"status\": \"quotation_approved\",\n  \"start_date\": \"2026-06-01\",\n  \"end_date\": \"2026-12-31\",\n  \"contract_value\": 500000.00,\n  \"quote\": null,\n  \"boq\": null,\n  \"client\": 1,\n  \"project_manager\": 1,\n  \"is_active\": true\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/project/projects/",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"project",
-								"projects",
-								""
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "project", "projects", ""]
 						}
 					},
 					"response": []
@@ -69,16 +53,8 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"project",
-								"projects",
-								"{{project_id}}"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "project", "projects", "{{project_id}}"]
 						}
 					},
 					"response": []
@@ -95,20 +71,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Warehouse Expansion - Phase 2\",\n  \"client\": 1,\n  \"project_manager\": 2,\n  \"status\": \"in_production\",\n  \"is_active\": true\n}"
+							"raw": "{\n  \"project_name\": \"Warehouse Expansion - Phase 2\",\n  \"description\": \"Updated project description\",\n  \"location\": \"Industrial Zone\",\n  \"status\": \"planning\",\n  \"start_date\": \"2026-07-01\",\n  \"end_date\": \"2026-12-31\",\n  \"actual_end_date\": null,\n  \"contract_value\": 750000.00,\n  \"client\": 1,\n  \"project_manager\": 2,\n  \"is_active\": true\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"project",
-								"projects",
-								"{{project_id}}"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "project", "projects", "{{project_id}}"]
 						}
 					},
 					"response": []
@@ -125,20 +93,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"status\": \"quality_check\"\n}"
+							"raw": "{\n  \"status\": \"in_production\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"project",
-								"projects",
-								"{{project_id}}"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "project", "projects", "{{project_id}}"]
 						}
 					},
 					"response": []
@@ -150,38 +110,8 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"project",
-								"projects",
-								"{{project_id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Project Summary",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}/summary",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"project",
-								"projects",
-								"{{project_id}}",
-								"summary"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "project", "projects", "{{project_id}}"]
 						}
 					},
 					"response": []
@@ -201,18 +131,9 @@
 							"raw": "{\n  \"start_date\": \"2026-06-01\",\n  \"end_date\": \"2026-08-01\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}/timeline",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"project",
-								"projects",
-								"{{project_id}}",
-								"timeline"
-							]
+							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}/timeline/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "project", "projects", "{{project_id}}", "timeline", ""]
 						}
 					},
 					"response": []
@@ -232,18 +153,31 @@
 							"raw": "{\n  \"project_manager\": 5\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}/assign-manager",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"project",
-								"projects",
-								"{{project_id}}",
-								"assign-manager"
-							]
+							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}/assign-manager/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "project", "projects", "{{project_id}}", "assign-manager", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unassign Manager",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"project_manager\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}/assign-manager/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "project", "projects", "{{project_id}}", "assign-manager", ""]
 						}
 					},
 					"response": []
@@ -260,21 +194,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"status\": \"completed\"\n}"
+							"raw": "{\n  \"status\": \"in_production\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}/update-status",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"project",
-								"projects",
-								"{{project_id}}",
-								"update-status"
-							]
+							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}/update-status/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "project", "projects", "{{project_id}}", "update-status", ""]
 						}
 					},
 					"response": []
@@ -286,74 +211,8 @@
 						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}/team/",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"project",
-								"projects",
-								"{{project_id}}",
-								"team",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Upload DXF",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"type": "file",
-									"src": "/home/yadhukrishnan/Downloads/table_sample.dxf"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}/dxf/upload/",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"project",
-								"projects",
-								"{{project_id}}",
-								"dxf",
-								"upload",
-								""
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Project Gantt",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/api/v1/project/projects/{{project_id}}/gantt",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"project",
-								"projects",
-								"{{project_id}}",
-								"gantt"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "project", "projects", "{{project_id}}", "team", ""]
 						}
 					},
 					"response": []
@@ -378,9 +237,7 @@
 				"type": "text/javascript",
 				"packages": {},
 				"requests": {},
-				"exec": [
-					""
-				]
+				"exec": [""]
 			}
 		},
 		{
@@ -389,9 +246,7 @@
 				"type": "text/javascript",
 				"packages": {},
 				"requests": {},
-				"exec": [
-					""
-				]
+				"exec": [""]
 			}
 		}
 	],
