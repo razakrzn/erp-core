@@ -165,6 +165,9 @@ class ProductAdmin(admin.ModelAdmin):
         "opening_stock",
         "purchased_stock",
         "stock_on_hand",
+        "reserved",
+        "available",
+        "stock_value_aed",
         "preferred_supplier",
         "category",
         "brand",
@@ -173,7 +176,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
     list_filter = ("status", "category", "brand", "material", "grade", "finish", "unit", "preferred_supplier")
     search_fields = ("name", "sku", "product_code", "hsn_sac_code", "preferred_supplier__trade_name")
-    readonly_fields = ("purchased_stock", "stock_on_hand")
+    readonly_fields = ("purchased_stock", "stock_on_hand", "available", "stock_value_aed")
 
 
 class PurchaseRequisitionLineItemInline(admin.TabularInline):
@@ -344,7 +347,7 @@ class GoodsReceiptItemInline(admin.TabularInline):
         "rejection_reason",
         "defect_photo",
     )
-    readonly_fields = ("product", "product_code", "product_name", "unit", "po_qty", "already_received")
+    readonly_fields = ("already_received",)
 
 
 class ReceivedGoodsPhotoInline(admin.TabularInline):
@@ -364,9 +367,19 @@ class GoodsReceiptAdmin(admin.ModelAdmin):
         "vendor_name",
         "grn_recording_date",
         "overall_quality_status",
+        "status",
+        "is_approved",
+        "is_rejected",
         "created_at",
     )
-    list_filter = ("overall_quality_status", "grn_recording_date", "created_at")
+    list_filter = (
+        "overall_quality_status",
+        "status",
+        "is_approved",
+        "is_rejected",
+        "grn_recording_date",
+        "created_at",
+    )
     search_fields = (
         "purchase_order__po_number",
         "purchase_order_no",
@@ -399,7 +412,7 @@ class GoodsReceiptItemAdmin(admin.ModelAdmin):
         "product_name",
         "purchase_order_line_item__purchase_order__po_number",
     )
-    readonly_fields = ("product", "product_code", "product_name", "unit", "po_qty", "already_received")
+    readonly_fields = ("already_received",)
 
 
 @admin.register(ReceivedGoodsPhoto)

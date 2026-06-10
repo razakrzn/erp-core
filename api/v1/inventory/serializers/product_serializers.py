@@ -118,7 +118,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["purchased_stock", "stock_on_hand"]
+        read_only_fields = ["purchased_stock", "stock_on_hand", "available", "stock_value_aed"]
 
     def _get_related_name(self, obj, field_name):
         related_obj = getattr(obj, field_name, None)

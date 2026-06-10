@@ -1,0 +1,34 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8002:8002"
+    env_file:
+      - .env
+    environment:
+      - APP_ROLE=web
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+
+  celery:
+    build: .
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - APP_ROLE=worker
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    command: celery -A config worker -l info --concurrency=1 --prefetch-multiplier=1 --max-tasks-per-child=25
+    depends_on:
+      - redis

@@ -90,9 +90,23 @@ class Product(models.Model):
     )
     stock_on_hand = models.DecimalField(_("stock on hand"), max_digits=12, decimal_places=2, default=0, blank=True, null=True)
     reserved = models.DecimalField(_("reserved"), max_digits=12, decimal_places=2, default=0, blank=True, null=True)
-    available = models.DecimalField(_("available"), max_digits=12, decimal_places=2, default=0, blank=True, null=True)
+    available = models.DecimalField(
+        _("available"),
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        blank=True,
+        null=True,
+        editable=False,
+    )
     stock_value_aed = models.DecimalField(
-        _("stock value (AED)"), max_digits=14, decimal_places=2, default=0, blank=True, null=True
+        _("stock value (AED)"),
+        max_digits=14,
+        decimal_places=2,
+        default=0,
+        blank=True,
+        null=True,
+        editable=False,
     )
     opening_stock_date = models.DateField(_("opening stock date"), blank=True, null=True)
     hsn_sac_code = models.CharField(_("HSN / SAC code"), max_length=50, blank=True, null=True)
@@ -175,8 +189,16 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         opening_stock = self.opening_stock or 0
         purchased_stock = self.purchased_stock or 0
+        reserved = self.reserved or 0
+        standard_cost = self.standard_cost or 0
         self.stock_on_hand = opening_stock + purchased_stock
+        self.available = self.stock_on_hand - reserved
+        self.stock_value_aed = standard_cost * self.stock_on_hand
         update_fields = kwargs.get("update_fields")
         if update_fields is not None:
-            kwargs["update_fields"] = set(update_fields) | {"stock_on_hand"}
+            kwargs["update_fields"] = set(update_fields) | {
+                "stock_on_hand",
+                "available",
+                "stock_value_aed",
+            }
         super().save(*args, **kwargs)

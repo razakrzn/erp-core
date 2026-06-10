@@ -5,10 +5,28 @@ from django.db.models.functions import Coalesce
 from django.db import transaction
 from rest_framework import serializers
 
-from apps.inventory.models import GoodsReceipt, GoodsReceiptItem, PurchaseOrder, PurchaseOrderLineItem, ReceivedGoodsPhoto
+from apps.inventory.models import (
+    GoodsReceipt,
+    GoodsReceiptItem,
+    Product,
+    PurchaseOrder,
+    PurchaseOrderLineItem,
+    ReceivedGoodsPhoto,
+)
 
 
 class GoodsReceiptItemSerializer(serializers.ModelSerializer):
+    purchase_order_line_item = serializers.PrimaryKeyRelatedField(
+        queryset=PurchaseOrderLineItem.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+    product = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+
     class Meta:
         model = GoodsReceiptItem
         fields = [
@@ -25,7 +43,7 @@ class GoodsReceiptItemSerializer(serializers.ModelSerializer):
             "rejection_reason",
             "defect_photo",
         ]
-        read_only_fields = ["product", "product_code", "product_name", "unit", "po_qty", "already_received"]
+        read_only_fields = ["already_received"]
 
 
 class ReceivedGoodsPhotoSerializer(serializers.ModelSerializer):
@@ -40,6 +58,8 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
         source="purchase_order",
         queryset=PurchaseOrder.objects.all(),
         write_only=True,
+        required=False,
+        allow_null=True,
     )
     purchase_order = serializers.SerializerMethodField(read_only=True)
     material_intakes = GoodsReceiptItemSerializer(many=True, required=False)
@@ -72,6 +92,10 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
             "vendor_invoice",
             "overall_quality_status",
             "quality_notes",
+            "status",
+            "is_approved",
+            "is_rejected",
+            "reject_note",
             "material_intakes",
             "received_goods_photos",
             "received_goods_photo_files",
@@ -80,11 +104,7 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "grn_number",
-            "purchase_order_no",
-            "po_date",
-            "vendor_name",
-            "vendor_trn",
-            "vendor_address",
+            "status",
             "received_goods_photos",
             "created_at",
             "updated_at",
@@ -104,15 +124,42 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
-        purchase_order = attrs.get("purchase_order")
+        purchase_order = attrs.get("purchase_order", getattr(self.instance, "purchase_order", None))
         line_items = attrs.get("material_intakes", None)
-        if purchase_order is None and self.instance is not None:
-            purchase_order = self.instance.purchase_order
-
-        if not purchase_order:
-            raise serializers.ValidationError({"purchase_order_id": "This field is required."})
 
         if line_items is None:
+            return attrs
+
+        if not purchase_order:
+            invalid_po_line_items = [
+                item["purchase_order_line_item"].id
+                for item in line_items
+                if item.get("purchase_order_line_item") is not None
+            ]
+            if invalid_po_line_items:
+                raise serializers.ValidationError(
+                    {
+                        "material_intakes": (
+                            "Standalone Goods Receipt Items cannot include purchase_order_line_item. "
+                            f"Invalid item(s): {invalid_po_line_items}"
+                        )
+                    }
+                )
+
+            missing_product_details = [
+                index
+                for index, item in enumerate(line_items)
+                if not item.get("product") and not item.get("product_code") and not item.get("product_name")
+            ]
+            if missing_product_details:
+                raise serializers.ValidationError(
+                    {
+                        "material_intakes": (
+                            "Standalone Goods Receipt Items require a product, product_code, or product_name. "
+                            f"Missing detail at item index(es): {missing_product_details}"
+                        )
+                    }
+                )
             return attrs
 
         po_line_item_ids = {
@@ -120,6 +167,14 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
             for item in line_items
             if item.get("purchase_order_line_item") is not None
         }
+        if any(item.get("purchase_order_line_item") is None for item in line_items):
+            raise serializers.ValidationError(
+                {
+                    "material_intakes": (
+                        "purchase_order_line_item is required for each Purchase Order-based Goods Receipt Item."
+                    )
+                }
+            )
         existing_po_line_item_ids = set(
             PurchaseOrderLineItem.objects.filter(purchase_order=purchase_order, id__in=po_line_item_ids).values_list(
                 "id", flat=True
@@ -135,6 +190,9 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         line_items_data = validated_data.pop("material_intakes", [])
         received_goods_photo_files = validated_data.pop("received_goods_photo_files", [])
+        validated_data["is_approved"] = True
+        validated_data["is_rejected"] = False
+        validated_data["reject_note"] = ""
 
         with transaction.atomic():
             goods_receipt = GoodsReceipt.objects.create(**validated_data)
@@ -148,6 +206,9 @@ class GoodsReceiptSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         line_items_data = validated_data.pop("material_intakes", None)
         received_goods_photo_files = validated_data.pop("received_goods_photo_files", None)
+        validated_data["is_approved"] = False
+        validated_data["is_rejected"] = False
+        validated_data["reject_note"] = ""
 
         with transaction.atomic():
             for attr, value in validated_data.items():
@@ -179,6 +240,10 @@ class GoodsReceiptListSerializer(serializers.ModelSerializer):
             "purchase_order_no",
             "grn_recording_date",
             "vendor_name",
+            "status",
+            "is_approved",
+            "is_rejected",
+            "reject_note",
             "products",
             "received_qty",
         ]
