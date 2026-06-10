@@ -10,74 +10,89 @@ from django.utils.translation import gettext_lazy as _
 # Project
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class Project(models.Model):
     STATUS_CHOICES = [
-        ("quotation_approved",     "Quotation Approved"),
-        ("planning",               "Planning"),
-        ("in_production",          "In Production"),
-        ("quality_check",          "Quality Check"),
-        ("ready_for_delivery",     "Ready for Delivery"),
-        ("delivery_in_progress",   "Delivery in Progress"),
-        ("installation",           "Installation"),
+        ("quotation_approved", "Quotation Approved"),
+        ("planning", "Planning"),
+        ("in_production", "In Production"),
+        ("quality_check", "Quality Check"),
+        ("ready_for_delivery", "Ready for Delivery"),
+        ("delivery_in_progress", "Delivery in Progress"),
+        ("installation", "Installation"),
         ("installation_completed", "Installation Completed"),
-        ("snagging",               "Snagging"),
-        ("on_hold",                "On Hold"),
-        ("cancelled",              "Cancelled"),
-        ("completed",              "Completed"),
+        ("snagging", "Snagging"),
+        ("on_hold", "On Hold"),
+        ("cancelled", "Cancelled"),
+        ("completed", "Completed"),
     ]
 
     # Auto-generated JO-YYYY-NNN
-    job_number = models.CharField(
-        _("job number"), max_length=30, unique=True, blank=True, editable=False
-    )
+    job_number = models.CharField(_("job number"), max_length=30, unique=True, blank=True, editable=False)
 
     # Assessment links
     quote = models.OneToOneField(
-        "assessment.Quote", on_delete=models.SET_NULL,
-        null=True, blank=True, related_name="project",
+        "assessment.Quote",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="project",
     )
     boq = models.ForeignKey(
-        "assessment.Boq", on_delete=models.SET_NULL,
-        null=True, blank=True, related_name="projects",
+        "assessment.Boq",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="projects",
     )
 
     # Client
     client = models.ForeignKey(
-        "crm.Customer", on_delete=models.SET_NULL,
-        null=True, blank=True, related_name="projects",
+        "crm.Customer",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="projects",
     )
 
     # Core
-    project_name   = models.CharField(_("project name"), max_length=255)
-    description    = models.TextField(_("description"), blank=True, default="")
-    location       = models.CharField(_("location"), max_length=500, blank=True, default="")
-    status         = models.CharField(
-        _("status"), max_length=30, choices=STATUS_CHOICES, default="quotation_approved"
-    )
+    project_name = models.CharField(_("project name"), max_length=255)
+    description = models.TextField(_("description"), blank=True, default="")
+    location = models.CharField(_("location"), max_length=500, blank=True, default="")
+    status = models.CharField(_("status"), max_length=30, choices=STATUS_CHOICES, default="quotation_approved")
 
     # Timeline
-    start_date      = models.DateField(_("start date"), null=True, blank=True)
-    end_date        = models.DateField(_("end date"), null=True, blank=True)
+    start_date = models.DateField(_("start date"), null=True, blank=True)
+    end_date = models.DateField(_("end date"), null=True, blank=True)
     actual_end_date = models.DateField(_("actual end date"), null=True, blank=True)
 
     # Financials
-    contract_value  = models.DecimalField(_("contract value"), max_digits=15, decimal_places=2, default=0)
+    contract_value = models.DecimalField(_("contract value"), max_digits=15, decimal_places=2, default=0)
 
     # Team lead — quick FK; full team in ProjectTeamMember
     project_manager = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
-        null=True, blank=True, related_name="managed_projects",
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="managed_projects",
     )
 
     # Audit
-    is_active  = models.BooleanField(_("is active"), default=True)
+    is_active = models.BooleanField(_("is active"), default=True)
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
-        null=True, blank=True, related_name="created_projects",
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_projects",
     )
     updated_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
-        null=True, blank=True, related_name="updated_projects",
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="updated_projects",
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -88,9 +103,9 @@ class Project(models.Model):
         ordering = ["-created_at"]
 
     def _generate_job_number(self):
-        year   = timezone.now().year
+        year = timezone.now().year
         prefix = f"JO-{year}-"
-        last   = (
+        last = (
             Project.objects.filter(job_number__startswith=prefix)
             .annotate(num=Cast(Substr("job_number", len(prefix) + 1), IntegerField()))
             .order_by("-num")
@@ -111,53 +126,62 @@ class Project(models.Model):
 # ProjectTeamMember  (NEW — team allocation)
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class ProjectTeamMember(models.Model):
     ROLE_CHOICES = [
-        ("project_manager",  "Project Manager"),
-        ("site_supervisor",  "Site Supervisor"),
-        ("lead_carpenter",   "Lead Carpenter"),
-        ("carpenter",        "Carpenter"),
-        ("painter",          "Painter"),
-        ("electrician",      "Electrician"),
-        ("logistics",        "Logistics Coordinator"),
-        ("qa_inspector",     "QA Inspector"),
-        ("installer",        "Installer"),
-        ("designer",         "Designer"),
-        ("draftsman",        "Draftsman"),
-        ("procurement",      "Procurement Officer"),
-        ("other",            "Other"),
+        ("project_manager", "Project Manager"),
+        ("site_supervisor", "Site Supervisor"),
+        ("lead_carpenter", "Lead Carpenter"),
+        ("carpenter", "Carpenter"),
+        ("painter", "Painter"),
+        ("electrician", "Electrician"),
+        ("logistics", "Logistics Coordinator"),
+        ("qa_inspector", "QA Inspector"),
+        ("installer", "Installer"),
+        ("designer", "Designer"),
+        ("draftsman", "Draftsman"),
+        ("procurement", "Procurement Officer"),
+        ("other", "Other"),
     ]
 
-    project    = models.ForeignKey(
-        Project, on_delete=models.CASCADE, related_name="team_members"
-    )
-    employee   = models.ForeignKey(
-        "hrm.Employee", on_delete=models.CASCADE, related_name="project_assignments",
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="team_members")
+    employee = models.ForeignKey(
+        "hrm.Employee",
+        on_delete=models.CASCADE,
+        related_name="project_assignments",
         help_text="Select from the HRM employee roster.",
     )
     designation = models.ForeignKey(
-        "hrm.Designation", on_delete=models.SET_NULL,
-        null=True, blank=True, related_name="project_team_members",
+        "hrm.Designation",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="project_team_members",
         help_text="Auto-filled from employee's HRM designation; can be overridden.",
     )
-    role_in_project = models.CharField(
-        _("role in project"), max_length=25, choices=ROLE_CHOICES, default="other"
-    )
+    role_in_project = models.CharField(_("role in project"), max_length=25, choices=ROLE_CHOICES, default="other")
     custom_role = models.CharField(
-        _("custom role"), max_length=100, blank=True, default="",
+        _("custom role"),
+        max_length=100,
+        blank=True,
+        default="",
         help_text="Used when role_in_project = 'other'.",
     )
     allocated_from = models.DateField(_("allocated from"), null=True, blank=True)
-    allocated_to   = models.DateField(_("allocated to"),   null=True, blank=True)
-    is_active      = models.BooleanField(_("is active"), default=True)
+    allocated_to = models.DateField(_("allocated to"), null=True, blank=True)
+    is_active = models.BooleanField(_("is active"), default=True)
     allocation_pct = models.PositiveSmallIntegerField(
-        _("allocation %"), default=100,
+        _("allocation %"),
+        default=100,
         help_text="Percentage of working time allocated to this project.",
     )
     notes = models.TextField(_("notes"), blank=True, default="")
-    added_by   = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
-        null=True, blank=True, related_name="added_project_team_members",
+    added_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="added_project_team_members",
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

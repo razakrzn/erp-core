@@ -1,0 +1,586 @@
+{
+  "info": {
+    "_postman_id": "2f5ce9be-4fa5-4d0c-8d1c-4bf34a3b5c77",
+    "name": "Project Estimate API",
+    "description": "Postman collection for project estimate APIs covering materials, labours, and other costs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Estimate Materials",
+      "item": [
+        {
+          "name": "List Estimate Materials",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-materials/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-materials",
+                ""
+              ]
+            },
+            "description": "List all estimate material records. Supports filtering, searching, and ordering."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Estimate Material",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project\": {{project_id}},\n  \"item\": {{quote_item_id}},\n  \"material\": {{product_id}},\n  \"req_qty\": \"10.000\",\n  \"notes_remarks\": \"Used for sample estimate material creation\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-materials/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-materials",
+                ""
+              ]
+            },
+            "description": "Create a new estimate material entry."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Estimate Material",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-materials/{{estimate_material_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-materials",
+                "{{estimate_material_id}}",
+                ""
+              ]
+            },
+            "description": "Retrieve a single estimate material record."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Estimate Material",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project\": {{project_id}},\n  \"item\": {{quote_item_id}},\n  \"material\": {{product_id}},\n  \"req_qty\": \"12.500\",\n  \"notes_remarks\": \"Updated estimate material\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-materials/{{estimate_material_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-materials",
+                "{{estimate_material_id}}",
+                ""
+              ]
+            },
+            "description": "Fully update an estimate material record."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Estimate Material",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"req_qty\": \"15.000\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-materials/{{estimate_material_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-materials",
+                "{{estimate_material_id}}",
+                ""
+              ]
+            },
+            "description": "Partially update an estimate material record."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Estimate Material",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-materials/{{estimate_material_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-materials",
+                "{{estimate_material_id}}",
+                ""
+              ]
+            },
+            "description": "Delete an estimate material record."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Estimate Labours",
+      "item": [
+        {
+          "name": "List Estimate Labours",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-labours/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-labours",
+                ""
+              ]
+            },
+            "description": "List all estimate labour records."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Estimate Labour",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project\": {{project_id}},\n  \"designation\": {{designation_id}},\n  \"hrs\": \"8.00\",\n  \"rate\": \"250.00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-labours/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-labours",
+                ""
+              ]
+            },
+            "description": "Create a new estimate labour record. Amount is calculated by the backend from hrs × rate."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Estimate Labour",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-labours/{{estimate_labour_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-labours",
+                "{{estimate_labour_id}}",
+                ""
+              ]
+            },
+            "description": "Retrieve a single estimate labour record."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Estimate Labour",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project\": {{project_id}},\n  \"designation\": {{designation_id}},\n  \"hrs\": \"9.50\",\n  \"rate\": \"300.00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-labours/{{estimate_labour_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-labours",
+                "{{estimate_labour_id}}",
+                ""
+              ]
+            },
+            "description": "Fully update an estimate labour record."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Estimate Labour",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rate\": \"325.00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-labours/{{estimate_labour_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-labours",
+                "{{estimate_labour_id}}",
+                ""
+              ]
+            },
+            "description": "Partially update an estimate labour record."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Estimate Labour",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-labours/{{estimate_labour_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-labours",
+                "{{estimate_labour_id}}",
+                ""
+              ]
+            },
+            "description": "Delete an estimate labour record."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Estimate Others",
+      "item": [
+        {
+          "name": "List Estimate Others",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-others/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-others",
+                ""
+              ]
+            },
+            "description": "List all other estimate cost records."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Estimate Other",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project\": {{project_id}},\n  \"item_description\": \"Transport charges\",\n  \"amount\": \"150.00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-others/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-others",
+                ""
+              ]
+            },
+            "description": "Create a new estimate other cost record."
+          },
+          "response": []
+        },
+        {
+          "name": "Retrieve Estimate Other",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-others/{{estimate_other_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-others",
+                "{{estimate_other_id}}",
+                ""
+              ]
+            },
+            "description": "Retrieve a single estimate other cost record."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Estimate Other",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project\": {{project_id}},\n  \"item_description\": \"Updated transport charges\",\n  \"amount\": \"175.00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-others/{{estimate_other_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-others",
+                "{{estimate_other_id}}",
+                ""
+              ]
+            },
+            "description": "Fully update an estimate other cost record."
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Estimate Other",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"200.00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-others/{{estimate_other_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-others",
+                "{{estimate_other_id}}",
+                ""
+              ]
+            },
+            "description": "Partially update an estimate other cost record."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Estimate Other",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/project/estimate-others/{{estimate_other_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "project",
+                "estimate-others",
+                "{{estimate_other_id}}",
+                ""
+              ]
+            },
+            "description": "Delete an estimate other cost record."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "bearerToken",
+      "value": ""
+    },
+    {
+      "key": "project_id",
+      "value": "1"
+    },
+    {
+      "key": "estimate_material_id",
+      "value": "1"
+    },
+    {
+      "key": "estimate_labour_id",
+      "value": "1"
+    },
+    {
+      "key": "estimate_other_id",
+      "value": "1"
+    },
+    {
+      "key": "quote_item_id",
+      "value": "1"
+    },
+    {
+      "key": "product_id",
+      "value": "1"
+    },
+    {
+      "key": "designation_id",
+      "value": "1"
+    }
+  ]
+}

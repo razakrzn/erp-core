@@ -34,6 +34,7 @@ class ProjectTeamMemberSerializer(serializers.ModelSerializer):
 # Project Write Serializer
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class ProjectWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
@@ -58,6 +59,7 @@ class ProjectWriteSerializer(serializers.ModelSerializer):
 # ─────────────────────────────────────────────────────────────────────────────
 # Project List Serializer
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 class ProjectListSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source="client.customer_name", read_only=True)
@@ -91,6 +93,7 @@ class ProjectListSerializer(serializers.ModelSerializer):
 # ─────────────────────────────────────────────────────────────────────────────
 # Project Detail Serializer
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 class ProjectDetailSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source="client.customer_name", read_only=True)

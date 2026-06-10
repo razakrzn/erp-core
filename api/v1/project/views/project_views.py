@@ -24,8 +24,8 @@ User = get_user_model()
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     permission_classes = [IsAuthenticated, RBACPermission]
-    permission_prefix = "projects.projects"
-    
+    permission_prefix = "project.all_projects"
+
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["client", "is_active", "project_manager", "status"]
     search_fields = ["project_name", "job_number", "description", "location"]
@@ -44,10 +44,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     }
 
     def get_serializer_class(self):
-        return self.serializer_action_classes.get(
-            self.action,
-            ProjectDetailSerializer
-        )
+        return self.serializer_action_classes.get(self.action, ProjectDetailSerializer)
 
     def perform_create(self, serializer):
         user = self.request.user if self.request.user and self.request.user.is_authenticated else None
@@ -87,10 +84,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
 
-        response_serializer = ProjectDetailSerializer(
-            serializer.instance,
-            context={"request": request}
-        )
+        response_serializer = ProjectDetailSerializer(serializer.instance, context={"request": request})
 
         return APIResponse.success(
             data=response_serializer.data,
@@ -102,19 +96,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
 
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=partial
-        )
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
 
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        response_serializer = ProjectDetailSerializer(
-            serializer.instance,
-            context={"request": request}
-        )
+        response_serializer = ProjectDetailSerializer(serializer.instance, context={"request": request})
 
         return APIResponse.success(
             data=response_serializer.data,
@@ -137,21 +124,21 @@ class ProjectViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         start_date = request.data.get("start_date")
         end_date = request.data.get("end_date")
-        
+
         if not start_date and not end_date:
             return APIResponse.error(
                 message="At least one of start_date or end_date must be provided.",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         if start_date:
             instance.start_date = start_date
         if end_date:
             instance.end_date = end_date
-            
+
         instance.updated_by = request.user if request.user and request.user.is_authenticated else None
         instance.save()
-        
+
         serializer = self.get_serializer(instance)
         return APIResponse.success(
             data=serializer.data,
@@ -164,13 +151,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def assign_manager(self, request, *args, **kwargs):
         instance = self.get_object()
         manager_id = request.data.get("project_manager")
-        
+
         if manager_id is None:
             return APIResponse.error(
                 message="project_manager field is required.",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         if manager_id == "":
             instance.project_manager = None
         else:
@@ -182,10 +169,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
                     message="Manager user not found.",
                     status_code=status.HTTP_400_BAD_REQUEST,
                 )
-                
+
         instance.updated_by = request.user if request.user and request.user.is_authenticated else None
         instance.save()
-        
+
         serializer = self.get_serializer(instance)
         return APIResponse.success(
             data=serializer.data,
@@ -198,24 +185,24 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def update_status(self, request, *args, **kwargs):
         instance = self.get_object()
         new_status = request.data.get("status")
-        
+
         if not new_status:
             return APIResponse.error(
                 message="status field is required.",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         valid_statuses = [choice[0] for choice in Project.STATUS_CHOICES]
         if new_status not in valid_statuses:
             return APIResponse.error(
                 message=f"Invalid status value. Choose from: {', '.join(valid_statuses)}",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         instance.status = new_status
         instance.updated_by = request.user if request.user and request.user.is_authenticated else None
         instance.save()
-        
+
         serializer = self.get_serializer(instance)
         return APIResponse.success(
             data=serializer.data,
@@ -234,5 +221,4 @@ class ProjectViewSet(viewsets.ModelViewSet):
             message="Project team retrieved successfully.",
             status_code=status.HTTP_200_OK,
         )
-
 
